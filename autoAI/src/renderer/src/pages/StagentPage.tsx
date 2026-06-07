@@ -358,6 +358,10 @@ function SettingsPanel({
       {bool('活 CONTEXT.md 词汇表 + ADR 留存（M24）', 'glossary.enabled')}
       {bool('深模块评分接入质量分（M25，默认关）', 'architecture.depthScoring')}
 
+      <div className="pt-2 text-sm font-medium text-gray-700">Skill-native 编排（实验，S3）</div>
+      {bool('启用：用原版 Matt Pocock SKILL.md 编排工作流（grill native；默认关）', 'skillNative.enabled')}
+      {field('Skills 根目录（含 engineering/ productivity/ … 的 skills 目录绝对路径）', 'skillNative.skillsRoot')}
+
       <div className="flex items-center gap-2 pt-1">
         <button
           className="text-xs bg-blue-600 text-white px-3 py-1.5 rounded hover:bg-blue-700"
@@ -375,6 +379,8 @@ function SettingsPanel({
               'grill.adaptiveMode': cfg['grill.adaptiveMode'],
               'glossary.enabled': cfg['glossary.enabled'],
               'architecture.depthScoring': cfg['architecture.depthScoring'],
+              'skillNative.enabled': cfg['skillNative.enabled'],
+              'skillNative.skillsRoot': cfg['skillNative.skillsRoot'],
             }).then(() => {
               setSaved(true)
               setTimeout(() => setSaved(false), 1500)

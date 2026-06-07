@@ -294,6 +294,8 @@ export interface StagentLlmConfig {
   'grill.adaptiveMode': boolean
   'glossary.enabled': boolean
   'architecture.depthScoring': boolean
+  'skillNative.enabled': boolean
+  'skillNative.skillsRoot': string
 }
 
 export interface StagentEngine {

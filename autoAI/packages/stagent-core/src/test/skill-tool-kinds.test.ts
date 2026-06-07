@@ -7,6 +7,7 @@ import {
   skillStageId,
   isSkillStageId,
   skillSlugFromStageId,
+  isSkillNativeWorkflow,
 } from '../SkillToolKinds';
 
 test('常量稳定', () => {
@@ -27,4 +28,17 @@ test('skillStageId / isSkillStageId / skillSlugFromStageId 往返', () => {
   assert.equal(isSkillStageId('stage_impl_foo'), false);
   assert.equal(skillSlugFromStageId(id), 'grill_with_docs');
   assert.equal(skillSlugFromStageId('stage_decide_x'), undefined);
+});
+
+test('isSkillNativeWorkflow：全 skill 阶段 true；混入非 skill 阶段或空 → false', () => {
+  assert.equal(
+    isSkillNativeWorkflow({ stages: [{ id: 'stage_skill_grill_me' }, { id: 'stage_skill_tdd' }] }),
+    true,
+  );
+  assert.equal(
+    isSkillNativeWorkflow({ stages: [{ id: 'stage_skill_grill_me' }, { id: 'stage_impl_x' }] }),
+    false,
+  );
+  assert.equal(isSkillNativeWorkflow({ stages: [] }), false);
+  assert.equal(isSkillNativeWorkflow({}), false);
 });
