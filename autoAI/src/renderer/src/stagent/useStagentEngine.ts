@@ -296,6 +296,7 @@ export interface StagentLlmConfig {
   'architecture.depthScoring': boolean
   'skillNative.enabled': boolean
   'skillNative.skillsRoot': string
+  'skillNative.hybridGrill': boolean
 }
 
 export interface StagentEngine {

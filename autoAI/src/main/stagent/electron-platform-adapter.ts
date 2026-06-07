@@ -358,6 +358,8 @@ export interface StagentLlmConfig {
   // S3：skill-native 编排（调用原版 SKILL.md）。默认关闭。
   'skillNative.enabled': boolean
   'skillNative.skillsRoot': string
+  // S4：混合模式——在引擎生成的 impl 工作流前插入 native grill 决策阶段。默认关闭。
+  'skillNative.hybridGrill': boolean
 }
 
 /** PlatformAdapter 的 Electron 聚合实现。 */
@@ -418,6 +420,7 @@ export class ElectronPlatformAdapter implements PlatformAdapter {
       'architecture.depthScoring': this.config.get<boolean>('architecture.depthScoring', false),
       'skillNative.enabled': this.config.get<boolean>('skillNative.enabled', false),
       'skillNative.skillsRoot': this.config.get<string>('skillNative.skillsRoot', ''),
+      'skillNative.hybridGrill': this.config.get<boolean>('skillNative.hybridGrill', false),
     }
   }
 

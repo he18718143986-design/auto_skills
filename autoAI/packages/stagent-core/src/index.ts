@@ -76,6 +76,7 @@ export type { BuildSkillStageOptions } from './SkillStageFactory';
 export {
   assembleSkillWorkflow,
   buildStageForSkillRef,
+  prependGrillStage,
 } from './SkillWorkflowAssembler';
 export type {
   AssembleSkillWorkflowOptions,

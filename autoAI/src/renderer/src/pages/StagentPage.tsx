@@ -359,7 +359,8 @@ function SettingsPanel({
       {bool('深模块评分接入质量分（M25，默认关）', 'architecture.depthScoring')}
 
       <div className="pt-2 text-sm font-medium text-gray-700">Skill-native 编排（实验，S3）</div>
-      {bool('启用：用原版 Matt Pocock SKILL.md 编排工作流（grill native；默认关）', 'skillNative.enabled')}
+      {bool('planning-only：用原版 SKILL.md 编排「规划/对齐」工作流（grill→PRD→issues，不产代码；默认关）', 'skillNative.enabled')}
+      {bool('hybrid：在引擎生成的实现工作流前插入原版 grill 对齐阶段（判断+实现一条龙，产高质量软件；默认关）', 'skillNative.hybridGrill')}
       {field('Skills 根目录（含 engineering/ productivity/ … 的 skills 目录绝对路径）', 'skillNative.skillsRoot')}
 
       <div className="flex items-center gap-2 pt-1">
@@ -381,6 +382,7 @@ function SettingsPanel({
               'architecture.depthScoring': cfg['architecture.depthScoring'],
               'skillNative.enabled': cfg['skillNative.enabled'],
               'skillNative.skillsRoot': cfg['skillNative.skillsRoot'],
+              'skillNative.hybridGrill': cfg['skillNative.hybridGrill'],
             }).then(() => {
               setSaved(true)
               setTimeout(() => setSaved(false), 1500)

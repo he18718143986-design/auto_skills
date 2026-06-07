@@ -185,7 +185,9 @@ import {
 } from './WorkflowComplexityEstimator';
 import { buildExperienceFewShotForGenerator } from './ExperienceGeneratorContext';
 import { SkillRegistry } from './SkillRegistry';
-import { assembleSkillWorkflow } from './SkillWorkflowAssembler';
+import { assembleSkillWorkflow, prependGrillStage } from './SkillWorkflowAssembler';
+import { SKILL_GRILL_WITH_DOCS } from './ScenarioRouter';
+import { isSkillNativeWorkflow } from './SkillToolKinds';
 import type { LlmModel, LlmSendOptions, PlatformAdapter } from './platform/PlatformAdapter';
 import {
   resolveCodeRunnerTimeoutSeconds,
@@ -1616,6 +1618,8 @@ export class WorkflowEngine {
       if (!wf) {
         throw lastParseError ?? new Error('工作流生成失败：模型输出无法解析为 JSON');
       }
+      // S4：混合模式——在引擎生成的 impl 工作流前插入 native grill 决策阶段（opt-in）。
+      wf = this.maybePrependHybridGrill(wf, userInput, taskWorkspaceAbs);
       const modelTaskType = wf.meta?.taskType;
       const effectiveType = resolveGeneratedTaskType(modelTaskType, taskType);
       this.debugLog('workflow', 'task_type_resolved', 0, {
@@ -1904,6 +1908,56 @@ export class WorkflowEngine {
         error: e instanceof Error ? e.message : String(e),
       });
       return undefined;
+    }
+  }
+
+  /**
+   * S4 混合模式（opt-in）：在引擎/LLM 生成的 impl 工作流**前面**插入 native grill 决策阶段，
+   * 实现「原版 grill 判断 + 引擎 impl/test/Rule20/自愈/写文件」一条龙——开发高质量软件。
+   * - `skillNative.hybridGrill=true` 且配 `skillNative.skillsRoot` 时启用。
+   * - 若 wf 已是 skill-native（planning-only 路径产物），不重复插入。
+   * - 任意失败安全回退（返回原 wf）。
+   */
+  private maybePrependHybridGrill(
+    wf: WorkflowDefinition,
+    userInput: string,
+    taskWorkspaceAbs: string,
+  ): WorkflowDefinition {
+    const cfg = this.platform.config;
+    if (!cfg.get<boolean>('skillNative.hybridGrill', false)) {
+      return wf;
+    }
+    if (isSkillNativeWorkflow(wf)) {
+      return wf;
+    }
+    const skillsRoot = (cfg.get<string>('skillNative.skillsRoot', '') ?? '').trim();
+    if (!skillsRoot) {
+      return wf;
+    }
+    try {
+      const registry = new SkillRegistry({ skillsRoot });
+      registry.load();
+      const skill = registry.get(SKILL_GRILL_WITH_DOCS);
+      if (!skill) {
+        this.debugLog('workflow', 'hybrid_grill_skill_missing', 0, { skillsRoot });
+        return wf;
+      }
+      const isGreenfield = this.scanExistingTopLevelFiles(taskWorkspaceAbs).length === 0;
+      const next = prependGrillStage(wf, skill, {
+        userTask: userInput,
+        repoSnapshot: `isGreenfield=${isGreenfield}`,
+      });
+      this.debugLog('workflow', 'hybrid_grill_prepended', 0, {
+        grill: SKILL_GRILL_WITH_DOCS,
+        version: skill.version,
+        stages: next.stages.length,
+      });
+      return next;
+    } catch (e) {
+      this.debugLog('workflow', 'hybrid_grill_failed', 0, {
+        error: e instanceof Error ? e.message : String(e),
+      });
+      return wf;
     }
   }
 

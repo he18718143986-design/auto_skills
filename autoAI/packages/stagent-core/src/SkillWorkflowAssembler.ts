@@ -11,7 +11,7 @@
 /* ------------------------------------------------------------------ */
 
 import type { Stage, WorkflowDefinition, WorkflowMeta } from './WorkflowDefinition';
-import type { SkillRegistry } from './SkillRegistry';
+import type { SkillRegistry, SkillSource } from './SkillRegistry';
 import type { SkillContextBundle } from './SkillPromptAssembler';
 import type { ScenarioInput, ScenarioRoute } from './ScenarioRouter';
 import { routeScenario, SKILL_GRILL_ME, SKILL_GRILL_WITH_DOCS } from './ScenarioRouter';
@@ -100,4 +100,24 @@ export function assembleSkillWorkflow(
   };
 
   return { workflow, route, skipped };
+}
+
+/**
+ * S4 混合模式：在引擎（LLM）生成的 impl/test 工作流**前面**插入一个 native grill 决策阶段。
+ * 实现「skills 的判断（原版 grill 对齐 + HITL）+ 引擎的产出（impl/test/Rule20/自愈/写文件）」。
+ *
+ * - grill 阶段 id 为 `stage_skill_*`，不匹配 Rule20 的 `stage_decide_` 配对规则，
+ *   也不会使整体变成 skill-native（impl 段仍受 Rule20 约束）→ 兼顾判断与可靠产出。
+ * - 已存在同 id 阶段则原样返回（幂等）。
+ */
+export function prependGrillStage(
+  wf: WorkflowDefinition,
+  grillSkill: SkillSource,
+  bundle: SkillContextBundle = {},
+): WorkflowDefinition {
+  const grill = buildGrillStage(grillSkill, bundle);
+  if ((wf.stages ?? []).some((s) => s.id === grill.id)) {
+    return wf;
+  }
+  return { ...wf, stages: [grill, ...(wf.stages ?? [])] };
 }
