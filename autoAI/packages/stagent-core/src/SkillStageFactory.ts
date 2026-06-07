@@ -88,7 +88,12 @@ export function buildGrillStage(
     : skill.ref === SKILL_GRILL_ME
       ? '需求对齐（grill-me，原版 skill）'
       : `需求对齐（${skill.ref}）`;
-  return buildSkillStage(skill, bundle, {
+  // 引擎里 grill 为单次 llm 阶段 → 默认启用单轮契约（除非调用方显式关闭）
+  const grillBundle: SkillContextBundle = {
+    singleShotGrill: true,
+    ...bundle,
+  };
+  return buildSkillStage(skill, grillBundle, {
     title: opts.title ?? defaultTitle,
     isDecisionStage: true,
     pauseAfter: false,

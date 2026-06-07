@@ -25,6 +25,26 @@ export interface SkillContextBundle {
   priorDecisions?: string;
   /** 仓库快照（绿场 / 是否动陌生模块等，便于 skill 自我定位） */
   repoSnapshot?: string;
+  /**
+   * 单轮 grill 契约：引擎里 grill 是**一次性 llm 阶段**（非多轮、无法实时跑工具）。
+   * 开启后要求模型立即产出「最重要的第一个问题 + 推荐答案 + 理由」，而非以
+   * 「我将逐步澄清 / 先查代码」延迟搪塞。由 A/B（编译版 vs 原版）实测驱动加入。
+   */
+  singleShotGrill?: boolean;
+}
+
+/** 单轮 grill 输出契约文本（见 SkillContextBundle.singleShotGrill）。 */
+export function buildSingleShotGrillContract(): string {
+  return [
+    '## 单轮输出契约（single-turn）',
+    '本次为**一次性非交互**调用：你无法等待用户回答，也无法实时运行工具。',
+    '请**立即**输出你**最重要的那一个**澄清问题，且必须包含：',
+    '1) 问题本身（以问号结尾，遵守「一次只问一个」）；',
+    '2) 你的**推荐答案**（明确标注「推荐：」）；',
+    '3) 一句话理由（为什么先问它 / 它如何影响后续设计）。',
+    '禁止用「我将逐步澄清」「我会先查看代码」等**延迟表述**搪塞；',
+    '若按 skill 你通常会先查代码而此处未提供，请**声明该假设后直接提出问题**。',
+  ].join('\n');
 }
 
 function section(title: string, body: string | undefined): string | null {
@@ -94,6 +114,11 @@ export function assembleSkillSystemPrompt(
 
   // 3) 应答模式 / 升级闸门
   parts.push(`---\n## Auto-Answer Policy\n\n${buildEscalationInstruction(mode)}`);
+
+  // 3.5) 单轮 grill 契约（A/B 实测驱动：避免 native grill 在单次调用里只声明意图不提问）
+  if (bundle.singleShotGrill) {
+    parts.push(`---\n${buildSingleShotGrillContract()}`);
+  }
 
   // 4) 溯源标记（便于审计：用了哪个 skill 的哪个版本）
   parts.push(

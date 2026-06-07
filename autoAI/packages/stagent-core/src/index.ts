@@ -68,6 +68,7 @@ export type {
 export {
   assembleSkillSystemPrompt,
   buildEscalationInstruction,
+  buildSingleShotGrillContract,
 } from './SkillPromptAssembler';
 export type { AutoAnswerMode, SkillContextBundle } from './SkillPromptAssembler';
 export { buildSkillStage, buildGrillStage } from './SkillStageFactory';

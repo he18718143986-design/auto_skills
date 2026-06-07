@@ -63,3 +63,13 @@ test('溯源注释含 ref/version/mode', () => {
   const out = assembleSkillSystemPrompt(skill('# s', 'tdd'), { autoAnswerMode: 'suggest' });
   assert.ok(out.includes('skill-invoke: ref=tdd version=abc123 mode=suggest'));
 });
+
+test('singleShotGrill：注入单轮输出契约（要求立即给第一个问题 + 推荐答案），否则不注入', () => {
+  const off = assembleSkillSystemPrompt(skill('# s'));
+  assert.equal(off.includes('单轮输出契约'), false);
+
+  const on = assembleSkillSystemPrompt(skill('# s'), { singleShotGrill: true });
+  assert.ok(on.includes('单轮输出契约'));
+  assert.ok(on.includes('推荐'));
+  assert.ok(on.includes('延迟表述'));
+});

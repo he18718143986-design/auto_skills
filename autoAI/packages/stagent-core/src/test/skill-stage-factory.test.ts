@@ -37,6 +37,11 @@ test('buildGrillStage：grill-me 标题区分', () => {
   assert.ok(st.title.includes('grill-me'));
 });
 
+test('buildGrillStage：默认启用单轮契约（systemPrompt 含单轮输出契约）', () => {
+  const st = buildGrillStage(skill('grill-with-docs'), { userTask: 'x' });
+  assert.ok((st.toolConfig as LlmTextConfig).systemPrompt.includes('单轮输出契约'));
+});
+
 test('buildSkillStage：温度/maxTokens 透传', () => {
   const st = buildSkillStage(skill('tdd'), {}, { temperature: 0.2, maxTokens: 2048 });
   const cfg = st.toolConfig as LlmTextConfig;

@@ -89,7 +89,12 @@ async function main() {
     console.error('[ab] 未找到 grill-with-docs；用 SKILLS_ROOT 指定 skills 根。');
     process.exit(2);
   }
-  const nativeSystem = assembleSkillSystemPrompt(skill, { userTask, autoAnswerMode: 'suggest' });
+  const nativeSystem = assembleSkillSystemPrompt(skill, {
+    userTask,
+    autoAnswerMode: 'suggest',
+    singleShotGrill: true,
+    repoSnapshot: 'isGreenfield=true（空仓库，无现有代码可探索）',
+  });
 
   if (!apiKey) {
     console.log('[ab] 未设置 DeepSeek key → dry-run（仅展示两侧 systemPrompt 长度）。');

@@ -66,7 +66,8 @@ async function main() {
     userTask,
     charter: '优先：简单可维护、复用现有方案。避免：引入新一等公民概念。约束：数据不出中国大陆。',
     autoAnswerMode: 'suggest',
-    repoSnapshot: 'isGreenfield=true（空仓库）',
+    singleShotGrill: true,
+    repoSnapshot: 'isGreenfield=true（空仓库，无现有代码可探索）',
   });
 
   if (!apiKey) {
