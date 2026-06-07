@@ -79,6 +79,12 @@ async function main() {
   }
 
   console.log('\n[skill-grill-smoke] 调 DeepSeek …\n');
+  const userMsg = [
+    `我的任务：${userTask}`,
+    '',
+    '（绿场空项目：无现有代码/文档可查，无可用工具。请现在就只提出最重要的一个澄清问题，',
+    '并给出以「推荐：」开头的答案与一句理由；不要说你要先探索代码。）',
+  ].join('\n');
   const res = await fetch(`${baseUrl}/chat/completions`, {
     method: 'POST',
     headers: { 'content-type': 'application/json', authorization: `Bearer ${apiKey}` },
@@ -86,7 +92,7 @@ async function main() {
       model,
       messages: [
         { role: 'system', content: systemPrompt },
-        { role: 'user', content: userTask },
+        { role: 'user', content: userMsg },
       ],
       temperature: 0.3,
       stream: false,

@@ -104,10 +104,20 @@ async function main() {
     return;
   }
 
+  // 两侧对称的 user 轮框定：贴近引擎里 grill 阶段的输入（任务 + 单轮无工具框定）。
+  // 这样 A/B 比较的是 system（编译版 vs 原版 SKILL.md）产出「那一个问题」的质量。
+  const userMsg = [
+    `我的任务：${userTask}`,
+    '',
+    '（这是全新空项目 / 绿场：没有任何现有代码或文档可查，你也没有可用工具。',
+    '请**现在**就只提出你**最重要的一个**澄清问题，并给出以「推荐：」开头的答案与一句理由；',
+    '不要说你要先探索代码或分步进行。）',
+  ].join('\n');
+
   console.log(`[ab] task="${userTask}" model=${model}\n`);
   const [a, b] = await Promise.all([
-    callDeepseek({ system: COMPILED_BASELINE, user: userTask, apiKey, baseUrl, model }),
-    callDeepseek({ system: nativeSystem, user: userTask, apiKey, baseUrl, model }),
+    callDeepseek({ system: COMPILED_BASELINE, user: userMsg, apiKey, baseUrl, model }),
+    callDeepseek({ system: nativeSystem, user: userMsg, apiKey, baseUrl, model }),
   ]);
 
   console.log('=== A) compiled-baseline ===\n');
