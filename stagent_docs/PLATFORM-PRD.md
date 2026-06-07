@@ -50,13 +50,14 @@
 | G6 | 支持 `/triage` 横切：issue 看板 + state role 流转 |
 | G7 | 导出 Agent prompt（`/skill-name` + context bundle）供 Cursor 执行 |
 | G8 | **Path Router**：根据需求特征 + 仓库状态推荐/约束 `workflowTemplate`（见 §6.5） |
+| G9 | **决策主旨（Charter）**：用户一次定义决策策略，Agent 在 grill 中按 Charter 代答可预见问题，仅在低置信/高风险时升级（见 §6.6） |
 
 ### 3.2 Non-Goals (MVP 不做)
 
 | # | Non-Goal |
 |---|----------|
 | NG1 | 替代 Cursor/Claude — 平台编排流程，代码执行仍在外部 Agent |
-| NG2 | 内置 LLM 推理 — MVP 不自带模型，只做 prompt 组装与 artifact 管理 |
+| NG2 | 内置 LLM 推理 — MVP 不自带模型，只做 prompt 组装与 artifact 管理（Charter 自动代答仍由外部 Agent 执行，平台只注入策略、记录 provenance、强制升级闸门） |
 | NG3 | 完整 CI/CD — 仅链接外部 PR/check 状态 |
 | NG4 | 多租户 SaaS 计费 — MVP 面向单用户/小团队本地或自托管 |
 | NG5 | 重写 Skill 逻辑 — 行为以各 `SKILL.md` 为准，平台只做 orchestration |
@@ -112,6 +113,14 @@
 15. As a **Tech Lead**, I want to schedule architecture reviews and view HTML reports in-platform, so that deepening opportunities are trackable.
 16. As a **Solo Dev**, I want the platform to **suggest a workflow path** from my few-sentence requirement and repo state (greenfield vs brownfield, bug vs feature, express vs full), so that I do not have to memorize which skills to chain.
 
+### 5.5 Charter / Auto-Answer
+
+17. As a **Solo Dev**, I want to define a **decision charter** once (prefer / avoid / acceptable / constraints), so that the Agent answers routine grill questions on my behalf and I only decide what the charter cannot cover.
+18. As a **Solo Dev**, I want to choose an **auto-answer mode** (`off` / `suggest` / `auto-with-escalation`) per project or feature, so that I control how much the Agent decides for me.
+19. As a **Tech Lead**, I want every charter-answered grill decision tagged with its **provenance** (`human` / `charter_direct` / `charter_inferred` / `escalated`), so that I can audit and spot-check inferred answers.
+20. As a **Tech Lead**, I want the platform to **force human confirmation** for ADR-worthy / constraint-crossing / low-confidence decisions even when auto-answer is on, so that the Agent never silently answers a high-stakes question wrong.
+21. As a **Solo Dev**, I want grill-surfaced decisions to be **fed back into the charter**, so that coverage improves for future features.
+
 ---
 
 ## 6. Workflow Model
@@ -121,8 +130,9 @@
 | Phase | Node ID | Skill | Node Type | 必做 |
 |-------|---------|-------|-----------|------|
 | 0 | `setup` | `setup-matt-pocock-skills` | SetupGate | 每 repo 一次 |
-| 1a | `grill-with-docs` | `grill-with-docs` | HumanInTheLoopGate | 正式 Feature 推荐 |
-| 1b | `grill-me` | `grill-me` | HumanInTheLoopGate | 小任务替代 1a |
+| 0.5 | `charter` | —（无 skill；手写/半自动生成） | CharterGate（可选，Project 级） | 否（开启自动代答时配置） |
+| 1a | `grill-with-docs` | `grill-with-docs` | HumanInTheLoopGate（受 Charter 应答模式调节） | 正式 Feature 推荐 |
+| 1b | `grill-me` | `grill-me` | HumanInTheLoopGate（受 Charter 应答模式调节） | 小任务替代 1a |
 | 2 | `prototype` | `prototype` | OptionalBranch | 否 |
 | 3 | `to-prd` | `to-prd` | DocumentGenerator | 推荐 |
 | 4 | `to-issues` | `to-issues` | TaskDecomposer | 多 slice 时 |
@@ -172,6 +182,8 @@ stateDiagram-v2
 |---------|----------|------|----------|
 | `CanCreateFeature` | Feature draft | `project.setupStatus == complete` | 「请先完成 Project Setup」 |
 | `CanGrill` | Phase 1 | Setup complete | 「Run `/setup-matt-pocock-skills` first」 |
+| `CanAutoAnswerGrill` | grill 内自动代答 | `charter` 存在 AND `autoAnswerMode != off`（见 §6.6） | 「未配置 Charter 或自动应答关闭，请人工回答」 |
+| `MustEscalateToHuman` | 反向闸门：禁止代答 | 命中 ADR 判据 OR 越过 Charter 约束 OR 置信度 < 阈值 | 「此决策需人工确认（高风险/越界/低置信）」 |
 | `CanPrototype` | Phase 2 | `feature.grillingStatus == complete` | 「请先完成需求对齐」 |
 | `CanToPrd` | Phase 3 | grilling complete | 「Grill 未完成；to-prd 不会再 interview」 |
 | `CanToIssues` | Phase 4 | PRD issue 已发布 | 「请先发布 PRD」 |
@@ -267,6 +279,66 @@ Gate：`CanExpressTdd` = setup complete AND grilling complete AND user confirms 
 
 仓库 29 skill 分类见 [WORKFLOW.md §19.2](./WORKFLOW.md#192-仓库-29-skill-分类主路径--专项--未推广)。
 
+### 6.6 Charter（决策主旨 / 自动应答策略）
+
+Charter 是一份**决策策略文件**，让 Agent 在 grill 中按既定原则**代替用户回答**可预见的问题，从而把人工时间从「持续参与整个开发过程」压缩到「前置一次定义 + 几次里程碑确认」。Charter 与 Path Router **正交**：任何 `workflowTemplate` 都可叠加 Charter。规则与 [WORKFLOW.md §5.5](./WORKFLOW.md#55-phase-05决策主旨charter可选) 一致。
+
+> **核心判断**：把 Socratic 对话变成结构化策略，但**不消灭它**——只是把可预见的部分前置、让 Agent 代答。完全用 Charter 关掉 grill（直接 to-prd）会在需求复杂度上升时快速失效。
+
+#### 6.6.1 Charter 结构
+
+四象限 + 升级触发（即决策树骨架）：
+
+| 段 | 含义 | 平台字段 |
+|----|------|----------|
+| **优先（Prefer）** | 同等条件下倾向的选择 | `prefers[]` |
+| **避免（Avoid）** | 默认排除的选择 | `avoids[]` |
+| **可接受（Acceptable）** | 明确允许的折中 | `acceptable[]` |
+| **约束（Constraints）** | 硬性边界，越界必须升级 | `constraints[]` |
+| **升级触发（Escalate）** | 必须问人的条件（ADR 级、沉默、越界、低置信） | `escalationRules[]` |
+
+#### 6.6.2 应答模式（`autoAnswerMode`）
+
+| 模式 | 平台行为 | 默认 |
+|------|----------|------|
+| `off` | grill 每题等人答（现状）；Charter 仅作背景参考 | ✅ MVP 默认 |
+| `suggest` | 平台在 prompt bundle 注入 Charter，Agent 给推荐答案，**人一键确认/改** | |
+| `auto-with-escalation` | Agent 自动作答，仅在命中 `MustEscalateToHuman` 时停下问人 | |
+
+应答模式可设在 Project 级（`DecisionCharter.autoAnswerMode`），Feature 级可 override。
+
+#### 6.6.3 答案 Provenance（可追溯）
+
+每条被代答的 grill 决策标注来源，写入 `GrillingSession.messages[].provenance`：
+
+| 值 | 含义 | 审计重点 |
+|----|------|----------|
+| `human` | 人工回答 | — |
+| `charter_direct` | Charter 直接命中 | 低 |
+| `charter_inferred` | Agent 由 Charter 插值推导 | **高（最易「自信地答错」）** |
+| `escalated` | 命中升级触发，已转人工 | 确认是否漏升级 |
+
+#### 6.6.4 升级与风险闸门
+
+`MustEscalateToHuman` 是**不可被 `auto-with-escalation` 绕过**的反向闸门。命中任一即强制人工：
+
+1. 决策满足 **ADR 判据**（难逆转 + 令人惊讶 + 真实 trade-off）
+2. 改动越过 `constraints[]` 边界
+3. Agent 置信度 < `escalationPolicy.confidenceThreshold`，或 Charter 沉默/自相矛盾
+
+> **缓解「自信地答错」**：风险闸门 + 里程碑演示确认 + Charter 反馈环，三者缺一不可。
+
+#### 6.6.5 反馈环
+
+grill / arch-review 浮现的、具普适性的决策，session 结束时提示用户**回写进 Charter**（新增 prefer/avoid 或 escalation 规则），提升后续 Feature 覆盖率。平台记录 `DecisionCharter.version` 与变更来源。
+
+#### 6.6.6 Charter UI（摘要）
+
+1. Project 设置页提供 **Charter 编辑器**（四象限 + 升级规则 + 应答模式）
+2. 新建 Feature 时可继承 Project Charter 或设 Feature override
+3. Grill Panel 中，被代答的问题以**折叠卡**展示，标 provenance badge，`charter_inferred` 高亮提示抽查
+4. 升级问题以**普通待答问题**插入 grill 流，照常单问题展示
+
 ---
 
 ## 7. Data Model
@@ -276,9 +348,11 @@ Gate：`CanExpressTdd` = setup complete AND grilling complete AND user confirms 
 ```mermaid
 erDiagram
   Project ||--o| SetupConfig : has
+  Project ||--o| DecisionCharter : has
   Project ||--o{ Feature : contains
   Project ||--o| ContextDocument : has
   Project ||--o{ Adr : has
+  Feature ||--o| DecisionCharter : overrides
   Feature ||--o| GrillingSession : has
   Feature ||--o| PrototypeRun : optional
   Feature ||--o| PrdArtifact : has
@@ -315,6 +389,26 @@ erDiagram
 | `domainDocsPaths` | JSON | `CONTEXT.md`、`docs/adr/` 等路径 |
 | `docsAgentsPath` | string | 默认 `docs/agents/` |
 
+#### DecisionCharter
+
+> 见 §6.6。可绑定 Project（全局默认）或 Feature（override）。
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `id` | UUID | |
+| `scope` | enum | `project` \| `feature` |
+| `ownerId` | UUID | FK → Project 或 Feature |
+| `prefers` | string[] | 优先项 |
+| `avoids` | string[] | 避免项 |
+| `acceptable` | string[] | 可接受折中 |
+| `constraints` | string[] | 硬性约束（越界必升级） |
+| `escalationRules` | string[] | 升级触发条件（ADR 级、沉默、越界、低置信） |
+| `autoAnswerMode` | enum | `off` \| `suggest` \| `auto-with-escalation`（默认 `off`） |
+| `escalationPolicy` | JSON | `{ confidenceThreshold, forceHumanOnAdr: true, forceHumanOnConstraintCross: true }` |
+| `sourcePath` | string? | 如 `docs/agents/charter.md` |
+| `version` | int | 反馈环更新计数 |
+| `updatedAt` | datetime | |
+
 #### Feature
 
 | 字段 | 类型 | 说明 |
@@ -328,6 +422,8 @@ erDiagram
 | `pathRouterReason` | JSON | Path Router 推荐理由与命中规则（可展示给用户） |
 | `repoSnapshotAtCreate` | JSON | 创建时仓库快照：`isGreenfield`, `hasContextMd`, `hasAdrs`, `touchesUnknownModule` 等 |
 | `grillSkill` | enum | `grill-with-docs` \| `grill-me` — 可由模板推导 |
+| `autoAnswerMode` | enum? | Feature 级覆盖：`off` \| `suggest` \| `auto-with-escalation`；空则继承 Project Charter（见 §6.6.2） |
+| `charterId` | UUID? | 生效的 Charter（Feature override 或 Project 默认） |
 | `status` | enum | 见 §6.2 状态机（`debug` / `arch_review` 模板可跳过 PRD/slice 状态） |
 | `grillingStatus` | enum | `not_started` \| `in_progress` \| `complete` |
 | `templateUpgradedFrom` | enum? | 运行时升级来源（如 `express` → `brownfield_full`） |
@@ -340,7 +436,10 @@ erDiagram
 | `id` | UUID | |
 | `featureId` | UUID | FK |
 | `skillName` | string | |
-| `messages` | JSON[] | Q&A 历史 |
+| `messages` | JSON[] | Q&A 历史；每条含 `provenance`: `human` \| `charter_direct` \| `charter_inferred` \| `escalated`（见 §6.6.3） |
+| `autoAnswerModeUsed` | enum | 本 session 实际生效的应答模式 |
+| `escalatedCount` | int | 命中 `MustEscalateToHuman` 转人工的问题数 |
+| `charterFeedback` | JSON[] | 建议回写 Charter 的新决策（反馈环，见 §6.6.5） |
 | `contextMdSnapshots` | JSON[] | 每次 CONTEXT 更新的 diff |
 | `adrsCreated` | string[] | ADR 文件路径 |
 | `completedAt` | datetime? | |
@@ -473,6 +572,8 @@ interface IssueTrackerAdapter {
 ## Platform Context Bundle
 - Project: ...
 - Feature: ...
+- Decision Charter (prefer/avoid/acceptable/constraints + escalation rules): ...   # grill 节点专用
+- Auto-answer mode: off | suggest | auto-with-escalation                          # grill 节点专用
 - CONTEXT.md (excerpt): ...
 - Relevant ADRs: ...
 - Parent PRD issue: ...
@@ -480,12 +581,14 @@ interface IssueTrackerAdapter {
 - Prior grilling decisions (summary): ...
 ```
 
+> **grill 专用指令**：当 `autoAnswerMode != off`，bundle 追加要求 Agent：(1) 对每个问题先查 Charter，能命中则代答并标 `charter_direct`/`charter_inferred`；(2) 命中 ADR 判据 / 越过 constraints / 低置信时**停下问人**（标 `escalated`）；(3) session 末尾汇总建议回写 Charter 的新决策。
+
 ### 9.2 触发模式
 
 | 模式 | Skills | 平台行为 |
 |------|--------|----------|
 | **Manual-only** | `setup-matt-pocock-skills`, `zoom-out` | 仅按钮触发，无自动 suggestion |
-| **Guided** | grill, to-prd, to-issues, tdd, triage, prototype, diagnose, arch-review | 按钮 + 自然语言入口，Gate 校验后生成 prompt |
+| **Guided** | grill, to-prd, to-issues, tdd, triage, prototype, diagnose, arch-review | 按钮 + 自然语言入口，Gate 校验后生成 prompt。**grill 节点额外注入生效 Charter + `autoAnswerMode`**，并要求 Agent 对每个答案回报 provenance、对升级触发停下问人（见 §6.6） |
 | **Cross-cutting** | handoff, caveman | 任意阶段可调用，不阻塞主流水线 |
 
 ### 9.3 执行模型 (MVP)
@@ -499,7 +602,8 @@ interface IssueTrackerAdapter {
 | Skill | 用户/agent 回写字段 |
 |-------|---------------------|
 | setup | `SetupConfig` 各字段、`setupStatus=complete` |
-| grill-with-docs | `GrillingSession.messages`、`ContextDocument` diff |
+| charter | `DecisionCharter` 各字段、`autoAnswerMode`（无外部 skill，平台内编辑） |
+| grill-with-docs | `GrillingSession.messages`（含 provenance）、`escalatedCount`、`charterFeedback`、`ContextDocument` diff |
 | prototype | `PrototypeRun.verdict` |
 | to-prd | `PrdArtifact.issueTrackerRef` |
 | to-issues | `SliceIssue[]` + refs |
@@ -518,6 +622,7 @@ Dashboard
 ├── Projects
 │   └── [Project Detail]
 │       ├── Setup Wizard (Phase 0)
+│       ├── Charter Editor (Phase 0.5, 可选)
 │       ├── Context & ADRs
 │       ├── Features
 │       │   └── [Feature Pipeline View]
@@ -647,6 +752,10 @@ Path Router 规则见 §6.5；路径 × Skill 见 [WORKFLOW §4](./WORKFLOW.md#4
 | POST | `/projects` | 创建 project |
 | POST | `/projects/:id/setup` | 保存 setup config |
 | GET | `/projects/:id/setup/status` | Gate 查询 |
+| PUT | `/projects/:id/charter` | 创建/更新 Project 级 Charter（四象限 + 升级规则 + `autoAnswerMode`） |
+| GET | `/projects/:id/charter` | 读取生效 Charter |
+| PUT | `/features/:id/charter` | 设置 Feature 级 Charter override |
+| POST | `/features/:id/charter/feedback` | 把 grill 浮现的决策回写进 Charter（反馈环） |
 | POST | `/projects/:id/features/route` | Path Router：输入 prompt + 可选 intent → 返回推荐 `workflowTemplate` + reason |
 | POST | `/projects/:id/features` | 创建 feature（含 template 与 snapshot） |
 | PATCH | `/features/:id/status` | 推进状态机 |
@@ -691,6 +800,9 @@ Path Router 规则见 §6.5；路径 × Skill 见 [WORKFLOW §4](./WORKFLOW.md#4
 - [ ] Handoff 生成
 - [ ] Express workflow 模板
 - [ ] Architecture report 路径登记 + 查看器 shell
+- [ ] **Charter MVP**：编辑器（四象限 + 升级规则）+ `autoAnswerMode=suggest` + provenance 标注 + `MustEscalateToHuman` 闸门
+
+> **Post-MVP（Charter 进阶）**：`auto-with-escalation` 全自动代答、置信度校准、Charter 反馈环自动回写、覆盖率/误判度量看板。
 
 ---
 
@@ -703,6 +815,9 @@ Path Router 规则见 §6.5；路径 × Skill 见 [WORKFLOW §4](./WORKFLOW.md#4
 | Slice 为 vertical（人工 audit 抽样） | > 80% 合格 |
 | Feature 完成率（done 状态） | 较无平台 baseline +20% |
 | Path Router 推荐与用户最终模板一致率 | > 85%（抽样）；Express 误推 full < 10% |
+| **Charter 覆盖率**（grill 问题被 `charter_direct`/`charter_inferred` 代答的比例） | 实测基线（替代主观「80–90%」猜测），按领域复杂度分桶 |
+| **升级精确率**（该升级的决策确实被 `escalated`） | > 95%（漏升级即高风险） |
+| **里程碑 misalignment 率**（演示确认时被人发现需返工的代答决策） | < 10%；其中 `charter_inferred` 单独追踪 |
 
 ---
 
@@ -716,6 +831,9 @@ Path Router 规则见 §6.5；路径 × Skill 见 [WORKFLOW §4](./WORKFLOW.md#4
 | Skill 上游变更 | 中 | Skill 版本 pin；WORKFLOW.md 同步 |
 | CONTEXT.md 被写成 spec | 中 | Grill UI 提示 + diff review |
 | Path Router 误判模板 | 中 | 展示 reason + 允许 Tech Lead 覆盖；运行时升级 express→full |
+| **Charter 过度自信 / 沉默错位**（Agent 从 Charter 插值出看似有据、实则错位的答案，剥夺人类发现 misalignment 的机会） | 高 | `MustEscalateToHuman` 反向闸门强制人工；`charter_inferred` 高亮抽查；里程碑演示确认；默认 `autoAnswerMode=off`/`suggest` |
+| **用 Charter 关掉 grill**（复杂需求下退化为「直接 to-prd」反模式） | 中 | Charter 只覆盖可预见决策；grill 仍跑；UI 提示 + 反馈环；强制升级未覆盖问题 |
+| **Charter 过时**（一次写死不更新） | 中 | 反馈环提示回写；记录 `version`；定期复审 |
 
 ---
 
@@ -731,6 +849,8 @@ Path Router 规则见 §6.5；路径 × Skill 见 [WORKFLOW §4](./WORKFLOW.md#4
 8. **AC-8**: Express workflow 可在跳过 PRD/issues 的情况下完成 single-slice TDD。
 9. **AC-9**: Path Router 根据需求 + 仓库快照推荐 `workflowTemplate`，并展示 reason；用户可覆盖。
 10. **AC-10**: Feature Pipeline 按模板隐藏无关 Phase（Express 无 PRD/Slice 步；debug 无 PRD 步）。
+11. **AC-11**: 用户可定义 Project 级 Charter（四象限 + 升级规则 + `autoAnswerMode`）；Feature 可 override。
+12. **AC-12**: `autoAnswerMode != off` 时，grill prompt bundle 注入 Charter，被代答的决策带 provenance，且命中 ADR 判据/越界/低置信的决策被 `escalated` 转人工而非自动代答。
 
 ---
 

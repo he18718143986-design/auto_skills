@@ -50,6 +50,7 @@ Matt Pocock Skills 解决四个经典失败模式：
 - **Vertical slice（垂直切片）**：每次交付端到端可验证的薄切片，禁止 horizontal slice（先写全部 API 再写全部 UI）
 - **共享语言优先**：`CONTEXT.md` 是 glossary，不是 spec；ADR 只记录难逆转的架构决策
 - **Issue tracker 是中枢**：PRD、slice issues、分诊状态都落在 issue tracker 上
+- **决策主旨（Charter）优先，但不替代 grill**：可预见的决策由一份决策策略文件（Charter）预先回答，让 Agent 在 grill 中代答以减少人工；grill 仍负责挖掘「未知的未知」，高风险/难逆转决策仍强制人工确认（见 [§5.5](#55-phase-05决策主旨charter可选)）
 
 ---
 
@@ -171,6 +172,7 @@ flowchart TB
 | Phase | Skill | 必做？ | 产出 |
 |-------|-------|--------|------|
 | 0 | `/setup-matt-pocock-skills` | 每个 repo 一次 | `docs/agents/*.md`、`AGENTS.md`/`CLAUDE.md` 配置块 |
+| 0.5 | 决策主旨（Charter） | 可选（无对应 skill，手写或半自动生成） | `docs/agents/charter.md`（优先/避免/可接受/约束）+ 应答模式设定 |
 | 1 | `/grill-with-docs` 或 `/grill-me` | **必做** | 对齐的设计方向；`CONTEXT.md` + ADR（grill-with-docs） |
 | 2 | `/prototype` | 可选 | 可丢弃的原型 + 决策结论 |
 | 3 | `/to-prd` | 推荐 | PRD issue（`ready-for-agent`） |
@@ -346,6 +348,79 @@ Category roles：`bug` | `enhancement`
 
 ---
 
+## 5.5 Phase 0.5：决策主旨（Charter，可选）
+
+> **目的**：把「可提前定好的主观选择」固化成一份决策策略文件，让 Agent 在 grill 中**代替用户回答**可预见的问题，从而把人工时间压缩到「前置一次 + 几次里程碑确认」。  
+> **关键纪律**：Charter **不替代 grill**；它只覆盖「已知决策空间」，grill 仍负责挖「未知的未知」。
+
+### 5.5.1 它是什么 / 不是什么
+
+| 是 | 不是 |
+|----|------|
+| 一份 Project（可 Feature override）级的**决策策略**，告诉 Agent「遇到这类选择，按什么原则答」 | 不是 PRD，不预先写功能规格 |
+| 用「优先 / 避免 / 可接受 / 约束」四象限编码可预见的 trade-off | 不是 `CONTEXT.md`（glossary）的替代品 |
+| 一份**活文档**：grill 浮现的新决策应回写进来 | 不是一次写死、永不更新的表单 |
+| Agent 代答的**出处**，让答案可追溯（answer provenance） | 不是「跳过对齐、直接 to-prd」的借口 |
+
+### 5.5.2 Charter 模板（建议格式）
+
+```markdown
+# 决策主旨（Charter）
+
+## 优先（Prefer）
+- 优先稳定性与可维护性高于上线速度
+- 优先使用代码库已有的 seam / 库，而非引入新依赖
+
+## 避免（Avoid）
+- 避免引入新的一等公民概念，除非 grill 明确证明必要
+- 避免破坏向后兼容的 public interface 变更
+
+## 可接受（Acceptable）
+- 可接受合理的性能折中以换取更简单的实现
+- 可接受 happy-path 先行、edge case 后续 slice 补齐
+
+## 约束（Constraints，硬性）
+- 必须支持 X 浏览器 / Y 运行时
+- 数据不得离开 Z 区域；不得引入 GPL 依赖
+
+## 升级触发（Escalate，必须问人）
+- 任何「难逆转 + 令人惊讶 + 有真实 trade-off」的决策（= ADR 判据）
+- Charter 沉默或自相矛盾时
+- 改动会越过约束边界时
+```
+
+### 5.5.3 三档应答模式（Auto-Answer Mode）
+
+| 模式 | 行为 | 适用 |
+|------|------|------|
+| `off`（默认） | 每个 grill 问题都等人答（现状） | 高风险项目、Charter 尚不成熟 |
+| `suggest` | Agent 按 Charter 给**推荐答案**，人一键确认/改 | 想保留把关又想提速 |
+| `auto-with-escalation` | Agent 按 Charter **自动作答**，仅在低置信或命中升级触发时停下问人 | AFK；Charter 覆盖率已验证较高 |
+
+**答案来源标注（provenance）**：每个被代答的 grill 决策都应标注来源 —— `human` / `charter_direct`（Charter 直接命中）/ `charter_inferred`（Agent 由 Charter 插值）/ `escalated`（升级给人）。`charter_inferred` 是最需要人工抽查的一类。
+
+### 5.5.4 升级与风险闸门（硬纪律）
+
+即使在 `auto-with-escalation` 下，下列决策**永远强制人工**，不得由 Charter 代答：
+
+- 满足 **ADR 判据**（难逆转 + 无上下文会令人惊讶 + 存在真实 trade-off）的决策
+- 越过 Charter「约束（Constraints）」边界的改动
+- Agent 置信度低于阈值，或 Charter 沉默/自相矛盾
+
+> **为什么**：Charter 最危险的失效模式是「自信地答错」—— Agent 从 Charter 插值出一个看似有据、实则错位的答案，从而剥夺人类发现 misalignment 的机会。**沉默地答错比不回答更糟**。风险闸门 + 里程碑演示确认 + Charter 反馈环三者缺一不可。
+
+### 5.5.5 反馈环（Charter 是活文档）
+
+grill / arch-review 过程中浮现、且具有普适性的决策，应在 session 结束时**回写进 Charter**（升级触发、新的优先/避免项），让下一个 Feature 的覆盖率更高。否则 Charter 会固化、过时。
+
+### 5.5.6 平台映射建议
+
+- **节点类型**：`CharterGate`（Project 级配置，类似 SetupGate，但**可选**）
+- **与 grill 的关系**：Charter 作为 grill 节点的**自动应答策略层**，由 `autoAnswerMode` 控制；正交于 Path Router（任何 `workflowTemplate` 都可叠加）
+- **度量**：Charter 覆盖率、升级精确率、**里程碑处被人发现的 misalignment 率**（详见 [PLATFORM-PRD.md §6.6](./PLATFORM-PRD.md#66-charter决策主旨--自动应答策略)）
+
+---
+
 ## 6. Phase 1：需求对齐（必做）
 
 ### 6.1 选哪个 Skill？
@@ -398,6 +473,8 @@ Category roles：`bug` | `enhancement`
 - 每个问题的回答（是/否/选 A）
 - 是否接受 Agent 推荐的 canonical term
 - 是否创建 ADR
+
+> **配合 Charter（[§5.5](#55-phase-05决策主旨charter可选)）**：若已设 Charter 且 `autoAnswerMode != off`，上述问题中**可预见的部分**由 Agent 按 Charter 代答（`suggest` 需人确认，`auto-with-escalation` 自动答）；命中升级触发（ADR 级、越界、低置信）的问题仍**强制人工**。无论哪种模式，里程碑 Gate 处仍需人工看演示确认，以兜住「自信地答错」。
 
 ### 6.5 平台映射建议
 
@@ -1095,10 +1172,12 @@ PRD #210 拆成 vertical slices，优先 AFK。
 ```
 Project
   ├── setupConfig (issueTracker, triageLabels, domainLayout)
+  ├── charter? (prefer/avoid/acceptable/constraints/escalate, autoAnswerMode)
   ├── contextMd
   ├── adrs[]
   └── features[]
-        ├── grillingSession
+        ├── charterOverride?           (Feature 级覆盖 + autoAnswerMode)
+        ├── grillingSession            (每个答案带 provenance: human|charter_direct|charter_inferred|escalated)
         ├── prototypeVerdict?
         ├── prdIssue
         ├── sliceIssues[] (DAG)
@@ -1117,6 +1196,8 @@ Issue
 | Gate | 条件 |
 |------|------|
 | CanGrill | setupComplete |
+| CanAutoAnswerGrill | charterExists && autoAnswerMode != off（见 [§5.5](#55-phase-05决策主旨charter可选)、[PLATFORM-PRD §6.6](./PLATFORM-PRD.md#66-charter决策主旨--自动应答策略)） |
+| MustEscalateToHuman | 命中 ADR 判据 \|\| 越过 Charter 约束 \|\| 置信度 < 阈值（反向闸门，禁止代答） |
 | CanToPrd | grillingComplete |
 | CanToIssues | prdPublished |
 | CanTdd | sliceIssue.stateRole == ready-for-agent && blockersClosed |
@@ -1212,6 +1293,9 @@ Context 太长？ → /handoff
 | prototype 不删除 | 验证完必须 delete 或 absorb |
 | RED 时 refactor | 先 GREEN 再 refactor |
 | 在 skills-main 里 setup，却在别的 repo 开发 | setup 必须在**实际开发项目**里做 |
+| 用 Charter 关掉 grill（让 Agent 全自动代答所有问题） | Charter 只覆盖可预见决策；grill 仍须挖未知的未知，ADR 级/越界/低置信决策强制升级（见 [§5.5.4](#554-升级与风险闸门硬纪律)） |
+| Charter 一次写死、永不更新 | Charter 是活文档；grill 浮现的普适决策应回写（[§5.5.5](#555-反馈环charter-是活文档)） |
+| 信任 `charter_inferred`（插值）答案不抽查 | 插值类代答最易「自信地答错」，里程碑处必须人工确认 |
 
 Brownfield 专属误区见 [§14.8](#148-brownfield-常见误区)。
 
