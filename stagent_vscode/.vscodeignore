@@ -1,0 +1,35 @@
+# 源码与编译中间产物（仅发布 out/ 运行时）
+src/**
+**/*.ts
+**/*.map
+tsconfig.json
+
+# 测试产物
+out/test/**
+
+# 开发脚本与夹具
+scripts/**
+.github/**
+.vscode/**
+.vscode-test/**
+
+# 内部文档（保留 README / CHANGELOG 供 Marketplace 展示）
+SPEC-v3.md
+SKILLS-MAPPING.md
+开发任务清单.md
+项目总览与开发指南.md
+docs/**
+
+# 运行时状态与日志
+**/.stagent/**
+.wf-debug.log
+.wf-failures.jsonl
+
+# 杂项
+.DS_Store
+.gitignore
+.eslintrc*
+.prettierrc*
+**/*.vsix
+coverage/**
+.nyc_output/**

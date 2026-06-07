@@ -1,0 +1,2143 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "StagentWebviewMessages",
+  "description": "Generated from FrontendMessageTypes.ts and workflow-types/MessageTypes.ts",
+  "definitions": {
+    "backendMessageCommon": {
+      "type": "object",
+      "properties": {
+        "seq": {
+          "type": "number"
+        },
+        "instanceKey": {
+          "type": "string"
+        },
+        "sessionId": {
+          "type": "string"
+        }
+      }
+    },
+    "backendMessageVariant": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "const": "actionHint"
+            },
+            "seq": {
+              "type": "number",
+              "description": "Monotonic backend message sequence assigned by WorkflowUiBridge"
+            },
+            "uiEpoch": {
+              "type": "number",
+              "description": "UI resync generation; incremented by WorkflowUiBridge.beginUiResync"
+            },
+            "instanceKey": {
+              "type": "string",
+              "description": "Workflow instance key; injected by WorkflowUiBridge for execution-scoped messages"
+            },
+            "sessionId": {
+              "type": "string",
+              "description": "M44 session pointer (same value as instanceKey when bound)"
+            }
+          },
+          "additionalProperties": true
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "questions"
+          ],
+          "properties": {
+            "type": {
+              "const": "clarifyQuestions"
+            },
+            "seq": {
+              "type": "number",
+              "description": "Monotonic backend message sequence assigned by WorkflowUiBridge"
+            },
+            "uiEpoch": {
+              "type": "number",
+              "description": "UI resync generation; incremented by WorkflowUiBridge.beginUiResync"
+            },
+            "instanceKey": {
+              "type": "string",
+              "description": "Workflow instance key; injected by WorkflowUiBridge for execution-scoped messages"
+            },
+            "sessionId": {
+              "type": "string",
+              "description": "M44 session pointer (same value as instanceKey when bound)"
+            },
+            "questions": {
+              "description": "Array<{ id: string"
+            }
+          },
+          "additionalProperties": true
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "waveIndex",
+            "activeStageIds",
+            "phase"
+          ],
+          "properties": {
+            "type": {
+              "const": "dagWaveUpdate"
+            },
+            "seq": {
+              "type": "number",
+              "description": "Monotonic backend message sequence assigned by WorkflowUiBridge"
+            },
+            "uiEpoch": {
+              "type": "number",
+              "description": "UI resync generation; incremented by WorkflowUiBridge.beginUiResync"
+            },
+            "instanceKey": {
+              "type": "string",
+              "description": "Workflow instance key; injected by WorkflowUiBridge for execution-scoped messages"
+            },
+            "sessionId": {
+              "type": "string",
+              "description": "M44 session pointer (same value as instanceKey when bound)"
+            },
+            "waveIndex": {
+              "type": "number"
+            },
+            "activeStageIds": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "phase": {
+              "enum": [
+                "start",
+                "complete"
+              ]
+            }
+          },
+          "additionalProperties": true
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "decisionStageId",
+            "resetStageIds",
+            "resetStageTitles"
+          ],
+          "properties": {
+            "type": {
+              "const": "downstreamReset"
+            },
+            "seq": {
+              "type": "number",
+              "description": "Monotonic backend message sequence assigned by WorkflowUiBridge"
+            },
+            "uiEpoch": {
+              "type": "number",
+              "description": "UI resync generation; incremented by WorkflowUiBridge.beginUiResync"
+            },
+            "instanceKey": {
+              "type": "string",
+              "description": "Workflow instance key; injected by WorkflowUiBridge for execution-scoped messages"
+            },
+            "sessionId": {
+              "type": "string",
+              "description": "M44 session pointer (same value as instanceKey when bound)"
+            },
+            "decisionStageId": {
+              "type": "string"
+            },
+            "resetStageIds": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "resetStageTitles": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "rolledBackFiles": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "rollbackFailed": {
+              "description": "Array<{ filePath: string"
+            }
+          },
+          "additionalProperties": true
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "const": "generationCancelled"
+            },
+            "seq": {
+              "type": "number",
+              "description": "Monotonic backend message sequence assigned by WorkflowUiBridge"
+            },
+            "uiEpoch": {
+              "type": "number",
+              "description": "UI resync generation; incremented by WorkflowUiBridge.beginUiResync"
+            },
+            "instanceKey": {
+              "type": "string",
+              "description": "Workflow instance key; injected by WorkflowUiBridge for execution-scoped messages"
+            },
+            "sessionId": {
+              "type": "string",
+              "description": "M44 session pointer (same value as instanceKey when bound)"
+            }
+          },
+          "additionalProperties": true
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "operation",
+            "phase",
+            "message"
+          ],
+          "properties": {
+            "type": {
+              "const": "generationProgress"
+            },
+            "seq": {
+              "type": "number",
+              "description": "Monotonic backend message sequence assigned by WorkflowUiBridge"
+            },
+            "uiEpoch": {
+              "type": "number",
+              "description": "UI resync generation; incremented by WorkflowUiBridge.beginUiResync"
+            },
+            "instanceKey": {
+              "type": "string",
+              "description": "Workflow instance key; injected by WorkflowUiBridge for execution-scoped messages"
+            },
+            "sessionId": {
+              "type": "string",
+              "description": "M44 session pointer (same value as instanceKey when bound)"
+            },
+            "operation": {
+              "description": "GenerationOperationId"
+            },
+            "phase": {
+              "enum": [
+                "preparing",
+                "llm",
+                "parsing",
+                "validating"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "detail": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": true
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "const": "instanceKeySynced"
+            },
+            "seq": {
+              "type": "number",
+              "description": "Monotonic backend message sequence assigned by WorkflowUiBridge"
+            },
+            "uiEpoch": {
+              "type": "number",
+              "description": "UI resync generation; incremented by WorkflowUiBridge.beginUiResync"
+            },
+            "instanceKey": {
+              "type": "string",
+              "description": "Workflow instance key; injected by WorkflowUiBridge for execution-scoped messages"
+            },
+            "sessionId": {
+              "type": "string",
+              "description": "M44 session pointer (same value as instanceKey when bound)"
+            }
+          },
+          "additionalProperties": true
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "instanceKey",
+            "workflow",
+            "instanceStatus"
+          ],
+          "properties": {
+            "type": {
+              "const": "instanceResumed"
+            },
+            "seq": {
+              "type": "number",
+              "description": "Monotonic backend message sequence assigned by WorkflowUiBridge"
+            },
+            "uiEpoch": {
+              "type": "number",
+              "description": "UI resync generation; incremented by WorkflowUiBridge.beginUiResync"
+            },
+            "instanceKey": {
+              "type": "string"
+            },
+            "sessionId": {
+              "type": "string"
+            },
+            "resync": {
+              "type": "boolean"
+            },
+            "workflow": {
+              "description": "WorkflowDefinition"
+            },
+            "instanceStatus": {
+              "enum": [
+                "idle",
+                "running",
+                "paused",
+                "completed",
+                "failed"
+              ]
+            },
+            "stageStatuses": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "failedStageId": {
+              "type": "string"
+            },
+            "failedSummary": {
+              "description": "{ error: string"
+            }
+          },
+          "additionalProperties": true
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "reason",
+            "targetInstanceKey"
+          ],
+          "properties": {
+            "type": {
+              "const": "instanceSwitchBlocked"
+            },
+            "seq": {
+              "type": "number",
+              "description": "Monotonic backend message sequence assigned by WorkflowUiBridge"
+            },
+            "uiEpoch": {
+              "type": "number",
+              "description": "UI resync generation; incremented by WorkflowUiBridge.beginUiResync"
+            },
+            "instanceKey": {
+              "type": "string",
+              "description": "Workflow instance key; injected by WorkflowUiBridge for execution-scoped messages"
+            },
+            "sessionId": {
+              "type": "string",
+              "description": "M44 session pointer (same value as instanceKey when bound)"
+            },
+            "reason": {
+              "type": "string"
+            },
+            "targetInstanceKey": {
+              "type": "string"
+            },
+            "activeInstanceKey": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": true
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "stageId"
+          ],
+          "properties": {
+            "type": {
+              "const": "llmUsageUpdate"
+            },
+            "seq": {
+              "type": "number",
+              "description": "Monotonic backend message sequence assigned by WorkflowUiBridge"
+            },
+            "uiEpoch": {
+              "type": "number",
+              "description": "UI resync generation; incremented by WorkflowUiBridge.beginUiResync"
+            },
+            "instanceKey": {
+              "type": "string",
+              "description": "Workflow instance key; injected by WorkflowUiBridge for execution-scoped messages"
+            },
+            "sessionId": {
+              "type": "string",
+              "description": "M44 session pointer (same value as instanceKey when bound)"
+            },
+            "stageId": {
+              "type": "string"
+            },
+            "promptTokens": {
+              "type": "number"
+            },
+            "completionTokens": {
+              "type": "number"
+            },
+            "totalTokens": {
+              "type": "number"
+            },
+            "operation": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": true
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "const": "sessionSynced"
+            },
+            "seq": {
+              "type": "number",
+              "description": "Monotonic backend message sequence assigned by WorkflowUiBridge"
+            },
+            "uiEpoch": {
+              "type": "number",
+              "description": "UI resync generation; incremented by WorkflowUiBridge.beginUiResync"
+            },
+            "instanceKey": {
+              "type": "string",
+              "description": "Workflow instance key; injected by WorkflowUiBridge for execution-scoped messages"
+            },
+            "sessionId": {
+              "type": "string",
+              "description": "M44 session pointer (same value as instanceKey when bound)"
+            }
+          },
+          "additionalProperties": true
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "const": "stageArtifactHints"
+            },
+            "seq": {
+              "type": "number",
+              "description": "Monotonic backend message sequence assigned by WorkflowUiBridge"
+            },
+            "uiEpoch": {
+              "type": "number",
+              "description": "UI resync generation; incremented by WorkflowUiBridge.beginUiResync"
+            },
+            "instanceKey": {
+              "type": "string",
+              "description": "Workflow instance key; injected by WorkflowUiBridge for execution-scoped messages"
+            },
+            "sessionId": {
+              "type": "string",
+              "description": "M44 session pointer (same value as instanceKey when bound)"
+            }
+          },
+          "additionalProperties": true
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "stageId",
+            "score",
+            "level",
+            "reasons"
+          ],
+          "properties": {
+            "type": {
+              "const": "stageConfidenceUpdate"
+            },
+            "seq": {
+              "type": "number",
+              "description": "Monotonic backend message sequence assigned by WorkflowUiBridge"
+            },
+            "uiEpoch": {
+              "type": "number",
+              "description": "UI resync generation; incremented by WorkflowUiBridge.beginUiResync"
+            },
+            "instanceKey": {
+              "type": "string",
+              "description": "Workflow instance key; injected by WorkflowUiBridge for execution-scoped messages"
+            },
+            "sessionId": {
+              "type": "string",
+              "description": "M44 session pointer (same value as instanceKey when bound)"
+            },
+            "stageId": {
+              "type": "string"
+            },
+            "score": {
+              "type": "number"
+            },
+            "level": {
+              "enum": [
+                "high",
+                "medium",
+                "low",
+                "critical"
+              ]
+            },
+            "reasons": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": true
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "stageId",
+            "error",
+            "errorType"
+          ],
+          "properties": {
+            "type": {
+              "const": "stageError"
+            },
+            "seq": {
+              "type": "number",
+              "description": "Monotonic backend message sequence assigned by WorkflowUiBridge"
+            },
+            "uiEpoch": {
+              "type": "number",
+              "description": "UI resync generation; incremented by WorkflowUiBridge.beginUiResync"
+            },
+            "instanceKey": {
+              "type": "string",
+              "description": "Workflow instance key; injected by WorkflowUiBridge for execution-scoped messages"
+            },
+            "sessionId": {
+              "type": "string",
+              "description": "M44 session pointer (same value as instanceKey when bound)"
+            },
+            "stageId": {
+              "type": "string"
+            },
+            "error": {
+              "type": "string"
+            },
+            "errorType": {
+              "enum": [
+                "llm-timeout",
+                "llm-context-overflow",
+                "llm-invalid-output",
+                "llm-refusal",
+                "llm-quality-below-threshold",
+                "tool-execution-failed",
+                "code-runner-timeout",
+                "file-not-found",
+                "stage-not-found",
+                "invariant-violation",
+                "retry-limit-exceeded",
+                "sandbox-network-blocked",
+                "sandbox-memory-exceeded",
+                "static-analysis-failed",
+                "confidence-too-low",
+                "unknown"
+              ]
+            },
+            "traceId": {
+              "type": "string"
+            },
+            "rawOutput": {
+              "type": "string"
+            },
+            "stdout": {
+              "type": "string"
+            },
+            "stderr": {
+              "type": "string"
+            },
+            "userTitle": {
+              "type": "string"
+            },
+            "userBody": {
+              "type": "string"
+            },
+            "userCategory": {
+              "enum": [
+                "environment",
+                "code",
+                "generic"
+              ]
+            },
+            "exitCode": {
+              "type": "number"
+            },
+            "weakenRetry": {
+              "type": "boolean"
+            },
+            "playbookSteps": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": true
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "const": "stageOutputUpdate"
+            },
+            "seq": {
+              "type": "number",
+              "description": "Monotonic backend message sequence assigned by WorkflowUiBridge"
+            },
+            "uiEpoch": {
+              "type": "number",
+              "description": "UI resync generation; incremented by WorkflowUiBridge.beginUiResync"
+            },
+            "instanceKey": {
+              "type": "string",
+              "description": "Workflow instance key; injected by WorkflowUiBridge for execution-scoped messages"
+            },
+            "sessionId": {
+              "type": "string",
+              "description": "M44 session pointer (same value as instanceKey when bound)"
+            }
+          },
+          "additionalProperties": true
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "const": "stageQuestions"
+            },
+            "seq": {
+              "type": "number",
+              "description": "Monotonic backend message sequence assigned by WorkflowUiBridge"
+            },
+            "uiEpoch": {
+              "type": "number",
+              "description": "UI resync generation; incremented by WorkflowUiBridge.beginUiResync"
+            },
+            "instanceKey": {
+              "type": "string",
+              "description": "Workflow instance key; injected by WorkflowUiBridge for execution-scoped messages"
+            },
+            "sessionId": {
+              "type": "string",
+              "description": "M44 session pointer (same value as instanceKey when bound)"
+            }
+          },
+          "additionalProperties": true
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "const": "stageQuestionsBefore"
+            },
+            "seq": {
+              "type": "number",
+              "description": "Monotonic backend message sequence assigned by WorkflowUiBridge"
+            },
+            "uiEpoch": {
+              "type": "number",
+              "description": "UI resync generation; incremented by WorkflowUiBridge.beginUiResync"
+            },
+            "instanceKey": {
+              "type": "string",
+              "description": "Workflow instance key; injected by WorkflowUiBridge for execution-scoped messages"
+            },
+            "sessionId": {
+              "type": "string",
+              "description": "M44 session pointer (same value as instanceKey when bound)"
+            }
+          },
+          "additionalProperties": true
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "stageId",
+            "status"
+          ],
+          "properties": {
+            "type": {
+              "const": "stageStatusUpdate"
+            },
+            "seq": {
+              "type": "number",
+              "description": "Monotonic backend message sequence assigned by WorkflowUiBridge"
+            },
+            "uiEpoch": {
+              "type": "number",
+              "description": "UI resync generation; incremented by WorkflowUiBridge.beginUiResync"
+            },
+            "instanceKey": {
+              "type": "string",
+              "description": "Workflow instance key; injected by WorkflowUiBridge for execution-scoped messages"
+            },
+            "sessionId": {
+              "type": "string",
+              "description": "M44 session pointer (same value as instanceKey when bound)"
+            },
+            "stageId": {
+              "type": "string"
+            },
+            "status": {
+              "enum": [
+                "pending",
+                "running",
+                "waiting-questions",
+                "paused",
+                "done",
+                "skipped",
+                "error",
+                "retrying"
+              ]
+            },
+            "isDecisionStage": {
+              "type": "boolean"
+            },
+            "retryDisabled": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": true
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "const": "streamChunk"
+            },
+            "seq": {
+              "type": "number",
+              "description": "Monotonic backend message sequence assigned by WorkflowUiBridge"
+            },
+            "uiEpoch": {
+              "type": "number",
+              "description": "UI resync generation; incremented by WorkflowUiBridge.beginUiResync"
+            },
+            "instanceKey": {
+              "type": "string",
+              "description": "Workflow instance key; injected by WorkflowUiBridge for execution-scoped messages"
+            },
+            "sessionId": {
+              "type": "string",
+              "description": "M44 session pointer (same value as instanceKey when bound)"
+            }
+          },
+          "additionalProperties": true
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "const": "taskWorkspacePathPicked"
+            },
+            "seq": {
+              "type": "number",
+              "description": "Monotonic backend message sequence assigned by WorkflowUiBridge"
+            },
+            "uiEpoch": {
+              "type": "number",
+              "description": "UI resync generation; incremented by WorkflowUiBridge.beginUiResync"
+            },
+            "instanceKey": {
+              "type": "string",
+              "description": "Workflow instance key; injected by WorkflowUiBridge for execution-scoped messages"
+            },
+            "sessionId": {
+              "type": "string",
+              "description": "M44 session pointer (same value as instanceKey when bound)"
+            }
+          },
+          "additionalProperties": true
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "failedStageId",
+            "targetImplStageId",
+            "resetStageIds",
+            "resetStageTitles"
+          ],
+          "properties": {
+            "type": {
+              "const": "upstreamFixStarted"
+            },
+            "seq": {
+              "type": "number",
+              "description": "Monotonic backend message sequence assigned by WorkflowUiBridge"
+            },
+            "uiEpoch": {
+              "type": "number",
+              "description": "UI resync generation; incremented by WorkflowUiBridge.beginUiResync"
+            },
+            "instanceKey": {
+              "type": "string",
+              "description": "Workflow instance key; injected by WorkflowUiBridge for execution-scoped messages"
+            },
+            "sessionId": {
+              "type": "string",
+              "description": "M44 session pointer (same value as instanceKey when bound)"
+            },
+            "failedStageId": {
+              "type": "string"
+            },
+            "targetImplStageId": {
+              "type": "string"
+            },
+            "resetStageIds": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "resetStageTitles": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": true
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "const": "userTaskPolished"
+            },
+            "seq": {
+              "type": "number",
+              "description": "Monotonic backend message sequence assigned by WorkflowUiBridge"
+            },
+            "uiEpoch": {
+              "type": "number",
+              "description": "UI resync generation; incremented by WorkflowUiBridge.beginUiResync"
+            },
+            "instanceKey": {
+              "type": "string",
+              "description": "Workflow instance key; injected by WorkflowUiBridge for execution-scoped messages"
+            },
+            "sessionId": {
+              "type": "string",
+              "description": "M44 session pointer (same value as instanceKey when bound)"
+            }
+          },
+          "additionalProperties": true
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "const": "workflowCompleted"
+            },
+            "seq": {
+              "type": "number",
+              "description": "Monotonic backend message sequence assigned by WorkflowUiBridge"
+            },
+            "uiEpoch": {
+              "type": "number",
+              "description": "UI resync generation; incremented by WorkflowUiBridge.beginUiResync"
+            },
+            "instanceKey": {
+              "type": "string",
+              "description": "Workflow instance key; injected by WorkflowUiBridge for execution-scoped messages"
+            },
+            "sessionId": {
+              "type": "string",
+              "description": "M44 session pointer (same value as instanceKey when bound)"
+            }
+          },
+          "additionalProperties": true
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "reason",
+            "errorType"
+          ],
+          "properties": {
+            "type": {
+              "const": "workflowFailed"
+            },
+            "seq": {
+              "type": "number",
+              "description": "Monotonic backend message sequence assigned by WorkflowUiBridge"
+            },
+            "uiEpoch": {
+              "type": "number",
+              "description": "UI resync generation; incremented by WorkflowUiBridge.beginUiResync"
+            },
+            "instanceKey": {
+              "type": "string",
+              "description": "Workflow instance key; injected by WorkflowUiBridge for execution-scoped messages"
+            },
+            "sessionId": {
+              "type": "string",
+              "description": "M44 session pointer (same value as instanceKey when bound)"
+            },
+            "reason": {
+              "type": "string"
+            },
+            "errorType": {
+              "enum": [
+                "llm-timeout",
+                "llm-context-overflow",
+                "llm-invalid-output",
+                "llm-refusal",
+                "llm-quality-below-threshold",
+                "tool-execution-failed",
+                "code-runner-timeout",
+                "file-not-found",
+                "stage-not-found",
+                "invariant-violation",
+                "retry-limit-exceeded",
+                "sandbox-network-blocked",
+                "sandbox-memory-exceeded",
+                "static-analysis-failed",
+                "confidence-too-low",
+                "unknown"
+              ]
+            },
+            "stageId": {
+              "type": "string"
+            },
+            "traceId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": true
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "workflow"
+          ],
+          "properties": {
+            "type": {
+              "const": "workflowGenerated"
+            },
+            "seq": {
+              "type": "number",
+              "description": "Monotonic backend message sequence assigned by WorkflowUiBridge"
+            },
+            "uiEpoch": {
+              "type": "number",
+              "description": "UI resync generation; incremented by WorkflowUiBridge.beginUiResync"
+            },
+            "instanceKey": {
+              "type": "string"
+            },
+            "sessionId": {
+              "type": "string"
+            },
+            "workflow": {
+              "description": "WorkflowDefinition"
+            },
+            "warnings": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "warningsDisplay": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "planSummary": {
+              "description": "PlanSummary"
+            },
+            "stageSourceSummary": {
+              "type": "array",
+              "items": {
+                "description": "StageSourceEdge"
+              }
+            },
+            "blocked": {
+              "type": "boolean"
+            },
+            "blockReasons": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "structuralRepairs": {
+              "type": "array",
+              "items": {
+                "description": "StructuralRepairActionSummary"
+              }
+            },
+            "experienceReferencesUsed": {
+              "type": "number"
+            },
+            "settingsProfile": {
+              "type": "string"
+            },
+            "profileGateDiff": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": true
+        }
+      ]
+    },
+    "backendMessage": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "const": "actionHint"
+            },
+            "seq": {
+              "type": "number",
+              "description": "Monotonic backend message sequence assigned by WorkflowUiBridge"
+            },
+            "uiEpoch": {
+              "type": "number",
+              "description": "UI resync generation; incremented by WorkflowUiBridge.beginUiResync"
+            },
+            "instanceKey": {
+              "type": "string",
+              "description": "Workflow instance key; injected by WorkflowUiBridge for execution-scoped messages"
+            },
+            "sessionId": {
+              "type": "string",
+              "description": "M44 session pointer (same value as instanceKey when bound)"
+            }
+          },
+          "additionalProperties": true
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "questions"
+          ],
+          "properties": {
+            "type": {
+              "const": "clarifyQuestions"
+            },
+            "seq": {
+              "type": "number",
+              "description": "Monotonic backend message sequence assigned by WorkflowUiBridge"
+            },
+            "uiEpoch": {
+              "type": "number",
+              "description": "UI resync generation; incremented by WorkflowUiBridge.beginUiResync"
+            },
+            "instanceKey": {
+              "type": "string",
+              "description": "Workflow instance key; injected by WorkflowUiBridge for execution-scoped messages"
+            },
+            "sessionId": {
+              "type": "string",
+              "description": "M44 session pointer (same value as instanceKey when bound)"
+            },
+            "questions": {
+              "description": "Array<{ id: string"
+            }
+          },
+          "additionalProperties": true
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "waveIndex",
+            "activeStageIds",
+            "phase"
+          ],
+          "properties": {
+            "type": {
+              "const": "dagWaveUpdate"
+            },
+            "seq": {
+              "type": "number",
+              "description": "Monotonic backend message sequence assigned by WorkflowUiBridge"
+            },
+            "uiEpoch": {
+              "type": "number",
+              "description": "UI resync generation; incremented by WorkflowUiBridge.beginUiResync"
+            },
+            "instanceKey": {
+              "type": "string",
+              "description": "Workflow instance key; injected by WorkflowUiBridge for execution-scoped messages"
+            },
+            "sessionId": {
+              "type": "string",
+              "description": "M44 session pointer (same value as instanceKey when bound)"
+            },
+            "waveIndex": {
+              "type": "number"
+            },
+            "activeStageIds": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "phase": {
+              "enum": [
+                "start",
+                "complete"
+              ]
+            }
+          },
+          "additionalProperties": true
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "decisionStageId",
+            "resetStageIds",
+            "resetStageTitles"
+          ],
+          "properties": {
+            "type": {
+              "const": "downstreamReset"
+            },
+            "seq": {
+              "type": "number",
+              "description": "Monotonic backend message sequence assigned by WorkflowUiBridge"
+            },
+            "uiEpoch": {
+              "type": "number",
+              "description": "UI resync generation; incremented by WorkflowUiBridge.beginUiResync"
+            },
+            "instanceKey": {
+              "type": "string",
+              "description": "Workflow instance key; injected by WorkflowUiBridge for execution-scoped messages"
+            },
+            "sessionId": {
+              "type": "string",
+              "description": "M44 session pointer (same value as instanceKey when bound)"
+            },
+            "decisionStageId": {
+              "type": "string"
+            },
+            "resetStageIds": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "resetStageTitles": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "rolledBackFiles": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "rollbackFailed": {
+              "description": "Array<{ filePath: string"
+            }
+          },
+          "additionalProperties": true
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "const": "generationCancelled"
+            },
+            "seq": {
+              "type": "number",
+              "description": "Monotonic backend message sequence assigned by WorkflowUiBridge"
+            },
+            "uiEpoch": {
+              "type": "number",
+              "description": "UI resync generation; incremented by WorkflowUiBridge.beginUiResync"
+            },
+            "instanceKey": {
+              "type": "string",
+              "description": "Workflow instance key; injected by WorkflowUiBridge for execution-scoped messages"
+            },
+            "sessionId": {
+              "type": "string",
+              "description": "M44 session pointer (same value as instanceKey when bound)"
+            }
+          },
+          "additionalProperties": true
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "operation",
+            "phase",
+            "message"
+          ],
+          "properties": {
+            "type": {
+              "const": "generationProgress"
+            },
+            "seq": {
+              "type": "number",
+              "description": "Monotonic backend message sequence assigned by WorkflowUiBridge"
+            },
+            "uiEpoch": {
+              "type": "number",
+              "description": "UI resync generation; incremented by WorkflowUiBridge.beginUiResync"
+            },
+            "instanceKey": {
+              "type": "string",
+              "description": "Workflow instance key; injected by WorkflowUiBridge for execution-scoped messages"
+            },
+            "sessionId": {
+              "type": "string",
+              "description": "M44 session pointer (same value as instanceKey when bound)"
+            },
+            "operation": {
+              "description": "GenerationOperationId"
+            },
+            "phase": {
+              "enum": [
+                "preparing",
+                "llm",
+                "parsing",
+                "validating"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "detail": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": true
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "const": "instanceKeySynced"
+            },
+            "seq": {
+              "type": "number",
+              "description": "Monotonic backend message sequence assigned by WorkflowUiBridge"
+            },
+            "uiEpoch": {
+              "type": "number",
+              "description": "UI resync generation; incremented by WorkflowUiBridge.beginUiResync"
+            },
+            "instanceKey": {
+              "type": "string",
+              "description": "Workflow instance key; injected by WorkflowUiBridge for execution-scoped messages"
+            },
+            "sessionId": {
+              "type": "string",
+              "description": "M44 session pointer (same value as instanceKey when bound)"
+            }
+          },
+          "additionalProperties": true
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "instanceKey",
+            "workflow",
+            "instanceStatus"
+          ],
+          "properties": {
+            "type": {
+              "const": "instanceResumed"
+            },
+            "seq": {
+              "type": "number",
+              "description": "Monotonic backend message sequence assigned by WorkflowUiBridge"
+            },
+            "uiEpoch": {
+              "type": "number",
+              "description": "UI resync generation; incremented by WorkflowUiBridge.beginUiResync"
+            },
+            "instanceKey": {
+              "type": "string"
+            },
+            "sessionId": {
+              "type": "string"
+            },
+            "resync": {
+              "type": "boolean"
+            },
+            "workflow": {
+              "description": "WorkflowDefinition"
+            },
+            "instanceStatus": {
+              "enum": [
+                "idle",
+                "running",
+                "paused",
+                "completed",
+                "failed"
+              ]
+            },
+            "stageStatuses": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "failedStageId": {
+              "type": "string"
+            },
+            "failedSummary": {
+              "description": "{ error: string"
+            }
+          },
+          "additionalProperties": true
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "reason",
+            "targetInstanceKey"
+          ],
+          "properties": {
+            "type": {
+              "const": "instanceSwitchBlocked"
+            },
+            "seq": {
+              "type": "number",
+              "description": "Monotonic backend message sequence assigned by WorkflowUiBridge"
+            },
+            "uiEpoch": {
+              "type": "number",
+              "description": "UI resync generation; incremented by WorkflowUiBridge.beginUiResync"
+            },
+            "instanceKey": {
+              "type": "string",
+              "description": "Workflow instance key; injected by WorkflowUiBridge for execution-scoped messages"
+            },
+            "sessionId": {
+              "type": "string",
+              "description": "M44 session pointer (same value as instanceKey when bound)"
+            },
+            "reason": {
+              "type": "string"
+            },
+            "targetInstanceKey": {
+              "type": "string"
+            },
+            "activeInstanceKey": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": true
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "stageId"
+          ],
+          "properties": {
+            "type": {
+              "const": "llmUsageUpdate"
+            },
+            "seq": {
+              "type": "number",
+              "description": "Monotonic backend message sequence assigned by WorkflowUiBridge"
+            },
+            "uiEpoch": {
+              "type": "number",
+              "description": "UI resync generation; incremented by WorkflowUiBridge.beginUiResync"
+            },
+            "instanceKey": {
+              "type": "string",
+              "description": "Workflow instance key; injected by WorkflowUiBridge for execution-scoped messages"
+            },
+            "sessionId": {
+              "type": "string",
+              "description": "M44 session pointer (same value as instanceKey when bound)"
+            },
+            "stageId": {
+              "type": "string"
+            },
+            "promptTokens": {
+              "type": "number"
+            },
+            "completionTokens": {
+              "type": "number"
+            },
+            "totalTokens": {
+              "type": "number"
+            },
+            "operation": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": true
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "const": "sessionSynced"
+            },
+            "seq": {
+              "type": "number",
+              "description": "Monotonic backend message sequence assigned by WorkflowUiBridge"
+            },
+            "uiEpoch": {
+              "type": "number",
+              "description": "UI resync generation; incremented by WorkflowUiBridge.beginUiResync"
+            },
+            "instanceKey": {
+              "type": "string",
+              "description": "Workflow instance key; injected by WorkflowUiBridge for execution-scoped messages"
+            },
+            "sessionId": {
+              "type": "string",
+              "description": "M44 session pointer (same value as instanceKey when bound)"
+            }
+          },
+          "additionalProperties": true
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "const": "stageArtifactHints"
+            },
+            "seq": {
+              "type": "number",
+              "description": "Monotonic backend message sequence assigned by WorkflowUiBridge"
+            },
+            "uiEpoch": {
+              "type": "number",
+              "description": "UI resync generation; incremented by WorkflowUiBridge.beginUiResync"
+            },
+            "instanceKey": {
+              "type": "string",
+              "description": "Workflow instance key; injected by WorkflowUiBridge for execution-scoped messages"
+            },
+            "sessionId": {
+              "type": "string",
+              "description": "M44 session pointer (same value as instanceKey when bound)"
+            }
+          },
+          "additionalProperties": true
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "stageId",
+            "score",
+            "level",
+            "reasons"
+          ],
+          "properties": {
+            "type": {
+              "const": "stageConfidenceUpdate"
+            },
+            "seq": {
+              "type": "number",
+              "description": "Monotonic backend message sequence assigned by WorkflowUiBridge"
+            },
+            "uiEpoch": {
+              "type": "number",
+              "description": "UI resync generation; incremented by WorkflowUiBridge.beginUiResync"
+            },
+            "instanceKey": {
+              "type": "string",
+              "description": "Workflow instance key; injected by WorkflowUiBridge for execution-scoped messages"
+            },
+            "sessionId": {
+              "type": "string",
+              "description": "M44 session pointer (same value as instanceKey when bound)"
+            },
+            "stageId": {
+              "type": "string"
+            },
+            "score": {
+              "type": "number"
+            },
+            "level": {
+              "enum": [
+                "high",
+                "medium",
+                "low",
+                "critical"
+              ]
+            },
+            "reasons": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": true
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "stageId",
+            "error",
+            "errorType"
+          ],
+          "properties": {
+            "type": {
+              "const": "stageError"
+            },
+            "seq": {
+              "type": "number",
+              "description": "Monotonic backend message sequence assigned by WorkflowUiBridge"
+            },
+            "uiEpoch": {
+              "type": "number",
+              "description": "UI resync generation; incremented by WorkflowUiBridge.beginUiResync"
+            },
+            "instanceKey": {
+              "type": "string",
+              "description": "Workflow instance key; injected by WorkflowUiBridge for execution-scoped messages"
+            },
+            "sessionId": {
+              "type": "string",
+              "description": "M44 session pointer (same value as instanceKey when bound)"
+            },
+            "stageId": {
+              "type": "string"
+            },
+            "error": {
+              "type": "string"
+            },
+            "errorType": {
+              "enum": [
+                "llm-timeout",
+                "llm-context-overflow",
+                "llm-invalid-output",
+                "llm-refusal",
+                "llm-quality-below-threshold",
+                "tool-execution-failed",
+                "code-runner-timeout",
+                "file-not-found",
+                "stage-not-found",
+                "invariant-violation",
+                "retry-limit-exceeded",
+                "sandbox-network-blocked",
+                "sandbox-memory-exceeded",
+                "static-analysis-failed",
+                "confidence-too-low",
+                "unknown"
+              ]
+            },
+            "traceId": {
+              "type": "string"
+            },
+            "rawOutput": {
+              "type": "string"
+            },
+            "stdout": {
+              "type": "string"
+            },
+            "stderr": {
+              "type": "string"
+            },
+            "userTitle": {
+              "type": "string"
+            },
+            "userBody": {
+              "type": "string"
+            },
+            "userCategory": {
+              "enum": [
+                "environment",
+                "code",
+                "generic"
+              ]
+            },
+            "exitCode": {
+              "type": "number"
+            },
+            "weakenRetry": {
+              "type": "boolean"
+            },
+            "playbookSteps": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": true
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "const": "stageOutputUpdate"
+            },
+            "seq": {
+              "type": "number",
+              "description": "Monotonic backend message sequence assigned by WorkflowUiBridge"
+            },
+            "uiEpoch": {
+              "type": "number",
+              "description": "UI resync generation; incremented by WorkflowUiBridge.beginUiResync"
+            },
+            "instanceKey": {
+              "type": "string",
+              "description": "Workflow instance key; injected by WorkflowUiBridge for execution-scoped messages"
+            },
+            "sessionId": {
+              "type": "string",
+              "description": "M44 session pointer (same value as instanceKey when bound)"
+            }
+          },
+          "additionalProperties": true
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "const": "stageQuestions"
+            },
+            "seq": {
+              "type": "number",
+              "description": "Monotonic backend message sequence assigned by WorkflowUiBridge"
+            },
+            "uiEpoch": {
+              "type": "number",
+              "description": "UI resync generation; incremented by WorkflowUiBridge.beginUiResync"
+            },
+            "instanceKey": {
+              "type": "string",
+              "description": "Workflow instance key; injected by WorkflowUiBridge for execution-scoped messages"
+            },
+            "sessionId": {
+              "type": "string",
+              "description": "M44 session pointer (same value as instanceKey when bound)"
+            }
+          },
+          "additionalProperties": true
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "const": "stageQuestionsBefore"
+            },
+            "seq": {
+              "type": "number",
+              "description": "Monotonic backend message sequence assigned by WorkflowUiBridge"
+            },
+            "uiEpoch": {
+              "type": "number",
+              "description": "UI resync generation; incremented by WorkflowUiBridge.beginUiResync"
+            },
+            "instanceKey": {
+              "type": "string",
+              "description": "Workflow instance key; injected by WorkflowUiBridge for execution-scoped messages"
+            },
+            "sessionId": {
+              "type": "string",
+              "description": "M44 session pointer (same value as instanceKey when bound)"
+            }
+          },
+          "additionalProperties": true
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "stageId",
+            "status"
+          ],
+          "properties": {
+            "type": {
+              "const": "stageStatusUpdate"
+            },
+            "seq": {
+              "type": "number",
+              "description": "Monotonic backend message sequence assigned by WorkflowUiBridge"
+            },
+            "uiEpoch": {
+              "type": "number",
+              "description": "UI resync generation; incremented by WorkflowUiBridge.beginUiResync"
+            },
+            "instanceKey": {
+              "type": "string",
+              "description": "Workflow instance key; injected by WorkflowUiBridge for execution-scoped messages"
+            },
+            "sessionId": {
+              "type": "string",
+              "description": "M44 session pointer (same value as instanceKey when bound)"
+            },
+            "stageId": {
+              "type": "string"
+            },
+            "status": {
+              "enum": [
+                "pending",
+                "running",
+                "waiting-questions",
+                "paused",
+                "done",
+                "skipped",
+                "error",
+                "retrying"
+              ]
+            },
+            "isDecisionStage": {
+              "type": "boolean"
+            },
+            "retryDisabled": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": true
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "const": "streamChunk"
+            },
+            "seq": {
+              "type": "number",
+              "description": "Monotonic backend message sequence assigned by WorkflowUiBridge"
+            },
+            "uiEpoch": {
+              "type": "number",
+              "description": "UI resync generation; incremented by WorkflowUiBridge.beginUiResync"
+            },
+            "instanceKey": {
+              "type": "string",
+              "description": "Workflow instance key; injected by WorkflowUiBridge for execution-scoped messages"
+            },
+            "sessionId": {
+              "type": "string",
+              "description": "M44 session pointer (same value as instanceKey when bound)"
+            }
+          },
+          "additionalProperties": true
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "const": "taskWorkspacePathPicked"
+            },
+            "seq": {
+              "type": "number",
+              "description": "Monotonic backend message sequence assigned by WorkflowUiBridge"
+            },
+            "uiEpoch": {
+              "type": "number",
+              "description": "UI resync generation; incremented by WorkflowUiBridge.beginUiResync"
+            },
+            "instanceKey": {
+              "type": "string",
+              "description": "Workflow instance key; injected by WorkflowUiBridge for execution-scoped messages"
+            },
+            "sessionId": {
+              "type": "string",
+              "description": "M44 session pointer (same value as instanceKey when bound)"
+            }
+          },
+          "additionalProperties": true
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "failedStageId",
+            "targetImplStageId",
+            "resetStageIds",
+            "resetStageTitles"
+          ],
+          "properties": {
+            "type": {
+              "const": "upstreamFixStarted"
+            },
+            "seq": {
+              "type": "number",
+              "description": "Monotonic backend message sequence assigned by WorkflowUiBridge"
+            },
+            "uiEpoch": {
+              "type": "number",
+              "description": "UI resync generation; incremented by WorkflowUiBridge.beginUiResync"
+            },
+            "instanceKey": {
+              "type": "string",
+              "description": "Workflow instance key; injected by WorkflowUiBridge for execution-scoped messages"
+            },
+            "sessionId": {
+              "type": "string",
+              "description": "M44 session pointer (same value as instanceKey when bound)"
+            },
+            "failedStageId": {
+              "type": "string"
+            },
+            "targetImplStageId": {
+              "type": "string"
+            },
+            "resetStageIds": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "resetStageTitles": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": true
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "const": "userTaskPolished"
+            },
+            "seq": {
+              "type": "number",
+              "description": "Monotonic backend message sequence assigned by WorkflowUiBridge"
+            },
+            "uiEpoch": {
+              "type": "number",
+              "description": "UI resync generation; incremented by WorkflowUiBridge.beginUiResync"
+            },
+            "instanceKey": {
+              "type": "string",
+              "description": "Workflow instance key; injected by WorkflowUiBridge for execution-scoped messages"
+            },
+            "sessionId": {
+              "type": "string",
+              "description": "M44 session pointer (same value as instanceKey when bound)"
+            }
+          },
+          "additionalProperties": true
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "const": "workflowCompleted"
+            },
+            "seq": {
+              "type": "number",
+              "description": "Monotonic backend message sequence assigned by WorkflowUiBridge"
+            },
+            "uiEpoch": {
+              "type": "number",
+              "description": "UI resync generation; incremented by WorkflowUiBridge.beginUiResync"
+            },
+            "instanceKey": {
+              "type": "string",
+              "description": "Workflow instance key; injected by WorkflowUiBridge for execution-scoped messages"
+            },
+            "sessionId": {
+              "type": "string",
+              "description": "M44 session pointer (same value as instanceKey when bound)"
+            }
+          },
+          "additionalProperties": true
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "reason",
+            "errorType"
+          ],
+          "properties": {
+            "type": {
+              "const": "workflowFailed"
+            },
+            "seq": {
+              "type": "number",
+              "description": "Monotonic backend message sequence assigned by WorkflowUiBridge"
+            },
+            "uiEpoch": {
+              "type": "number",
+              "description": "UI resync generation; incremented by WorkflowUiBridge.beginUiResync"
+            },
+            "instanceKey": {
+              "type": "string",
+              "description": "Workflow instance key; injected by WorkflowUiBridge for execution-scoped messages"
+            },
+            "sessionId": {
+              "type": "string",
+              "description": "M44 session pointer (same value as instanceKey when bound)"
+            },
+            "reason": {
+              "type": "string"
+            },
+            "errorType": {
+              "enum": [
+                "llm-timeout",
+                "llm-context-overflow",
+                "llm-invalid-output",
+                "llm-refusal",
+                "llm-quality-below-threshold",
+                "tool-execution-failed",
+                "code-runner-timeout",
+                "file-not-found",
+                "stage-not-found",
+                "invariant-violation",
+                "retry-limit-exceeded",
+                "sandbox-network-blocked",
+                "sandbox-memory-exceeded",
+                "static-analysis-failed",
+                "confidence-too-low",
+                "unknown"
+              ]
+            },
+            "stageId": {
+              "type": "string"
+            },
+            "traceId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": true
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "workflow"
+          ],
+          "properties": {
+            "type": {
+              "const": "workflowGenerated"
+            },
+            "seq": {
+              "type": "number",
+              "description": "Monotonic backend message sequence assigned by WorkflowUiBridge"
+            },
+            "uiEpoch": {
+              "type": "number",
+              "description": "UI resync generation; incremented by WorkflowUiBridge.beginUiResync"
+            },
+            "instanceKey": {
+              "type": "string"
+            },
+            "sessionId": {
+              "type": "string"
+            },
+            "workflow": {
+              "description": "WorkflowDefinition"
+            },
+            "warnings": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "warningsDisplay": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "planSummary": {
+              "description": "PlanSummary"
+            },
+            "stageSourceSummary": {
+              "type": "array",
+              "items": {
+                "description": "StageSourceEdge"
+              }
+            },
+            "blocked": {
+              "type": "boolean"
+            },
+            "blockReasons": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "structuralRepairs": {
+              "type": "array",
+              "items": {
+                "description": "StructuralRepairActionSummary"
+              }
+            },
+            "experienceReferencesUsed": {
+              "type": "number"
+            },
+            "settingsProfile": {
+              "type": "string"
+            },
+            "profileGateDiff": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": true
+        }
+      ]
+    },
+    "frontendMessage": {
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "enum": [
+            "answerQuestions",
+            "answerQuestionsBefore",
+            "approve",
+            "approveDecision",
+            "clarifyStart",
+            "copyDebugLog",
+            "copySessionLog",
+            "editOutput",
+            "generateWorkflow",
+            "openArtifactDiff",
+            "openArtifactFile",
+            "pickTaskWorkspaceFolder",
+            "polishUserTask",
+            "retry",
+            "startExecution",
+            "upstreamFix",
+            "webviewReady"
+          ]
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "oneOf": [
+    {
+      "$ref": "#/definitions/backendMessage"
+    },
+    {
+      "$ref": "#/definitions/frontendMessage"
+    }
+  ]
+}

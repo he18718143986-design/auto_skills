@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="{{CSP}}">
+  <style>
+{{STYLES}}
+  </style>
+</head>
+<body>
+
+  <div class="section">
+    <div class="section-title" data-i18n-key="stagent.webview.sidebar.profileSection"></div>
+    <select id="profileSelect">
+      <option value="default">default</option>
+      <option value="strict">strict</option>
+      <option value="relaxed">relaxed</option>
+      <option value="minimal">minimal</option>
+    </select>
+    <ul id="profileHighlights" class="profile-highlights"></ul>
+  </div>
+  <div class="section">
+    <div class="section-title" data-i18n-key="stagent.webview.sidebar.modelSection"></div>
+    <select id="modelSelect">
+      <option value="" data-i18n-key="stagent.webview.sidebar.modelLoading"></option>
+    </select>
+  </div>
+  <div class="section">
+    <div class="section-title" data-i18n-key="stagent.webview.sidebar.stageSection"></div>
+    <div id="stageArea">
+      <div class="no-stage" data-i18n-key="stagent.webview.sidebar.noActiveWorkflow"></div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title" data-i18n-key="stagent.webview.sidebar.retrySection"></div>
+    <select id="retryStageSelect" disabled>
+      <option value="" data-i18n-key="stagent.webview.sidebar.retryStagePlaceholder"></option>
+    </select>
+    <button class="btn-primary" id="btnRetry" disabled data-i18n-key="stagent.webview.sidebar.retryStage" data-i18n-title-key="stagent.webview.sidebar.retryTitle" style="margin-top:6px">
+    </button>
+    <button class="btn-secondary" id="btnRefresh" data-i18n-key="stagent.webview.sidebar.refreshPanel" style="margin-top:6px"></button>
+  </div>
+  <div class="section">
+    <div class="section-title" data-i18n-key="stagent.webview.sidebar.envSection"></div>
+    <div id="envArea">
+      <div class="env-row">
+        <span class="env-label" data-i18n-key="stagent.webview.sidebar.copilotLabel"></span>
+        <span class="env-badge" id="copilotBadge" data-i18n-key="stagent.webview.sidebar.detecting"></span>
+      </div>
+      <div class="env-row env-row-action" data-settings-query="stagent.llmApiKey" data-i18n-title-key="stagent.webview.sidebar.openSettingsApi" role="button" tabindex="0">
+        <span class="env-label" data-i18n-key="stagent.webview.sidebar.apiKeyLabel"></span>
+        <span class="env-badge" id="apiBadge" data-i18n-key="stagent.webview.sidebar.detecting"></span>
+      </div>
+      <div class="env-row env-row-action" data-settings-query="stagent.sandbox.enabled" data-i18n-title-key="stagent.webview.sidebar.openSettingsSandbox" role="button" tabindex="0">
+        <span class="env-label" data-i18n-key="stagent.webview.sidebar.sandboxLabel"></span>
+        <span class="env-badge" id="sandboxBadge" data-i18n-key="stagent.webview.sidebar.detecting"></span>
+      </div>
+      <div class="env-detail" id="llmDetail"></div>
+    </div>
+    <button class="btn-secondary" id="btnSettings" style="margin-top:6px" data-i18n-key="stagent.webview.sidebar.openSettings"></button>
+  </div>
+  <script nonce="{{NONCE}}">window.__stagentL10n={{L10N_JSON}};</script>
+  <script nonce="{{NONCE}}">
+{{SCRIPT}}
+  </script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+{
+  "id": "wf_engine_hitl_pause",
+  "version": "2.0",
+  "meta": {
+    "title": "Engine strict HITL pause",
+    "taskType": "writing",
+    "userInput": "strict integration hitl pause",
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  "stages": [
+    {
+      "id": "stage_pause_impl",
+      "title": "Impl with pause",
+      "tool": "llm-text",
+      "toolConfig": { "type": "llm-text", "systemPrompt": "Write one line of output." },
+      "input": { "sources": [{ "type": "user-input", "label": "task" }], "mergeStrategy": "concat" },
+      "outputs": [{ "key": "text", "format": "text" }],
+      "pauseAfter": true
+    }
+  ]
+}

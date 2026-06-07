@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="{{CSP}}">
+  <style>
+{{STYLES}}
+  </style>
+</head>
+<body>
+
+  <div class="task-list-toolbar" id="taskToolbar" hidden>
+    <button class="btn-toolbar" id="btnRefresh" type="button" data-i18n-key="stagent.webview.sidebar.taskListRefresh" data-i18n-title-key="stagent.webview.sidebar.taskListRefreshTitle"></button>
+    <button class="btn-toolbar btn-toolbar-primary" id="btnNew" type="button" data-i18n-key="stagent.webview.sidebar.taskNew"></button>
+  </div>
+  <div class="task-list" id="taskList"></div>
+  <div class="empty-state" id="emptyState">
+    <div class="empty-state-icon">📋</div>
+    <div data-i18n-key="stagent.webview.sidebar.taskEmpty"></div>
+    <button class="btn-empty-new" id="btnEmptyNew" type="button" data-i18n-key="stagent.webview.sidebar.taskNew"></button>
+  </div>
+  <script nonce="{{NONCE}}">window.__stagentL10n={{L10N_JSON}};</script>
+  <script nonce="{{NONCE}}">
+{{SCRIPT}}
+  </script>
+</body>
+</html>

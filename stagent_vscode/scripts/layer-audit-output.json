@@ -1,0 +1,1748 @@
+{
+  "violations": [
+    {
+      "kind": "persist-reverse",
+      "file": "ProjectGlossaryStore.ts",
+      "line": 1,
+      "fromLayer": "persistence",
+      "toLayer": "gates",
+      "target": "CrossFileKeyContractLint.ts",
+      "spec": "./CrossFileKeyContractLint",
+      "desc": "持久化层反向依赖 gates 层（应仅依赖 model/基础设施）"
+    },
+    {
+      "kind": "persist-reverse",
+      "file": "PromptVersionManager.ts",
+      "line": 4,
+      "fromLayer": "persistence",
+      "toLayer": "core",
+      "target": "WorkflowPrompts.ts",
+      "spec": "./WorkflowPrompts",
+      "desc": "持久化层反向依赖 core 层（应仅依赖 model/基础设施）"
+    },
+    {
+      "kind": "ui-cross",
+      "file": "WorkflowArtifactUi.ts",
+      "line": 10,
+      "fromLayer": "ui",
+      "toLayer": "persistence",
+      "target": "FsAsync.ts",
+      "spec": "./FsAsync",
+      "desc": "UI 层直接依赖 persistence 层模块（应经 WorkflowEngine / 消息协议）"
+    },
+    {
+      "kind": "ui-cross",
+      "file": "WorkflowArtifactUi.ts",
+      "line": 11,
+      "fromLayer": "ui",
+      "toLayer": "persistence",
+      "target": "SessionDebugLog.ts",
+      "spec": "./SessionDebugLog",
+      "desc": "UI 层直接依赖 persistence 层模块（应经 WorkflowEngine / 消息协议）"
+    },
+    {
+      "kind": "persist-reverse",
+      "file": "WorkflowExperienceStore.ts",
+      "line": 5,
+      "fromLayer": "persistence",
+      "toLayer": "gates",
+      "target": "ConfidenceScorer.ts",
+      "spec": "./ConfidenceScorer",
+      "desc": "持久化层反向依赖 gates 层（应仅依赖 model/基础设施）"
+    },
+    {
+      "kind": "persist-reverse",
+      "file": "WorkflowPersistence.ts",
+      "line": 10,
+      "fromLayer": "persistence",
+      "toLayer": "core",
+      "target": "WorkflowStateEnvelope.ts",
+      "spec": "./WorkflowStateEnvelope",
+      "desc": "持久化层反向依赖 core 层（应仅依赖 model/基础设施）"
+    },
+    {
+      "kind": "ui-cross-type",
+      "file": "extension.ts",
+      "line": 12,
+      "fromLayer": "ui",
+      "toLayer": "persistence",
+      "target": "WorkflowDeletePlan.ts",
+      "spec": "./WorkflowDeletePlan",
+      "desc": "UI 层 import type 引用 persistence 层（类型泄漏，建议抽到 model/shared）"
+    }
+  ],
+  "multiLayer": [
+    {
+      "file": "BuiltinQualityGates.ts",
+      "fromLayer": "gates",
+      "layers": [
+        "core",
+        "execution",
+        "generation",
+        "model"
+      ],
+      "imports": [
+        {
+          "layer": "gates",
+          "targets": [
+            {
+              "rel": "Rule20Verify.ts",
+              "line": 15
+            },
+            {
+              "rel": "Rule20RuntimeGate.ts",
+              "line": 22
+            },
+            {
+              "rel": "DependencyGraphAnalyzer.ts",
+              "line": 29
+            },
+            {
+              "rel": "PrototypeContractLint.ts",
+              "line": 31
+            },
+            {
+              "rel": "DebugFeedbackLoopGate.ts",
+              "line": 39
+            }
+          ]
+        },
+        {
+          "layer": "generation",
+          "targets": [
+            {
+              "rel": "PlanCompletenessGate.ts",
+              "line": 20
+            },
+            {
+              "rel": "WorkflowRule20Normalize.ts",
+              "line": 23
+            },
+            {
+              "rel": "WorkflowStructuralRepair.ts",
+              "line": 32
+            }
+          ]
+        },
+        {
+          "layer": "core",
+          "targets": [
+            {
+              "rel": "WorkflowEngineHelpers.ts",
+              "line": 21
+            }
+          ]
+        },
+        {
+          "layer": "other",
+          "targets": [
+            {
+              "rel": "WorkflowComplexityEstimator.ts",
+              "line": 30
+            }
+          ]
+        },
+        {
+          "layer": "execution",
+          "targets": [
+            {
+              "rel": "RedGreenFsm.ts",
+              "line": 40
+            },
+            {
+              "rel": "TestRunPreflight.ts",
+              "line": 41
+            }
+          ]
+        },
+        {
+          "layer": "model",
+          "targets": [
+            {
+              "rel": "WorkflowDefinition.ts",
+              "line": 42
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "CodeRunnerCommandLint.ts",
+      "fromLayer": "gates",
+      "layers": [
+        "core",
+        "execution",
+        "model"
+      ],
+      "imports": [
+        {
+          "layer": "model",
+          "targets": [
+            {
+              "rel": "WorkflowDefinition.ts",
+              "line": 20
+            }
+          ]
+        },
+        {
+          "layer": "core",
+          "targets": [
+            {
+              "rel": "WorkflowArtifactRegistry.ts",
+              "line": 21
+            },
+            {
+              "rel": "StagentSettings.ts",
+              "line": 24
+            }
+          ]
+        },
+        {
+          "layer": "gates",
+          "targets": [
+            {
+              "rel": "CodeRunnerImportLint.ts",
+              "line": 22
+            }
+          ]
+        },
+        {
+          "layer": "execution",
+          "targets": [
+            {
+              "rel": "TestRunCommandNormalize.ts",
+              "line": 23
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "WorkflowArtifactUi.ts",
+      "fromLayer": "ui",
+      "layers": [
+        "core",
+        "model",
+        "persistence"
+      ],
+      "imports": [
+        {
+          "layer": "model",
+          "targets": [
+            {
+              "rel": "WorkflowDefinition.ts",
+              "line": 7
+            },
+            {
+              "rel": "DebugLogUtils.ts",
+              "line": 9
+            }
+          ]
+        },
+        {
+          "layer": "core",
+          "targets": [
+            {
+              "rel": "ArtifactUiHints.ts",
+              "line": 8
+            }
+          ]
+        },
+        {
+          "layer": "persistence",
+          "targets": [
+            {
+              "rel": "FsAsync.ts",
+              "line": 10
+            },
+            {
+              "rel": "SessionDebugLog.ts",
+              "line": 11
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "WorkflowEngine.ts",
+      "fromLayer": "core",
+      "layers": [
+        "execution",
+        "gates",
+        "generation",
+        "persistence",
+        "ui"
+      ],
+      "imports": [
+        {
+          "layer": "gates",
+          "targets": [
+            {
+              "rel": "SdkPathContractLint.ts",
+              "line": 17
+            }
+          ]
+        },
+        {
+          "layer": "persistence",
+          "targets": [
+            {
+              "rel": "WorkflowDeletePlan.ts",
+              "line": 18
+            },
+            {
+              "rel": "FsAsync.ts",
+              "line": 35
+            }
+          ]
+        },
+        {
+          "layer": "execution",
+          "targets": [
+            {
+              "rel": "WorkflowExecutor.ts",
+              "line": 23
+            },
+            {
+              "rel": "WorkflowParallelMonitor.ts",
+              "line": 36
+            },
+            {
+              "rel": "WorkflowInputContent.ts",
+              "line": 43
+            },
+            {
+              "rel": "WorkflowCodeRunnerHost.ts",
+              "line": 49
+            },
+            {
+              "rel": "WorkflowStartCoordinator.ts",
+              "line": 61
+            }
+          ]
+        },
+        {
+          "layer": "core",
+          "targets": [
+            {
+              "rel": "LlmClient.ts",
+              "line": 28
+            },
+            {
+              "rel": "WorkflowEngineArtifactBridge.ts",
+              "line": 37
+            },
+            {
+              "rel": "WorkflowEngineOutputHelper.ts",
+              "line": 38
+            },
+            {
+              "rel": "WorkflowEngineMessaging.ts",
+              "line": 69
+            },
+            {
+              "rel": "WorkflowEngineDiagnostics.ts",
+              "line": 86
+            },
+            {
+              "rel": "WorkflowInstanceManager.ts",
+              "line": 88
+            }
+          ]
+        },
+        {
+          "layer": "ui",
+          "targets": [
+            {
+              "rel": "WorkflowUiBridge.ts",
+              "line": 87
+            },
+            {
+              "rel": "WebviewMessageGuards.ts",
+              "line": 90
+            }
+          ]
+        },
+        {
+          "layer": "generation",
+          "targets": [
+            {
+              "rel": "WorkflowGenerationService.ts",
+              "line": 89
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "WorkflowEngineExecutionBinder.ts",
+      "fromLayer": "execution",
+      "layers": [
+        "core",
+        "gates",
+        "model"
+      ],
+      "imports": [
+        {
+          "layer": "model",
+          "targets": [
+            {
+              "rel": "WorkflowDefinition.ts",
+              "line": 5
+            }
+          ]
+        },
+        {
+          "layer": "execution",
+          "targets": [
+            {
+              "rel": "WorkflowExecutor.ts",
+              "line": 6
+            },
+            {
+              "rel": "WorkflowSkipCondition.ts",
+              "line": 7
+            },
+            {
+              "rel": "WorkflowParallelMonitor.ts",
+              "line": 29
+            }
+          ]
+        },
+        {
+          "layer": "core",
+          "targets": [
+            {
+              "rel": "GrillAdaptiveFlow.ts",
+              "line": 8
+            },
+            {
+              "rel": "GrillCodeExplore.ts",
+              "line": 9
+            },
+            {
+              "rel": "AdaptiveHITLPolicy.ts",
+              "line": 22
+            }
+          ]
+        },
+        {
+          "layer": "gates",
+          "targets": [
+            {
+              "rel": "SdkPathContractLint.ts",
+              "line": 28
+            },
+            {
+              "rel": "QualityGate.ts",
+              "line": 30
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "WorkflowEngineHelpers.ts",
+      "fromLayer": "core",
+      "layers": [
+        "generation",
+        "model",
+        "persistence"
+      ],
+      "imports": [
+        {
+          "layer": "model",
+          "targets": [
+            {
+              "rel": "WorkflowDefinition.ts",
+              "line": 1
+            }
+          ]
+        },
+        {
+          "layer": "persistence",
+          "targets": [
+            {
+              "rel": "WorkflowDiskBootstrap.ts",
+              "line": 2
+            }
+          ]
+        },
+        {
+          "layer": "generation",
+          "targets": [
+            {
+              "rel": "WorkflowValidation.ts",
+              "line": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "WorkflowEngineHostFactories.ts",
+      "fromLayer": "core",
+      "layers": [
+        "execution",
+        "generation",
+        "model",
+        "persistence",
+        "ui"
+      ],
+      "imports": [
+        {
+          "layer": "model",
+          "targets": [
+            {
+              "rel": "WorkflowDefinition.ts",
+              "line": 5
+            }
+          ]
+        },
+        {
+          "layer": "persistence",
+          "targets": [
+            {
+              "rel": "WorkflowInstanceRepository.ts",
+              "line": 6
+            }
+          ]
+        },
+        {
+          "layer": "core",
+          "targets": [
+            {
+              "rel": "WorkflowEnginePathHost.ts",
+              "line": 7
+            },
+            {
+              "rel": "WorkflowEngineMessaging.ts",
+              "line": 24
+            }
+          ]
+        },
+        {
+          "layer": "generation",
+          "targets": [
+            {
+              "rel": "WorkflowDraftShell.ts",
+              "line": 8
+            },
+            {
+              "rel": "WorkflowPreGenerationCoordinator.ts",
+              "line": 10
+            },
+            {
+              "rel": "WorkflowGenerationRunner.ts",
+              "line": 11
+            }
+          ]
+        },
+        {
+          "layer": "execution",
+          "targets": [
+            {
+              "rel": "WorkflowHitlCoordinator.ts",
+              "line": 9
+            },
+            {
+              "rel": "WorkflowStartCoordinator.ts",
+              "line": 12
+            },
+            {
+              "rel": "WorkflowStartCoordinator.ts",
+              "line": 14
+            },
+            {
+              "rel": "WorkflowInstanceResumeCoordinator.ts",
+              "line": 23
+            }
+          ]
+        },
+        {
+          "layer": "ui",
+          "targets": [
+            {
+              "rel": "WorkflowArtifactUi.ts",
+              "line": 13
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "WorkflowEngineWorkspaceLint.ts",
+      "fromLayer": "core",
+      "layers": [
+        "gates",
+        "model",
+        "persistence"
+      ],
+      "imports": [
+        {
+          "layer": "model",
+          "targets": [
+            {
+              "rel": "WorkflowDefinition.ts",
+              "line": 5
+            }
+          ]
+        },
+        {
+          "layer": "core",
+          "targets": [
+            {
+              "rel": "WorkflowArtifactRegistry.ts",
+              "line": 6
+            }
+          ]
+        },
+        {
+          "layer": "gates",
+          "targets": [
+            {
+              "rel": "CrossFileKeyContractLint.ts",
+              "line": 7
+            },
+            {
+              "rel": "ModuleDepthScorer.ts",
+              "line": 8
+            },
+            {
+              "rel": "SampleHeaderContractLint.ts",
+              "line": 10
+            },
+            {
+              "rel": "TestQualityLint.ts",
+              "line": 17
+            }
+          ]
+        },
+        {
+          "layer": "persistence",
+          "targets": [
+            {
+              "rel": "ProjectGlossaryStore.ts",
+              "line": 9
+            },
+            {
+              "rel": "FsAsync.ts",
+              "line": 18
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "WorkflowGeneration.ts",
+      "fromLayer": "generation",
+      "layers": [
+        "core",
+        "execution",
+        "gates",
+        "model"
+      ],
+      "imports": [
+        {
+          "layer": "model",
+          "targets": [
+            {
+              "rel": "WorkflowDefinition.ts",
+              "line": 6
+            },
+            {
+              "rel": "JsonExtract.ts",
+              "line": 13
+            }
+          ]
+        },
+        {
+          "layer": "core",
+          "targets": [
+            {
+              "rel": "WorkflowPrompts.ts",
+              "line": 7
+            },
+            {
+              "rel": "QuestionNormalization.ts",
+              "line": 8
+            },
+            {
+              "rel": "WorkflowEngineHelpers.ts",
+              "line": 9
+            },
+            {
+              "rel": "LlmInvokeHelpers.ts",
+              "line": 14
+            }
+          ]
+        },
+        {
+          "layer": "execution",
+          "targets": [
+            {
+              "rel": "CodeRunnerInvokeHelpers.ts",
+              "line": 10
+            },
+            {
+              "rel": "TestRunCommandNormalize.ts",
+              "line": 11
+            }
+          ]
+        },
+        {
+          "layer": "generation",
+          "targets": [
+            {
+              "rel": "WorkflowRule20Normalize.ts",
+              "line": 12
+            },
+            {
+              "rel": "CodebaseContextProvider.ts",
+              "line": 34
+            }
+          ]
+        },
+        {
+          "layer": "gates",
+          "targets": [
+            {
+              "rel": "DependencyGraphAnalyzer.ts",
+              "line": 35
+            }
+          ]
+        },
+        {
+          "layer": "other",
+          "targets": [
+            {
+              "rel": "WorkflowComplexityEstimator.ts",
+              "line": 36
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "WorkflowGenerationOrchestrator.ts",
+      "fromLayer": "generation",
+      "layers": [
+        "core",
+        "gates",
+        "model"
+      ],
+      "imports": [
+        {
+          "layer": "model",
+          "targets": [
+            {
+              "rel": "WorkflowDefinition.ts",
+              "line": 5
+            }
+          ]
+        },
+        {
+          "layer": "gates",
+          "targets": [
+            {
+              "rel": "Rule20Verify.ts",
+              "line": 6
+            },
+            {
+              "rel": "DependencyGraphAnalyzer.ts",
+              "line": 24
+            },
+            {
+              "rel": "Rule20Verify.ts",
+              "line": 26
+            },
+            {
+              "rel": "CodeRunnerCommandLint.ts",
+              "line": 27
+            },
+            {
+              "rel": "QualityGateRunner.ts",
+              "line": 28
+            }
+          ]
+        },
+        {
+          "layer": "generation",
+          "targets": [
+            {
+              "rel": "WorkflowPlanSummary.ts",
+              "line": 11
+            },
+            {
+              "rel": "WorkflowPlanSummary.ts",
+              "line": 12
+            },
+            {
+              "rel": "PlanCompletenessGate.ts",
+              "line": 13
+            }
+          ]
+        },
+        {
+          "layer": "core",
+          "targets": [
+            {
+              "rel": "WorkflowEngineHelpers.ts",
+              "line": 23
+            }
+          ]
+        },
+        {
+          "layer": "other",
+          "targets": [
+            {
+              "rel": "WorkflowComplexityEstimator.ts",
+              "line": 25
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "WorkflowGenerationRunner.ts",
+      "fromLayer": "generation",
+      "layers": [
+        "core",
+        "model",
+        "persistence",
+        "ui"
+      ],
+      "imports": [
+        {
+          "layer": "model",
+          "targets": [
+            {
+              "rel": "WorkflowDefinition.ts",
+              "line": 5
+            }
+          ]
+        },
+        {
+          "layer": "persistence",
+          "targets": [
+            {
+              "rel": "AdrPersistence.ts",
+              "line": 6
+            }
+          ]
+        },
+        {
+          "layer": "core",
+          "targets": [
+            {
+              "rel": "WorkflowPrompts.ts",
+              "line": 7
+            },
+            {
+              "rel": "ReuseStrategy.ts",
+              "line": 20
+            },
+            {
+              "rel": "WorkflowEngineHelpers.ts",
+              "line": 25
+            },
+            {
+              "rel": "StagentProfileDiff.ts",
+              "line": 31
+            },
+            {
+              "rel": "StagentSettings.ts",
+              "line": 32
+            },
+            {
+              "rel": "InstanceSession.ts",
+              "line": 34
+            }
+          ]
+        },
+        {
+          "layer": "generation",
+          "targets": [
+            {
+              "rel": "TaskTypeResolution.ts",
+              "line": 8
+            },
+            {
+              "rel": "WorkflowGeneration.ts",
+              "line": 9
+            },
+            {
+              "rel": "ExperienceGeneratorContext.ts",
+              "line": 10
+            },
+            {
+              "rel": "WorkflowPlanSummary.ts",
+              "line": 26
+            },
+            {
+              "rel": "WorkflowPreGenerationCoordinator.ts",
+              "line": 33
+            }
+          ]
+        },
+        {
+          "layer": "ui",
+          "targets": [
+            {
+              "rel": "WebviewInputGenerationUi.ts",
+              "line": 19
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "WorkflowGenerationService.ts",
+      "fromLayer": "generation",
+      "layers": [
+        "core",
+        "execution",
+        "gates",
+        "model",
+        "ui"
+      ],
+      "imports": [
+        {
+          "layer": "model",
+          "targets": [
+            {
+              "rel": "WorkflowDefinition.ts",
+              "line": 8
+            }
+          ]
+        },
+        {
+          "layer": "generation",
+          "targets": [
+            {
+              "rel": "WorkflowGenerationRunner.ts",
+              "line": 18
+            }
+          ]
+        },
+        {
+          "layer": "core",
+          "targets": [
+            {
+              "rel": "WorkflowEngineHostFactories.ts",
+              "line": 23
+            }
+          ]
+        },
+        {
+          "layer": "execution",
+          "targets": [
+            {
+              "rel": "WorkflowPathResolver.ts",
+              "line": 30
+            }
+          ]
+        },
+        {
+          "layer": "ui",
+          "targets": [
+            {
+              "rel": "WorkflowUiBridge.ts",
+              "line": 31
+            }
+          ]
+        },
+        {
+          "layer": "gates",
+          "targets": [
+            {
+              "rel": "rule20/architecture.ts",
+              "line": 32
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "WorkflowHitlCoordinator.ts",
+      "fromLayer": "execution",
+      "layers": [
+        "core",
+        "gates",
+        "model",
+        "persistence"
+      ],
+      "imports": [
+        {
+          "layer": "model",
+          "targets": [
+            {
+              "rel": "WorkflowDefinition.ts",
+              "line": 5
+            }
+          ]
+        },
+        {
+          "layer": "core",
+          "targets": [
+            {
+              "rel": "ManualRetryLimit.ts",
+              "line": 13
+            },
+            {
+              "rel": "GrillAdaptiveFlow.ts",
+              "line": 17
+            },
+            {
+              "rel": "StagentSettings.ts",
+              "line": 18
+            },
+            {
+              "rel": "WorkflowEngineContinuation.ts",
+              "line": 28
+            },
+            {
+              "rel": "ArtifactLifecycleManager.ts",
+              "line": 29
+            }
+          ]
+        },
+        {
+          "layer": "persistence",
+          "targets": [
+            {
+              "rel": "AdrPersistence.ts",
+              "line": 14
+            }
+          ]
+        },
+        {
+          "layer": "gates",
+          "targets": [
+            {
+              "rel": "DecisionRecordVerify.ts",
+              "line": 15
+            }
+          ]
+        },
+        {
+          "layer": "execution",
+          "targets": [
+            {
+              "rel": "ApproveDecisionGate.ts",
+              "line": 16
+            },
+            {
+              "rel": "WorkflowInputContent.ts",
+              "line": 30
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "WorkflowInstanceManager.ts",
+      "fromLayer": "core",
+      "layers": [
+        "model",
+        "persistence",
+        "ui"
+      ],
+      "imports": [
+        {
+          "layer": "persistence",
+          "targets": [
+            {
+              "rel": "WorkflowDeletePlan.ts",
+              "line": 5
+            }
+          ]
+        },
+        {
+          "layer": "model",
+          "targets": [
+            {
+              "rel": "WorkflowDefinition.ts",
+              "line": 6
+            }
+          ]
+        },
+        {
+          "layer": "core",
+          "targets": [
+            {
+              "rel": "WorkflowEnginePersistenceBridge.ts",
+              "line": 7
+            },
+            {
+              "rel": "WorkflowEngineHostFactories.ts",
+              "line": 16
+            },
+            {
+              "rel": "WorkflowInstanceQuery.ts",
+              "line": 25
+            }
+          ]
+        },
+        {
+          "layer": "ui",
+          "targets": [
+            {
+              "rel": "WorkflowUiBridge.ts",
+              "line": 34
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "WorkflowInstanceResumeCoordinator.ts",
+      "fromLayer": "execution",
+      "layers": [
+        "core",
+        "model",
+        "ui"
+      ],
+      "imports": [
+        {
+          "layer": "model",
+          "targets": [
+            {
+              "rel": "WorkflowDefinition.ts",
+              "line": 6
+            }
+          ]
+        },
+        {
+          "layer": "core",
+          "targets": [
+            {
+              "rel": "ActiveInstanceGuard.ts",
+              "line": 7
+            },
+            {
+              "rel": "InstanceSession.ts",
+              "line": 8
+            },
+            {
+              "rel": "WorkflowStagePosition.ts",
+              "line": 9
+            },
+            {
+              "rel": "InstanceSession.ts",
+              "line": 11
+            }
+          ]
+        },
+        {
+          "layer": "ui",
+          "targets": [
+            {
+              "rel": "Rule20WarningDisplay.ts",
+              "line": 10
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "WorkflowNonLlmToolRunner.ts",
+      "fromLayer": "execution",
+      "layers": [
+        "core",
+        "gates",
+        "model",
+        "persistence"
+      ],
+      "imports": [
+        {
+          "layer": "core",
+          "targets": [
+            {
+              "rel": "StagentSettings.ts",
+              "line": 13
+            },
+            {
+              "rel": "ArtifactLifecycleManager.ts",
+              "line": 15
+            }
+          ]
+        },
+        {
+          "layer": "gates",
+          "targets": [
+            {
+              "rel": "ConfigContractLint.ts",
+              "line": 14
+            }
+          ]
+        },
+        {
+          "layer": "persistence",
+          "targets": [
+            {
+              "rel": "FsAsync.ts",
+              "line": 16
+            }
+          ]
+        },
+        {
+          "layer": "model",
+          "targets": [
+            {
+              "rel": "ErrorTypeUtils.ts",
+              "line": 17
+            }
+          ]
+        },
+        {
+          "layer": "execution",
+          "targets": [
+            {
+              "rel": "WorkflowExecutorTypes.ts",
+              "line": 18
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "WorkflowPreGenerationCoordinator.ts",
+      "fromLayer": "generation",
+      "layers": [
+        "core",
+        "execution",
+        "model",
+        "ui"
+      ],
+      "imports": [
+        {
+          "layer": "model",
+          "targets": [
+            {
+              "rel": "WorkflowDefinition.ts",
+              "line": 6
+            },
+            {
+              "rel": "JsonExtract.ts",
+              "line": 9
+            }
+          ]
+        },
+        {
+          "layer": "generation",
+          "targets": [
+            {
+              "rel": "TaskPolishPrompt.ts",
+              "line": 7
+            }
+          ]
+        },
+        {
+          "layer": "core",
+          "targets": [
+            {
+              "rel": "ReuseStrategy.ts",
+              "line": 8
+            },
+            {
+              "rel": "InstanceSession.ts",
+              "line": 12
+            }
+          ]
+        },
+        {
+          "layer": "ui",
+          "targets": [
+            {
+              "rel": "WebviewInputGenerationUi.ts",
+              "line": 10
+            }
+          ]
+        },
+        {
+          "layer": "execution",
+          "targets": [
+            {
+              "rel": "WorkflowPathResolver.ts",
+              "line": 11
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "WorkflowRule20Normalize.ts",
+      "fromLayer": "generation",
+      "layers": [
+        "core",
+        "gates",
+        "model",
+        "persistence"
+      ],
+      "imports": [
+        {
+          "layer": "model",
+          "targets": [
+            {
+              "rel": "WorkflowDefinition.ts",
+              "line": 8
+            },
+            {
+              "rel": "WorkflowDefinition.ts",
+              "line": 9
+            }
+          ]
+        },
+        {
+          "layer": "persistence",
+          "targets": [
+            {
+              "rel": "WorkflowDiskBootstrap.ts",
+              "line": 10
+            }
+          ]
+        },
+        {
+          "layer": "gates",
+          "targets": [
+            {
+              "rel": "Rule20Verify.ts",
+              "line": 11
+            },
+            {
+              "rel": "Rule20RuntimeGate.ts",
+              "line": 13
+            }
+          ]
+        },
+        {
+          "layer": "core",
+          "targets": [
+            {
+              "rel": "WorkflowPrompts.ts",
+              "line": 12
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "WorkflowStageStep.ts",
+      "fromLayer": "execution",
+      "layers": [
+        "core",
+        "gates",
+        "model",
+        "persistence"
+      ],
+      "imports": [
+        {
+          "layer": "execution",
+          "targets": [
+            {
+              "rel": "ImplOutputExecution.ts",
+              "line": 2
+            },
+            {
+              "rel": "TestRunFailurePlaybook.ts",
+              "line": 10
+            },
+            {
+              "rel": "WorkflowNonLlmToolRunner.ts",
+              "line": 29
+            },
+            {
+              "rel": "WorkflowStageQuestionGate.ts",
+              "line": 31
+            },
+            {
+              "rel": "WorkflowStagePreGates.ts",
+              "line": 32
+            },
+            {
+              "rel": "WorkflowExecutorTypes.ts",
+              "line": 33
+            },
+            {
+              "rel": "stage-runners/StagePostRunPipeline.ts",
+              "line": 34
+            }
+          ]
+        },
+        {
+          "layer": "gates",
+          "targets": [
+            {
+              "rel": "QualityGateRunner.ts",
+              "line": 3
+            },
+            {
+              "rel": "ModuleDepthScorer.ts",
+              "line": 28
+            }
+          ]
+        },
+        {
+          "layer": "model",
+          "targets": [
+            {
+              "rel": "WriteOutputNormalize.ts",
+              "line": 11
+            },
+            {
+              "rel": "ErrorTypeUtils.ts",
+              "line": 14
+            },
+            {
+              "rel": "WorkflowStageErrorHelpers.ts",
+              "line": 30
+            }
+          ]
+        },
+        {
+          "layer": "core",
+          "targets": [
+            {
+              "rel": "ArtifactLifecycleManager.ts",
+              "line": 12
+            },
+            {
+              "rel": "StagentSettingsDefaults.ts",
+              "line": 26
+            },
+            {
+              "rel": "HITLContractNodePolicy.ts",
+              "line": 27
+            }
+          ]
+        },
+        {
+          "layer": "persistence",
+          "targets": [
+            {
+              "rel": "FsAsync.ts",
+              "line": 13
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "WorkflowStartCoordinator.ts",
+      "fromLayer": "execution",
+      "layers": [
+        "core",
+        "generation",
+        "model",
+        "persistence"
+      ],
+      "imports": [
+        {
+          "layer": "model",
+          "targets": [
+            {
+              "rel": "WorkflowDefinition.ts",
+              "line": 6
+            }
+          ]
+        },
+        {
+          "layer": "generation",
+          "targets": [
+            {
+              "rel": "WorkflowValidation.ts",
+              "line": 7
+            }
+          ]
+        },
+        {
+          "layer": "core",
+          "targets": [
+            {
+              "rel": "ActiveInstanceGuard.ts",
+              "line": 8
+            },
+            {
+              "rel": "InstanceSession.ts",
+              "line": 9
+            }
+          ]
+        },
+        {
+          "layer": "persistence",
+          "targets": [
+            {
+              "rel": "WorkflowProcessDocs.ts",
+              "line": 10
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "WorkflowValidation.ts",
+      "fromLayer": "generation",
+      "layers": [
+        "core",
+        "execution",
+        "model"
+      ],
+      "imports": [
+        {
+          "layer": "model",
+          "targets": [
+            {
+              "rel": "WorkflowDefinition.ts",
+              "line": 1
+            }
+          ]
+        },
+        {
+          "layer": "execution",
+          "targets": [
+            {
+              "rel": "WorkflowDag.ts",
+              "line": 2
+            }
+          ]
+        },
+        {
+          "layer": "core",
+          "targets": [
+            {
+              "rel": "StagentSettings.ts",
+              "line": 8
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "extension.ts",
+      "fromLayer": "ui",
+      "layers": [
+        "core",
+        "gates",
+        "model",
+        "persistence"
+      ],
+      "imports": [
+        {
+          "layer": "model",
+          "targets": [
+            {
+              "rel": "WorkflowDefinition.ts",
+              "line": 2
+            }
+          ]
+        },
+        {
+          "layer": "core",
+          "targets": [
+            {
+              "rel": "WorkflowEngine.ts",
+              "line": 3
+            },
+            {
+              "rel": "StagentSettings.ts",
+              "line": 8
+            },
+            {
+              "rel": "StagentProfileHighlights.ts",
+              "line": 9
+            },
+            {
+              "rel": "StagentSettingsProfiles.ts",
+              "line": 10
+            },
+            {
+              "rel": "WorkflowInstanceQuery.ts",
+              "line": 13
+            }
+          ]
+        },
+        {
+          "layer": "ui",
+          "targets": [
+            {
+              "rel": "WorkflowPanelMessageRouter.ts",
+              "line": 4
+            },
+            {
+              "rel": "WebviewPanel.ts",
+              "line": 5
+            },
+            {
+              "rel": "StagentAiControlsProvider.ts",
+              "line": 6
+            },
+            {
+              "rel": "StagentTaskListProvider.ts",
+              "line": 7
+            },
+            {
+              "rel": "StagentOnboarding.ts",
+              "line": 14
+            }
+          ]
+        },
+        {
+          "layer": "gates",
+          "targets": [
+            {
+              "rel": "BuiltinQualityGates.ts",
+              "line": 11
+            }
+          ]
+        },
+        {
+          "layer": "persistence",
+          "targets": [
+            {
+              "rel": "WorkflowDeletePlan.ts",
+              "line": 12
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "rule20/verify.ts",
+      "fromLayer": "gates",
+      "layers": [
+        "core",
+        "execution",
+        "model",
+        "persistence"
+      ],
+      "imports": [
+        {
+          "layer": "model",
+          "targets": [
+            {
+              "rel": "WorkflowDefinition.ts",
+              "line": 1
+            }
+          ]
+        },
+        {
+          "layer": "execution",
+          "targets": [
+            {
+              "rel": "WorkflowDag.ts",
+              "line": 2
+            },
+            {
+              "rel": "RedGreenGate.ts",
+              "line": 5
+            }
+          ]
+        },
+        {
+          "layer": "core",
+          "targets": [
+            {
+              "rel": "WorkflowArtifactRegistry.ts",
+              "line": 3
+            }
+          ]
+        },
+        {
+          "layer": "gates",
+          "targets": [
+            {
+              "rel": "CodeRunnerImportLint.ts",
+              "line": 4
+            },
+            {
+              "rel": "rule20/architecture.ts",
+              "line": 7
+            },
+            {
+              "rel": "rule20/debug-feedback.ts",
+              "line": 8
+            },
+            {
+              "rel": "rule20/prototype.ts",
+              "line": 9
+            },
+            {
+              "rel": "rule20/types.ts",
+              "line": 10
+            }
+          ]
+        },
+        {
+          "layer": "persistence",
+          "targets": [
+            {
+              "rel": "WorkflowDiskBootstrap.ts",
+              "line": 6
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "stage-runners/StagePostRunPipeline.ts",
+      "fromLayer": "execution",
+      "layers": [
+        "core",
+        "gates",
+        "model"
+      ],
+      "imports": [
+        {
+          "layer": "model",
+          "targets": [
+            {
+              "rel": "WorkflowDefinition.ts",
+              "line": 1
+            }
+          ]
+        },
+        {
+          "layer": "gates",
+          "targets": [
+            {
+              "rel": "ConfidenceScorer.ts",
+              "line": 2
+            },
+            {
+              "rel": "ConfidenceScorer.ts",
+              "line": 3
+            },
+            {
+              "rel": "OutputQualityScorer.ts",
+              "line": 5
+            },
+            {
+              "rel": "OutputQualityScorer.ts",
+              "line": 6
+            }
+          ]
+        },
+        {
+          "layer": "core",
+          "targets": [
+            {
+              "rel": "AdaptiveHITLPolicy.ts",
+              "line": 4
+            }
+          ]
+        },
+        {
+          "layer": "execution",
+          "targets": [
+            {
+              "rel": "WorkflowExecutorTypes.ts",
+              "line": 7
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "fileCount": 208
+}

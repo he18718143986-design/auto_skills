@@ -1,0 +1,83 @@
+{
+  "id": "workflow-python-excel-diff-analyzer-fixture",
+  "version": "2.0",
+  "meta": {
+    "title": "fixture missing config.py import",
+    "taskType": "prototype",
+    "userInput": "excel diff analyzer",
+    "createdAt": "2026-05-29T00:00:00.000Z"
+  },
+  "stages": [
+    {
+      "id": "stage_impl_prototype_requirements",
+      "title": "requirements",
+      "tool": "llm-text",
+      "toolConfig": {
+        "type": "llm-text",
+        "systemPrompt": "x",
+        "writeOutputToFile": "requirements.txt",
+        "writePathBase": "workspace"
+      },
+      "input": { "sources": [], "mergeStrategy": "concat" },
+      "outputs": [{ "key": "fileContent", "format": "text" }],
+      "pauseAfter": false
+    },
+    {
+      "id": "stage_impl_prototype_config",
+      "title": "config yaml",
+      "tool": "llm-text",
+      "toolConfig": {
+        "type": "llm-text",
+        "systemPrompt": "x",
+        "writeOutputToFile": "config.yaml",
+        "writePathBase": "workspace"
+      },
+      "input": { "sources": [], "mergeStrategy": "concat" },
+      "outputs": [{ "key": "fileContent", "format": "text" }],
+      "pauseAfter": false
+    },
+    {
+      "id": "stage_impl_prototype_reader",
+      "title": "reader",
+      "tool": "llm-text",
+      "toolConfig": {
+        "type": "llm-text",
+        "systemPrompt": "x",
+        "writeOutputToFile": "reader.py",
+        "writePathBase": "workspace"
+      },
+      "input": { "sources": [], "mergeStrategy": "concat" },
+      "outputs": [{ "key": "fileContent", "format": "text" }],
+      "pauseAfter": false
+    },
+    {
+      "id": "stage_impl_prototype_fetcher",
+      "title": "fetcher",
+      "tool": "llm-text",
+      "toolConfig": {
+        "type": "llm-text",
+        "systemPrompt": "x",
+        "writeOutputToFile": "fetcher.py",
+        "writePathBase": "workspace"
+      },
+      "input": { "sources": [{ "type": "user-input", "label": "x" }], "mergeStrategy": "concat" },
+      "outputs": [{ "key": "fileContent", "format": "text" }],
+      "pauseAfter": false
+    },
+    {
+      "id": "stage_test_run_prototype_fetcher_check",
+      "title": "fetcher check",
+      "tool": "code-runner",
+      "toolConfig": {
+        "type": "code-runner",
+        "command": ".venv/bin/python -c \"from fetcher import fetch_product_info; from config import load_config; cfg=load_config('config.yaml'); cfg['mock_mode']=True; print(fetch_product_info('B0EXAMPLE', cfg))\"",
+        "captureOutput": true,
+        "pathBase": "workspace",
+        "workingDir": "."
+      },
+      "input": { "sources": [], "mergeStrategy": "concat" },
+      "outputs": [{ "key": "text", "format": "text" }],
+      "pauseAfter": false
+    }
+  ]
+}

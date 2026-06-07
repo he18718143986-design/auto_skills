@@ -1,0 +1,30 @@
+/** AUTO-GENERATED — do not edit. Run: npm run gen:message-schema */
+export const BACKEND_MESSAGE_TYPES = [
+  'actionHint',
+  'clarifyQuestions',
+  'dagWaveUpdate',
+  'downstreamReset',
+  'generationCancelled',
+  'generationProgress',
+  'instanceKeySynced',
+  'instanceResumed',
+  'instanceSwitchBlocked',
+  'llmUsageUpdate',
+  'sessionSynced',
+  'stageArtifactHints',
+  'stageConfidenceUpdate',
+  'stageError',
+  'stageOutputUpdate',
+  'stageQuestions',
+  'stageQuestionsBefore',
+  'stageStatusUpdate',
+  'streamChunk',
+  'taskWorkspacePathPicked',
+  'upstreamFixStarted',
+  'userTaskPolished',
+  'workflowCompleted',
+  'workflowFailed',
+  'workflowGenerated',
+] as const;
+
+export type GeneratedBackendMessageType = (typeof BACKEND_MESSAGE_TYPES)[number];

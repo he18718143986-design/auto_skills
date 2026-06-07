@@ -1,0 +1,1214 @@
+{
+  "stagent.webview.main.workflowStepsAria": {
+    "en": "Workflow steps",
+    "zh": "工作流步骤"
+  },
+  "stagent.webview.main.navStepInput": {
+    "en": "① Enter requirements",
+    "zh": "① 输入需求"
+  },
+  "stagent.webview.main.navStepConfirm": {
+    "en": "② Confirm plan",
+    "zh": "② 确认计划"
+  },
+  "stagent.webview.main.navStepExec": {
+    "en": "③ Execute",
+    "zh": "③ 执行"
+  },
+  "stagent.webview.main.polishResultLabel": {
+    "en": "Polished result",
+    "zh": "润色结果"
+  },
+  "stagent.webview.main.polishing": {
+    "en": "Polishing…",
+    "zh": "正在润色…"
+  },
+  "stagent.webview.main.polishEditPlaceholder": {
+    "en": "Polished text appears here; you can edit it directly…",
+    "zh": "润色完成后将显示在此，可直接编辑…"
+  },
+  "stagent.webview.main.genWorkflowLabel": {
+    "en": "Generate workflow",
+    "zh": "生成工作流"
+  },
+  "stagent.webview.main.processing": {
+    "en": "Processing…",
+    "zh": "正在处理…"
+  },
+  "stagent.webview.main.showRawModelOutput": {
+    "en": "Show raw model output",
+    "zh": "显示模型原始输出"
+  },
+  "stagent.webview.main.userInputPlaceholder": {
+    "en": "Describe the task you want to accomplish…",
+    "zh": "描述你想完成的任务…"
+  },
+  "stagent.webview.main.workspaceFolderLabel": {
+    "en": "Workspace folder",
+    "zh": "工作文件夹"
+  },
+  "stagent.webview.main.workspacePathPlaceholder": {
+    "en": "/absolute/path or ~/project",
+    "zh": "/绝对路径 或 ~/项目目录"
+  },
+  "stagent.webview.main.browseFolder": {
+    "en": "Browse…",
+    "zh": "浏览…"
+  },
+  "stagent.webview.main.btnPolish": {
+    "en": "Polish requirements",
+    "zh": "需求润色"
+  },
+  "stagent.webview.main.btnGenWorkflow": {
+    "en": "Generate workflow",
+    "zh": "生成工作流"
+  },
+  "stagent.webview.main.polishDockHint": {
+    "en": "Edit the polished result above, then generate the workflow",
+    "zh": "在上方编辑润色结果，确认后可直接生成工作流"
+  },
+  "stagent.webview.main.editRequirement": {
+    "en": "Edit requirements",
+    "zh": "修改需求"
+  },
+  "stagent.webview.main.btnRegenerate": {
+    "en": "Regenerate",
+    "zh": "重新生成"
+  },
+  "stagent.webview.main.confirmStageLabel": {
+    "en": "Stages",
+    "zh": "阶段"
+  },
+  "stagent.webview.main.planSummary": {
+    "en": "Plan summary",
+    "zh": "计划摘要"
+  },
+  "stagent.webview.main.planDiff": {
+    "en": "Diff from last generation",
+    "zh": "与上次生成的差异"
+  },
+  "stagent.webview.main.depsAndWaves": {
+    "en": "Dependencies and execution waves",
+    "zh": "依赖与执行波次"
+  },
+  "stagent.webview.main.artifactFiles": {
+    "en": "Workspace files to write",
+    "zh": "将落盘的工作区文件"
+  },
+  "stagent.webview.main.stageList": {
+    "en": "Stage list",
+    "zh": "阶段列表"
+  },
+  "stagent.webview.main.stageDetail": {
+    "en": "Stage details",
+    "zh": "阶段详情"
+  },
+  "stagent.webview.main.warningsSection": {
+    "en": "Warnings and validation",
+    "zh": "警告与校验提示"
+  },
+  "stagent.webview.main.backToInput": {
+    "en": "Back to edit requirements",
+    "zh": "返回修改需求"
+  },
+  "stagent.webview.main.startExecution": {
+    "en": "Start execution",
+    "zh": "开始执行"
+  },
+  "stagent.webview.main.execProgress": {
+    "en": "Progress",
+    "zh": "进度"
+  },
+  "stagent.webview.main.dagProgress": {
+    "en": "Dependency graph and wave progress",
+    "zh": "依赖图与波次进度"
+  },
+  "stagent.webview.main.followLiveTitle": {
+    "en": "Unpin and follow the running or paused stage",
+    "zh": "取消固定，自动跟随正在运行或暂停的阶段"
+  },
+  "stagent.webview.main.followLive": {
+    "en": "↩ Follow current",
+    "zh": "↩ 跟随当前"
+  },
+  "stagent.webview.main.copySessionLogTitle": {
+    "en": "Copy pre-execution model calls and error logs",
+    "zh": "复制执行前（润色 / 澄清 / 生成）的模型调用与错误日志"
+  },
+  "stagent.webview.main.copySessionLog": {
+    "en": "Copy session log",
+    "zh": "复制会话日志"
+  },
+  "stagent.webview.main.copyDebugLog": {
+    "en": "Copy full debug log",
+    "zh": "复制全部调试日志"
+  },
+  "stagent.webview.main.workflowComplete": {
+    "en": "Workflow completed.",
+    "zh": "工作流已全部完成。"
+  },
+  "stagent.webview.input.processFailed": {
+    "en": "Processing failed",
+    "zh": "处理失败"
+  },
+  "stagent.webview.input.unknownError": {
+    "en": "Unknown error",
+    "zh": "未知错误"
+  },
+  "stagent.webview.input.analyzingRequirement": {
+    "en": "Analyzing requirements",
+    "zh": "正在分析需求"
+  },
+  "stagent.webview.input.scanningWorkspace": {
+    "en": "Scanning workspace and preparing clarification questions…",
+    "zh": "正在扫描工作文件夹并准备澄清问题…"
+  },
+  "stagent.webview.input.polishFailedRetry": {
+    "en": "Polish failed; edit requirements and retry",
+    "zh": "润色失败，可修改需求后重试"
+  },
+  "stagent.webview.input.genFailedRetry": {
+    "en": "Generation failed; retry or go back to edit requirements",
+    "zh": "生成失败，可重试或返回修改需求"
+  },
+  "stagent.webview.input.fillRequiredTitle": {
+    "en": "Fill in the task description and workspace folder before generating",
+    "zh": "请先填写任务描述与工作文件夹后再生成工作流"
+  },
+  "stagent.webview.input.polishFailed": {
+    "en": "Polish failed",
+    "zh": "润色失败"
+  },
+  "stagent.webview.input.generatingWorkflow": {
+    "en": "Generating workflow",
+    "zh": "正在生成工作流"
+  },
+  "stagent.webview.input.submitPreparing": {
+    "en": "Submitted; preparing workspace context and prompts…",
+    "zh": "已提交；正在准备工作区上下文与提示词…"
+  },
+  "stagent.webview.input.usedMemoryCache": {
+    "en": "Using in-memory cache",
+    "zh": "已使用内存缓存"
+  },
+  "stagent.webview.input.clarifyTitle": {
+    "en": "Pre-generation clarification",
+    "zh": "生成前澄清"
+  },
+  "stagent.webview.input.clarifyIntro": {
+    "en": "Answering these questions helps split the workflow more accurately (optional). Press Esc to cancel and return to editing.",
+    "zh": "回答以下问题有助于更准确地拆解工作流（可留空或跳过）。按 Esc 取消并返回编辑。"
+  },
+  "stagent.webview.input.clarifyAnswerPlaceholder": {
+    "en": "(optional) Your answer",
+    "zh": "（可选）输入你的回答"
+  },
+  "stagent.webview.input.clarifySkip": {
+    "en": "Skip",
+    "zh": "跳过"
+  },
+  "stagent.webview.input.clarifySubmit": {
+    "en": "Submit and generate",
+    "zh": "提交并生成"
+  },
+  "stagent.webview.input.streamCharSuffix": {
+    "en": " · ~{0} chars received",
+    "zh": " · 已接收约 {0} 字"
+  },
+  "stagent.webview.input.llmWaitingWithAutoType": {
+    "en": "Will infer taskType and generate the full workflow JSON.",
+    "zh": "将同时判断 taskType 并生成完整工作流 JSON。"
+  },
+  "stagent.webview.input.llmWaitingWorkflowOnly": {
+    "en": "Generating the full workflow JSON.",
+    "zh": "正在生成完整工作流 JSON。"
+  },
+  "stagent.webview.input.llmWaitingTail": {
+    "en": "APIs like DeepSeek often take 1–3 minutes; only stage hints may show until the first token.",
+    "zh": "DeepSeek 等 API 通常需 1～3 分钟；首字出现前页面可能仅有阶段提示，属正常现象。"
+  },
+  "stagent.webview.input.busyWorkflowSubmitted": {
+    "en": "Generating workflow",
+    "zh": "正在生成工作流"
+  },
+  "stagent.webview.input.busyPolishSubmitted": {
+    "en": "Polishing requirements",
+    "zh": "正在润色需求"
+  },
+  "stagent.webview.input.busyWorkflowPreparing": {
+    "en": "Preparing workspace context",
+    "zh": "正在准备工作区上下文"
+  },
+  "stagent.webview.input.busyWorkflowLlm": {
+    "en": "Calling model",
+    "zh": "正在调用模型"
+  },
+  "stagent.webview.input.busyWorkflowValidating": {
+    "en": "Validating and post-processing",
+    "zh": "正在校验与后处理"
+  },
+  "stagent.webview.confirm.warningsPrefix": {
+    "en": "Warnings:\n",
+    "zh": "警告：\n"
+  },
+  "stagent.webview.confirm.repairM40Title": {
+    "en": "ℹ️ Engine inserted structural stages (M40)",
+    "zh": "ℹ️ 引擎已自动插入结构阶段（M40）"
+  },
+  "stagent.webview.confirm.repairM40Body": {
+    "en": "Only plan order/structure was adjusted; config file correctness is verified at runtime after those stages run.",
+    "zh": "仅调整计划顺序/结构；不保证配置文件内容正确，须执行对应阶段后由运行期预检核对磁盘。"
+  },
+  "stagent.webview.confirm.pathDeferred": {
+    "en": "(write path determined when this stage runs)",
+    "zh": "（落盘路径待本阶段执行时确定）"
+  },
+  "stagent.webview.confirm.experienceRefs": {
+    "en": "Referenced {0} past experience item(s)",
+    "zh": "参考历史经验 {0} 条"
+  },
+  "stagent.webview.confirm.blockingPlan": {
+    "en": "⛔ Plan has blockers; edit requirements and regenerate",
+    "zh": "⛔ 计划存在阻断项，请先修改需求后重新生成"
+  },
+  "stagent.webview.confirm.cannotExecuteTitle": {
+    "en": "⛔ This plan cannot run yet (shown for review)",
+    "zh": "⛔ 此计划暂不能开始执行（已展示供你审阅）"
+  },
+  "stagent.webview.confirm.cannotExecuteFoot": {
+    "en": "Use «Back to edit requirements» to narrow scope, or add separate writeOutputToFile stages per script in the generator.",
+    "zh": "请「返回修改需求」收紧描述后重新生成，或在生成器侧补齐每个脚本的独立 writeOutputToFile 阶段。"
+  },
+  "stagent.webview.confirm.artifactPathsSummary": {
+    "en": "Workspace files to write ({0})",
+    "zh": "将落盘的工作区文件（{0}）"
+  },
+  "stagent.webview.confirm.tagDecision": {
+    "en": "decision",
+    "zh": "决策"
+  },
+  "stagent.webview.confirm.tagPause": {
+    "en": "⏸ review",
+    "zh": "⏸ 审核"
+  },
+  "stagent.webview.confirm.tagRepairM40": {
+    "en": "M40 insert",
+    "zh": "M40 插入"
+  },
+  "stagent.webview.confirm.reviewHint": {
+    "en": "Review hint: {0}",
+    "zh": "审核提示：{0}"
+  },
+  "stagent.webview.confirm.noDescription": {
+    "en": "(no description)",
+    "zh": "(无描述)"
+  },
+  "stagent.webview.confirm.toolLabel": {
+    "en": "Tool: {0}",
+    "zh": "工具：{0}"
+  },
+  "stagent.webview.confirm.pauseAfterLabel": {
+    "en": "pauseAfter: {0}",
+    "zh": "pauseAfter：{0}"
+  },
+  "stagent.webview.confirm.artifactPathLabel": {
+    "en": "Write path: {0}",
+    "zh": "落盘路径：{0}"
+  },
+  "stagent.webview.confirm.taskTypeLabel": {
+    "en": "Task type (meta.taskType): {0}",
+    "zh": "任务类型（meta.taskType）：{0}"
+  },
+  "stagent.webview.confirm.profileHeader": {
+    "en": "—— Settings profile ——",
+    "zh": "—— 设置 Profile ——"
+  },
+  "stagent.webview.confirm.currentProfile": {
+    "en": "Current profile: {0}",
+    "zh": "当前 Profile：{0}"
+  },
+  "stagent.webview.confirm.profileGateDiff": {
+    "en": "Gate diff vs default:",
+    "zh": "相对 default 的门禁："
+  },
+  "stagent.webview.confirm.experienceRefsDetail": {
+    "en": "Referenced past experience: {0} item(s) (userInput text excluded)",
+    "zh": "参考历史经验：{0} 条（不含 userInput 原文）"
+  },
+  "stagent.webview.exec.viewing": {
+    "en": "📌 Viewing: {0}",
+    "zh": "📌 查看：{0}"
+  },
+  "stagent.webview.exec.running": {
+    "en": "Running: {0}",
+    "zh": "运行中：{0}"
+  },
+  "stagent.webview.exec.decisionReview": {
+    "en": "📋 Decision review: {0}",
+    "zh": "📋 决策审核：{0}"
+  },
+  "stagent.webview.exec.paused": {
+    "en": "⏸ Paused: {0}",
+    "zh": "⏸ 暂停：{0}"
+  },
+  "stagent.webview.exec.error": {
+    "en": "❌ Error: {0}",
+    "zh": "❌ 出错：{0}"
+  },
+  "stagent.webview.exec.output": {
+    "en": "Output: {0}",
+    "zh": "输出：{0}"
+  },
+  "stagent.webview.exec.noOutputYet": {
+    "en": "(no output for this stage yet)",
+    "zh": "（该阶段尚未产生输出）"
+  },
+  "stagent.webview.exec.waitingOutput": {
+    "en": "(waiting for output…)",
+    "zh": "（等待输出…）"
+  },
+  "stagent.webview.exec.noCachedOutput": {
+    "en": "(no cached output)",
+    "zh": "（无已缓存输出）"
+  },
+  "stagent.webview.exec.downstreamResetTitle": {
+    "en": "Downstream stages reset (decision retry)",
+    "zh": "已重置下游阶段（决策重试）"
+  },
+  "stagent.webview.exec.upstreamFixResetTitle": {
+    "en": "Upstream fix: re-running tests after impl update",
+    "zh": "修复代码：已更新实现并将重跑测试"
+  },
+  "stagent.webview.exec.rolledBackFiles": {
+    "en": "Rolled back files:",
+    "zh": "已回滚文件："
+  },
+  "stagent.webview.exec.rollbackFailed": {
+    "en": "Rollback failed: {0}",
+    "zh": "回滚失败：{0}"
+  },
+  "stagent.webview.exec.stageClickHint": {
+    "en": "Click to view stage output",
+    "zh": "点击查看该阶段输出"
+  },
+  "stagent.webview.exec.autoFoldSegment": {
+    "en": "📋 Execution steps ({0})",
+    "zh": "📋 执行步骤（{0}）"
+  },
+  "stagent.webview.exec.badgeDecision": {
+    "en": "decision",
+    "zh": "决策"
+  },
+  "stagent.webview.exec.outputAfterLabel": {
+    "en": "⏸ Post-run questions: {0}",
+    "zh": "⏸ 执行后追问：{0}"
+  },
+  "stagent.webview.exec.outputBeforeLabel": {
+    "en": "⏸ Pre-run confirmation: {0}",
+    "zh": "⏸ 执行前确认：{0}"
+  },
+  "stagent.webview.exec.afterIntro": {
+    "en": "The model needs the following after this stage (multiple questions allowed):",
+    "zh": "AI 在本阶段输出后需要补充以下信息（可多题一并填写）："
+  },
+  "stagent.webview.exec.afterSubmit": {
+    "en": "Submit answers and continue",
+    "zh": "提交答案并继续"
+  },
+  "stagent.webview.exec.beforeIntro": {
+    "en": "Confirm the following before this stage runs:",
+    "zh": "AI 在执行此阶段前需要确认以下信息："
+  },
+  "stagent.webview.exec.beforeSubmit": {
+    "en": "Start execution",
+    "zh": "开始执行"
+  },
+  "stagent.webview.exec.questionFallback": {
+    "en": "Please answer question {0}",
+    "zh": "请补充问题 {0}"
+  },
+  "stagent.webview.exec.questionTitle": {
+    "en": "Question {0}: {1}",
+    "zh": "问题 {0}：{1}"
+  },
+  "stagent.webview.exec.answerPlaceholder": {
+    "en": "Enter your answer",
+    "zh": "请输入答案"
+  },
+  "stagent.webview.exec.llmUsageEstimate": {
+    "en": "LLM usage (estimate): ~{0} tokens",
+    "zh": "LLM 用量（估计）：约 {0} tokens"
+  },
+  "stagent.webview.exec.workflowFailed": {
+    "en": "Workflow failed",
+    "zh": "工作流失败"
+  },
+  "stagent.webview.exec.workflowRunFailed": {
+    "en": "Workflow execution failed",
+    "zh": "工作流执行失败"
+  },
+  "stagent.webview.exec.cannotSwitchTask": {
+    "en": "Cannot switch to that task",
+    "zh": "无法切换到该任务"
+  },
+  "stagent.webview.exec.actionNotApplied": {
+    "en": "Action did not apply",
+    "zh": "操作未生效"
+  },
+  "stagent.webview.pause.decisionApprove": {
+    "en": "✅ Approve decision",
+    "zh": "✅ 批准此决策"
+  },
+  "stagent.webview.pause.forceApprove": {
+    "en": "Ignore and approve",
+    "zh": "忽略，直接批准"
+  },
+  "stagent.webview.pause.qualitySoftPrompt": {
+    "en": "Complete the quality checklist above ({0} unchecked). If you reviewed manually, click «Approve decision» again or use «Ignore and approve» in the dock.",
+    "zh": "建议先完成上方质量核查（还有 {0} 条未确认）。若已人工审阅，请再点一次「批准此决策」，或使用底栏「忽略，直接批准」。"
+  },
+  "stagent.webview.pause.retryPromptPlaceholder": {
+    "en": "Retry hint (optional), e.g. add boundary stress tests and keep under 800 words",
+    "zh": "重试提示（可选）：例如“请补充边界压力测试并压缩到 800 字内”"
+  },
+  "stagent.webview.pause.aiRegenerate": {
+    "en": "🔄 Regenerate with AI",
+    "zh": "🔄 让 AI 重新生成"
+  },
+  "stagent.webview.pause.decisionReviewLabel": {
+    "en": "📋 Decision review: {0}",
+    "zh": "📋 决策审核：{0}"
+  },
+  "stagent.webview.pause.decisionIntro": {
+    "en": "The model proposed design decisions. Your edits constrain later code directly.",
+    "zh": "AI 提出了以下设计决策。你的修改将直接约束后续代码。"
+  },
+  "stagent.webview.pause.conflictBanner": {
+    "en": "ℹ️ This workflow already has {0} approved decision record(s). Check cross-module constraints before approving.",
+    "zh": "ℹ️ 本工作流已有 {0} 个已批准的决策清单，建议批准前核对模块间约束是否一致。"
+  },
+  "stagent.webview.pause.viewApproved": {
+    "en": "View approved decisions ↗",
+    "zh": "查看已批准的决策 ↗"
+  },
+  "stagent.webview.pause.noApprovedContent": {
+    "en": "(no approved decision content)",
+    "zh": "(无已批准决策内容)"
+  },
+  "stagent.webview.pause.waitReviewLabel": {
+    "en": "👀 Awaiting review: {0}",
+    "zh": "👀 等待审核：{0}"
+  },
+  "stagent.webview.pause.feedbackPlaceholder": {
+    "en": "Feedback (optional)",
+    "zh": "修改意见（可选）"
+  },
+  "stagent.webview.pause.retryRegenerate": {
+    "en": "🔄 Regenerate with edits",
+    "zh": "🔄 修改后重新生成"
+  },
+  "stagent.webview.pause.approveContinue": {
+    "en": "✅ Approve and continue",
+    "zh": "✅ 批准，继续"
+  },
+  "stagent.webview.pause.qualityPanelTitle": {
+    "en": "AI quality checklist",
+    "zh": "AI 质量建议面板"
+  },
+  "stagent.webview.pause.checklistAlt": {
+    "en": "Does each decision explain why alternatives were rejected?",
+    "zh": "每条决策是否说明了“为什么不选备选方案”？"
+  },
+  "stagent.webview.pause.checklistStress": {
+    "en": "Does «Boundary stress test» include at least 2 concrete scenarios?",
+    "zh": "“边界压力测试”节是否包含至少 2 个具体场景？"
+  },
+  "stagent.webview.pause.checklistAssumptions": {
+    "en": "Does «Assumptions the AI cannot verify» have at least one item?",
+    "zh": "“AI 无法验证的假设”节是否至少有 1 条？"
+  },
+  "stagent.webview.pause.checklistLength": {
+    "en": "Is total length ≤ 800 words?",
+    "zh": "总字数是否 ≤ 800 字？"
+  },
+  "stagent.webview.pause.checklistNoCode": {
+    "en": "Does it avoid code blocks (there should be none)?",
+    "zh": "是否包含了代码（不应该有）？"
+  },
+  "stagent.webview.pause.checklistConflict": {
+    "en": "If existing code is involved, is conflict detection noted?",
+    "zh": "若涉及已有代码，是否标注了冲突检测结果？"
+  },
+  "stagent.webview.pause.artifactLabel": {
+    "en": "Written files:",
+    "zh": "落盘文件："
+  },
+  "stagent.webview.pause.viewArtifact": {
+    "en": "📄 View {0}",
+    "zh": "📄 查看 {0}"
+  },
+  "stagent.webview.pause.diffArtifact": {
+    "en": "↔ Compare changes",
+    "zh": "↔ 对比变更"
+  },
+  "stagent.webview.pause.decisionRetryClear": {
+    "en": "Regenerating this decision clears downstream results. Continue?",
+    "zh": "重新生成此决策将清除其下游已执行结果，是否继续？"
+  },
+  "stagent.webview.pause.decisionRetryDownstream": {
+    "en": "Regenerating this decision will re-run {0} downstream stage(s). Continue?",
+    "zh": "重新生成此决策将导致 {0} 个下游阶段重新执行，是否继续？"
+  },
+  "stagent.webview.error.noRawOutput": {
+    "en": "This error has no raw output attached",
+    "zh": "本次错误未附带原始输出"
+  },
+  "stagent.webview.error.rawOutputHeading": {
+    "en": "Raw output",
+    "zh": "原始输出"
+  },
+  "stagent.webview.error.none": {
+    "en": "(none)",
+    "zh": "(无)"
+  },
+  "stagent.webview.error.empty": {
+    "en": "(empty)",
+    "zh": "(空)"
+  },
+  "stagent.webview.error.typeLabel": {
+    "en": "Error type: {0}",
+    "zh": "错误类型：{0}"
+  },
+  "stagent.webview.error.suggestedSteps": {
+    "en": "Suggested steps",
+    "zh": "建议步骤"
+  },
+  "stagent.webview.error.categoryEnvironment": {
+    "en": "Environment",
+    "zh": "环境问题"
+  },
+  "stagent.webview.error.categoryCode": {
+    "en": "Code or test",
+    "zh": "代码或测试"
+  },
+  "stagent.webview.error.categoryGeneric": {
+    "en": "Execution",
+    "zh": "执行问题"
+  },
+  "stagent.webview.error.techDetailsSummary": {
+    "en": "Technical details",
+    "zh": "技术详情"
+  },
+  "stagent.webview.error.techStageId": {
+    "en": "Stage: {0}",
+    "zh": "阶段：{0}"
+  },
+  "stagent.webview.error.techExitCode": {
+    "en": "Exit code: {0}",
+    "zh": "退出码：{0}"
+  },
+  "stagent.webview.error.actionRetryAnyway": {
+    "en": "Retry anyway",
+    "zh": "仍要重试"
+  },
+  "stagent.webview.error.retryNotHelpfulHint": {
+    "en": "Retry usually will not help until the missing tool is installed",
+    "zh": "在工具安装好之前，重试通常无效"
+  },
+  "stagent.webview.error.actionShowDetails": {
+    "en": "View output",
+    "zh": "查看输出"
+  },
+  "stagent.webview.error.llmTimeoutTitle": {
+    "en": "LLM response timed out",
+    "zh": "LLM 响应超时"
+  },
+  "stagent.webview.error.llmContextTitle": {
+    "en": "Input too long",
+    "zh": "输入内容过长"
+  },
+  "stagent.webview.error.parseTitle": {
+    "en": "Failed to parse model output",
+    "zh": "AI 输出格式解析失败"
+  },
+  "stagent.webview.error.commandFailedTitle": {
+    "en": "Command failed",
+    "zh": "命令执行失败"
+  },
+  "stagent.webview.error.runnerTimeoutTitle": {
+    "en": "Command timed out",
+    "zh": "命令执行超时"
+  },
+  "stagent.webview.error.fileNotFoundTitle": {
+    "en": "File not found",
+    "zh": "文件未找到"
+  },
+  "stagent.webview.error.stageNotFoundTitle": {
+    "en": "Prerequisite stage missing",
+    "zh": "前置阶段不存在"
+  },
+  "stagent.webview.error.invariantTitle": {
+    "en": "Internal error",
+    "zh": "系统内部错误"
+  },
+  "stagent.webview.error.retryLimitTitle": {
+    "en": "Manual retry limit reached",
+    "zh": "手动重试次数已达上限"
+  },
+  "stagent.webview.error.unknownTitle": {
+    "en": "Unknown error",
+    "zh": "发生未知错误"
+  },
+  "stagent.webview.error.actionRetry": {
+    "en": "Retry",
+    "zh": "重试"
+  },
+  "stagent.webview.error.actionFixCode": {
+    "en": "Fix code",
+    "zh": "修复代码"
+  },
+  "stagent.webview.error.actionEditInput": {
+    "en": "Edit input",
+    "zh": "编辑输入"
+  },
+  "stagent.webview.error.actionShowRaw": {
+    "en": "View raw output",
+    "zh": "查看原始输出"
+  },
+  "stagent.webview.error.actionShowOutput": {
+    "en": "View full output",
+    "zh": "查看完整输出"
+  },
+  "stagent.webview.error.actionCheckPath": {
+    "en": "Check path",
+    "zh": "检查路径"
+  },
+  "stagent.webview.error.actionEditWorkflow": {
+    "en": "Edit workflow",
+    "zh": "编辑工作流"
+  },
+  "stagent.webview.error.actionShowLog": {
+    "en": "View log",
+    "zh": "查看日志"
+  },
+  "stagent.webview.sidebar.profileSection": {
+    "en": "Configuration profile",
+    "zh": "配置 Profile"
+  },
+  "stagent.webview.sidebar.profileDefault": {
+    "en": "Default",
+    "zh": "默认"
+  },
+  "stagent.webview.sidebar.profileStrict": {
+    "en": "Strict",
+    "zh": "严格"
+  },
+  "stagent.webview.sidebar.profileRelaxed": {
+    "en": "Relaxed",
+    "zh": "宽松"
+  },
+  "stagent.webview.sidebar.profileMinimal": {
+    "en": "Minimal",
+    "zh": "最小"
+  },
+  "stagent.webview.sidebar.modelSection": {
+    "en": "AI model",
+    "zh": "AI 模型"
+  },
+  "stagent.webview.sidebar.modelLoading": {
+    "en": "⏳ Loading…",
+    "zh": "⏳ 加载中..."
+  },
+  "stagent.webview.sidebar.stageSection": {
+    "en": "Current stage",
+    "zh": "当前阶段"
+  },
+  "stagent.webview.sidebar.noActiveWorkflow": {
+    "en": "No workflow in progress",
+    "zh": "暂无进行中的工作流"
+  },
+  "stagent.webview.sidebar.retrySection": {
+    "en": "Retry",
+    "zh": "重试"
+  },
+  "stagent.webview.sidebar.retryStagePlaceholder": {
+    "en": "No stage to retry",
+    "zh": "暂无可重试阶段"
+  },
+  "stagent.webview.sidebar.retryStageOption": {
+    "en": "{0} ({1})",
+    "zh": "{0}（{1}）"
+  },
+  "stagent.webview.sidebar.retryTitle": {
+    "en": "Re-run the current stage (same as main panel Retry)",
+    "zh": "重新执行当前阶段（与主面板「重试」一致）"
+  },
+  "stagent.webview.sidebar.retryStage": {
+    "en": "↻ Retry current stage",
+    "zh": "↻ 重试当前阶段"
+  },
+  "stagent.webview.sidebar.refreshPanel": {
+    "en": "⟳ Refresh sidebar",
+    "zh": "⟳ 刷新侧栏"
+  },
+  "stagent.webview.sidebar.envSection": {
+    "en": "Environment",
+    "zh": "环境状态"
+  },
+  "stagent.webview.sidebar.detecting": {
+    "en": "Detecting…",
+    "zh": "检测中"
+  },
+  "stagent.webview.sidebar.openSettings": {
+    "en": "⚙ Open settings",
+    "zh": "⚙ 打开设置"
+  },
+  "stagent.webview.sidebar.openSettingsApi": {
+    "en": "Open direct API key settings",
+    "zh": "打开备用 API Key 设置"
+  },
+  "stagent.webview.sidebar.openSettingsSandbox": {
+    "en": "Open code sandbox settings",
+    "zh": "打开代码沙箱设置"
+  },
+  "stagent.webview.sidebar.noLlmHint": {
+    "en": "Configure GitHub Copilot or a direct API key in settings.",
+    "zh": "请在设置中配置 GitHub Copilot 或备用 API Key。"
+  },
+  "stagent.webview.sidebar.autoSelect": {
+    "en": "(auto select)",
+    "zh": "（自动选择）"
+  },
+  "stagent.webview.sidebar.statusIdle": {
+    "en": "Not started",
+    "zh": "未开始"
+  },
+  "stagent.webview.sidebar.statusRunning": {
+    "en": "Running ▸",
+    "zh": "执行中 ▸"
+  },
+  "stagent.webview.sidebar.statusPaused": {
+    "en": "Paused ⏸",
+    "zh": "待审核 ⏸"
+  },
+  "stagent.webview.sidebar.statusPending": {
+    "en": "Pending",
+    "zh": "待执行"
+  },
+  "stagent.webview.sidebar.statusCompleted": {
+    "en": "Completed ✓",
+    "zh": "已完成 ✓"
+  },
+  "stagent.webview.sidebar.statusError": {
+    "en": "Error ✗",
+    "zh": "出错 ✗"
+  },
+  "stagent.webview.sidebar.statusDone": {
+    "en": "Done",
+    "zh": "完成"
+  },
+  "stagent.webview.sidebar.statusSkipped": {
+    "en": "Skipped",
+    "zh": "已跳过"
+  },
+  "stagent.webview.sidebar.statusRetrying": {
+    "en": "Retrying",
+    "zh": "重试中"
+  },
+  "stagent.webview.sidebar.stageProgress": {
+    "en": "Stage {0}/{1}: ",
+    "zh": "第 {0}/{1} 阶段："
+  },
+  "stagent.webview.sidebar.progressTrackTitle": {
+    "en": "Completed stage progress",
+    "zh": "已完成阶段进度"
+  },
+  "stagent.webview.sidebar.stagesCompleted": {
+    "en": "Completed {0}/{1} stages",
+    "zh": "已完成 {0}/{1} 个阶段"
+  },
+  "stagent.webview.sidebar.copilotLabel": {
+    "en": "GitHub Copilot LM",
+    "zh": "GitHub Copilot LM"
+  },
+  "stagent.webview.sidebar.apiKeyLabel": {
+    "en": "Direct API key",
+    "zh": "备用 API Key"
+  },
+  "stagent.webview.sidebar.copilotAvailable": {
+    "en": "✓ Available",
+    "zh": "✓ 可用"
+  },
+  "stagent.webview.sidebar.copilotUnavailable": {
+    "en": "✗ Not detected",
+    "zh": "✗ 未检测到"
+  },
+  "stagent.webview.sidebar.apiConfigured": {
+    "en": "✓ Configured",
+    "zh": "✓ 已配置"
+  },
+  "stagent.webview.sidebar.apiNotConfigured": {
+    "en": "Not configured",
+    "zh": "未配置"
+  },
+  "stagent.webview.sidebar.sandboxLabel": {
+    "en": "Code sandbox",
+    "zh": "代码沙箱"
+  },
+  "stagent.webview.sidebar.sandboxDisabled": {
+    "en": "Off",
+    "zh": "未启用"
+  },
+  "stagent.webview.sidebar.sandboxEnforced": {
+    "en": "Kernel sandbox",
+    "zh": "内核沙箱"
+  },
+  "stagent.webview.sidebar.sandboxSoftOnly": {
+    "en": "Soft ({0})",
+    "zh": "软约束 ({0})"
+  },
+  "stagent.webview.sidebar.taskEmpty": {
+    "en": "No workflow tasks",
+    "zh": "暂无工作流任务"
+  },
+  "stagent.webview.sidebar.taskListRefresh": {
+    "en": "⟳ Refresh",
+    "zh": "⟳ 刷新"
+  },
+  "stagent.webview.sidebar.taskListRefreshTitle": {
+    "en": "Reload task list from disk",
+    "zh": "从磁盘重新加载任务列表"
+  },
+  "stagent.webview.sidebar.taskOpen": {
+    "en": "Open task: {0} ({1})",
+    "zh": "打开任务：{0}（{1}）"
+  },
+  "stagent.webview.sidebar.taskResumeIcon": {
+    "en": "▸",
+    "zh": "▸"
+  },
+  "stagent.webview.sidebar.taskNew": {
+    "en": "+ New task",
+    "zh": "+ 新建任务"
+  },
+  "stagent.webview.sidebar.taskDraft": {
+    "en": "Draft",
+    "zh": "草稿"
+  },
+  "stagent.webview.sidebar.taskRunning": {
+    "en": "In progress",
+    "zh": "进行中"
+  },
+  "stagent.webview.sidebar.taskPaused": {
+    "en": "Paused",
+    "zh": "暂停"
+  },
+  "stagent.webview.sidebar.taskCompleted": {
+    "en": "Completed",
+    "zh": "已完成"
+  },
+  "stagent.webview.sidebar.taskFailed": {
+    "en": "Failed",
+    "zh": "失败"
+  },
+  "stagent.webview.sidebar.resumeConfirm": {
+    "en": "Continue confirm",
+    "zh": "继续确认"
+  },
+  "stagent.webview.sidebar.resumeExec": {
+    "en": "Continue execution",
+    "zh": "继续执行"
+  },
+  "stagent.webview.sidebar.resumeProcess": {
+    "en": "Continue",
+    "zh": "继续处理"
+  },
+  "stagent.webview.sidebar.resume": {
+    "en": "Resume",
+    "zh": "恢复"
+  },
+  "stagent.webview.sidebar.deleteTaskTitle": {
+    "en": "Delete task",
+    "zh": "删除任务"
+  },
+  "stagent.webview.time.justNow": {
+    "en": "just now",
+    "zh": "刚刚"
+  },
+  "stagent.webview.time.minutesAgo": {
+    "en": "{0} min ago",
+    "zh": "{0} 分钟前"
+  },
+  "stagent.webview.time.hoursAgo": {
+    "en": "{0} h ago",
+    "zh": "{0} 小时前"
+  },
+  "stagent.webview.plan.requiredAnswers": {
+    "en": "Fill all required answers: {0}",
+    "zh": "请填写所有必答项：{0}"
+  },
+  "stagent.webview.plan.noInputSources": {
+    "en": "(no input.sources)",
+    "zh": "(无 input.sources)"
+  },
+  "stagent.webview.plan.missingDecisionRecord": {
+    "en": "missing decisionRecord reference",
+    "zh": "缺少 decisionRecord 引用"
+  },
+  "stagent.webview.plan.summaryHeader": {
+    "en": "—— Plan summary (M20) ——",
+    "zh": "—— 计划摘要（M20）——"
+  },
+  "stagent.webview.plan.stageCountLine": {
+    "en": "Stages: {0} / {1} ({2}%)",
+    "zh": "阶段：{0} / {1}（{2}%）"
+  },
+  "stagent.webview.plan.stageKindLine": {
+    "en": "Decision {0} · Implementation {1} · test_run {2}",
+    "zh": "决策 {0} · 实现 {1} · test_run {2}"
+  },
+  "stagent.webview.plan.estimatedModules": {
+    "en": "Estimated impl modules: {0} (generator heuristic)",
+    "zh": "预估 impl 模块：{0}（生成侧启发式）"
+  },
+  "stagent.webview.plan.dependencyEdges": {
+    "en": "Dependency edges (stage-output): {0}",
+    "zh": "依赖边（stage-output）：{0}"
+  },
+  "stagent.webview.plan.complexityTier": {
+    "en": "Complexity tier: {0}",
+    "zh": "复杂度档位：{0}"
+  },
+  "stagent.webview.plan.stageHardCap": {
+    "en": "⚠ Stage count exceeds hard cap of 50; narrow scope or split the task",
+    "zh": "⚠ 阶段数超过 50 硬上限，建议削减或拆分需求"
+  },
+  "stagent.webview.plan.stageNearCap": {
+    "en": "⚠ Stage count near cap of 50",
+    "zh": "⚠ 阶段数接近 50 上限"
+  },
+  "stagent.webview.plan.multiModuleNoArch": {
+    "en": "⚠ Looks like multi-module work but no global/architecture decision stage",
+    "zh": "⚠ 疑似多模块任务，但未发现全局/架构类决策阶段"
+  },
+  "stagent.webview.plan.implMissingDecision": {
+    "en": "⚠ {0} impl stage(s) lack decisionRecord references",
+    "zh": "⚠ {0} 个 impl 阶段未引用 decisionRecord"
+  },
+  "stagent.webview.plan.rule20Violations": {
+    "en": "Rule20 structure violations: {0} (M20.2 should block generation)",
+    "zh": "Rule20 结构违反：{0}（M20.2 应已阻断生成）"
+  },
+  "stagent.webview.plan.rule20Warnings": {
+    "en": "Rule20 hints: {0}",
+    "zh": "Rule20 提示：{0}"
+  },
+  "stagent.webview.plan.noInputSourcesRef": {
+    "en": "(no input.sources references)",
+    "zh": "（无 input.sources 引用）"
+  },
+  "stagent.webview.plan.inputSourcesHeader": {
+    "en": "—— Input sources ——",
+    "zh": "—— 输入来源 ——"
+  },
+  "stagent.webview.plan.diffHeader": {
+    "en": "—— Diff from last generation ——",
+    "zh": "—— 与上次生成对比 ——"
+  },
+  "stagent.webview.plan.diffAdded": {
+    "en": "+ Added ({0}): {1}",
+    "zh": "+ 新增 ({0})：{1}"
+  },
+  "stagent.webview.plan.diffRemoved": {
+    "en": "− Removed ({0}): {1}",
+    "zh": "− 移除 ({0})：{1}"
+  },
+  "stagent.webview.plan.diffSame": {
+    "en": "Stage id list unchanged from last time",
+    "zh": "阶段 id 列表与上次相同"
+  },
+  "stagent.webview.plan.reviewHeader": {
+    "en": "—— Plan review (parts not visible on confirm page) ——",
+    "zh": "—— 计划补审（确认页无法细审的部分）——"
+  },
+  "stagent.webview.plan.requirementSnippet": {
+    "en": "Requirement snippet: {0}",
+    "zh": "需求摘要：{0}"
+  },
+  "stagent.webview.plan.decisionImplCounts": {
+    "en": "Decision stages {0} · Implementation stages {1}",
+    "zh": "决策阶段 {0} 个 · 实现阶段 {1} 个"
+  },
+  "stagent.webview.plan.checkMultiModule": {
+    "en": "□ Multi-module / full project: missing global architecture decision?",
+    "zh": "□ 多模块/完整项目：是否缺少全局架构决策？"
+  },
+  "stagent.webview.plan.checkStageBudget": {
+    "en": "□ Stage budget: need to cut scope or split the task?",
+    "zh": "□ 阶段预算：是否需削减 scope 或拆分任务？"
+  },
+  "stagent.webview.plan.checkWarnings": {
+    "en": "□ Read confirm-page warnings?",
+    "zh": "□ 是否已阅读确认页 warnings？"
+  },
+  "stagent.webview.plan.checkModuleBoundary": {
+    "en": "□ Module boundary matches requirements? (fix in this decision record)",
+    "zh": "□ 本模块边界是否符合需求？（在此决策清单中修正）"
+  },
+  "stagent.webview.plan.globalConfigHeader": {
+    "en": "—— Global config ——",
+    "zh": "—— 全局配置 ——"
+  },
+  "stagent.webview.plan.dagOn": {
+    "en": "DAG scheduling: on",
+    "zh": "DAG 调度：开启"
+  },
+  "stagent.webview.plan.dagOff": {
+    "en": "DAG scheduling: off (linear)",
+    "zh": "DAG 调度：关闭（线性）"
+  },
+  "stagent.webview.plan.dagParallelism": {
+    "en": "DAG parallelism: {0}",
+    "zh": "DAG 并行度：{0}"
+  },
+  "stagent.webview.plan.injectOn": {
+    "en": "on",
+    "zh": "开启"
+  },
+  "stagent.webview.plan.injectOff": {
+    "en": "off",
+    "zh": "关闭"
+  },
+  "stagent.webview.plan.injectFollowVsCode": {
+    "en": "(follow VS Code setting)",
+    "zh": "（跟随 VS Code 设置）"
+  },
+  "stagent.webview.plan.decisionInject": {
+    "en": "Decision context injection: {0}",
+    "zh": "决策上下文注入：{0}"
+  },
+  "stagent.webview.plan.decisionInjectMode": {
+    "en": "Decision inject mode: {0}",
+    "zh": "决策注入模式：{0}"
+  },
+  "stagent.webview.plan.decisionHardOff": {
+    "en": "Decision HARD validation: off",
+    "zh": "决策内容 HARD 校验：关闭"
+  },
+  "stagent.webview.plan.decisionHardOn": {
+    "en": "Decision HARD validation: on",
+    "zh": "决策内容 HARD 校验：开启"
+  },
+  "stagent.webview.plan.decisionHardDefault": {
+    "en": "Decision HARD validation: on (default)",
+    "zh": "决策内容 HARD 校验：开启（默认）"
+  },
+  "stagent.webview.plan.language": {
+    "en": "Language: {0}",
+    "zh": "语言：{0}"
+  },
+  "stagent.webview.plan.modelDecision": {
+    "en": "decision={0}",
+    "zh": "决策={0}"
+  },
+  "stagent.webview.plan.modelImpl": {
+    "en": "implementation={0}",
+    "zh": "实现={0}"
+  },
+  "stagent.webview.plan.modelLight": {
+    "en": "lightweight={0}",
+    "zh": "轻量={0}"
+  },
+  "stagent.webview.plan.modelOverrides": {
+    "en": "Model overrides: {0}",
+    "zh": "模型覆盖：{0}"
+  },
+  "stagent.webview.plan.downstreamReset": {
+    "en": "Downstream stages reset:",
+    "zh": "已重置下游阶段："
+  },
+  "stagent.webview.plan.rolledBack": {
+    "en": "Rolled back files:",
+    "zh": "已回滚文件："
+  },
+  "stagent.webview.plan.rollbackFailed": {
+    "en": "Rollback failed:",
+    "zh": "回滚失败："
+  },
+  "stagent.webview.plan.artifactConfigYaml": {
+    "en": "config.yaml exists without config.py: stage_test_run_* must not `from config import`; use yaml.safe_load or add a config.py stage.",
+    "zh": "存在 config.yaml 但无 config.py：stage_test_run_* 勿使用 from config import，应 yaml.safe_load 或增加 config.py 阶段。"
+  },
+  "stagent.webview.plan.artifactNoPaths": {
+    "en": "test_run stage exists but no write paths registered; check writeOutputToFile / file-write.",
+    "zh": "存在 test_run 阶段但未登记任何落盘路径，请核对 writeOutputToFile / file-write。"
+  },
+  "stagent.webview.plan.statsTaskType": {
+    "en": "Task type {0}",
+    "zh": "任务类型 {0}"
+  },
+  "stagent.webview.plan.statsStages": {
+    "en": "{0} stages",
+    "zh": "{0} 个阶段"
+  },
+  "stagent.webview.plan.statsDecision": {
+    "en": "{0} decision",
+    "zh": "{0} 决策"
+  },
+  "stagent.webview.plan.statsImpl": {
+    "en": "{0} implementation",
+    "zh": "{0} 实现"
+  },
+  "stagent.webview.plan.statsPause": {
+    "en": "{0} review pause point(s)",
+    "zh": "{0} 个审核暂停点"
+  },
+  "stagent.webview.plan.dagLinearNoDeps": {
+    "en": "DAG on (no explicit dependsOn; linear order)",
+    "zh": "DAG 已开启（当前计划无显式 dependsOn，按线性顺序执行）"
+  },
+  "stagent.webview.plan.dagWave": {
+    "en": "DAG wave scheduling (parallel within wave; decision/HITL still serial)",
+    "zh": "DAG 波次调度（同波可并行，决策/HITL 阶段仍串行）"
+  },
+  "stagent.webview.plan.linearOrder": {
+    "en": "Linear order (stages[] index; dependsOn for validation only)",
+    "zh": "线性顺序（stages[] 下标递增；dependsOn 仅作校验）"
+  },
+  "stagent.webview.plan.dagLegend": {
+    "en": " · Legend:",
+    "zh": " · 图例："
+  },
+  "stagent.webview.plan.dagPending": {
+    "en": "Pending",
+    "zh": "待执行"
+  },
+  "stagent.webview.plan.dagActive": {
+    "en": "Active",
+    "zh": "进行中"
+  },
+  "stagent.webview.plan.dagDone": {
+    "en": "Done",
+    "zh": "完成"
+  },
+  "stagent.webview.plan.dagPaused": {
+    "en": "Paused",
+    "zh": "暂停"
+  },
+  "stagent.webview.plan.dagStep": {
+    "en": "Step {0}",
+    "zh": "步骤 {0}"
+  },
+  "stagent.webview.plan.dagWaveN": {
+    "en": "Wave {0}",
+    "zh": "波次 {0}"
+  },
+  "stagent.webview.plan.dagNoEdges": {
+    "en": "(no explicit dependency edges)",
+    "zh": "（无显式依赖边）"
+  },
+  "stagent.webview.plan.dagDeps": {
+    "en": "Dependencies: ",
+    "zh": "依赖："
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "all": true,
+  "src": ["out"],
+  "include": ["out/**/*.js"],
+  "exclude": ["out/test/**", "out/**/*.test.js"],
+  "reporter": ["text-summary", "lcov"],
+  "report-dir": "./coverage",
+  "check-coverage": true,
+  "lines": 55,
+  "functions": 55,
+  "branches": 50
+}

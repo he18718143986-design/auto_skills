@@ -1,0 +1,526 @@
+{
+  "name": "stagent",
+  "displayName": "%extension.displayName%",
+  "description": "%extension.description%",
+  "version": "0.7.0",
+  "publisher": "stagent",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/he18718143986-design/stagent.git"
+  },
+  "keywords": [
+    "ai",
+    "workflow",
+    "decision-first",
+    "llm",
+    "copilot",
+    "automation"
+  ],
+  "galleryBanner": {
+    "color": "#1e1e1e",
+    "theme": "dark"
+  },
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "homepage": "https://github.com/he18718143986-design/stagent#readme",
+  "bugs": {
+    "url": "https://github.com/he18718143986-design/stagent/issues"
+  },
+  "categories": [
+    "Other",
+    "Machine Learning"
+  ],
+  "activationEvents": [
+    "onView:stagent.taskList",
+    "onView:stagent.aiControls",
+    "onCommand:stagent.newTask",
+    "onCommand:stagent.requirementPolish",
+    "onCommand:stagent.openDebugLog"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "stagent.newTask",
+        "title": "%command.newTask.title%",
+        "category": "Stagent"
+      },
+      {
+        "command": "stagent.requirementPolish",
+        "title": "%command.requirementPolish.title%",
+        "category": "Stagent"
+      },
+      {
+        "command": "stagent.refreshAiControls",
+        "title": "%command.refreshAiControls.title%",
+        "category": "Stagent",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "stagent.openDebugLog",
+        "title": "%command.openDebugLog.title%",
+        "category": "Stagent",
+        "icon": "$(output)"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "stagent",
+          "title": "%viewsContainers.activitybar.stagent.title%",
+          "icon": "$(git-branch)"
+        }
+      ]
+    },
+    "views": {
+      "stagent": [
+        {
+          "id": "stagent.taskList",
+          "name": "%views.taskList.name%",
+          "type": "webview",
+          "icon": "$(list-unordered)"
+        },
+        {
+          "id": "stagent.aiControls",
+          "name": "%views.aiControls.name%",
+          "type": "webview",
+          "icon": "$(sparkle)"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "stagent.refreshAiControls",
+          "when": "view == stagent.aiControls",
+          "group": "navigation"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Stagent",
+      "properties": {
+        "stagent.llmApiKey": {
+          "type": "string",
+          "default": "",
+          "description": "备用 LLM API Key（当 Cursor/VS Code 内置 AI 不可用时使用）。兼容 OpenAI / DeepSeek / 任何 OpenAI-compatible API。配置后自动启用直接 HTTP 调用。",
+          "order": 10,
+          "markdownDescription": "备用 LLM API Key（当 Cursor/VS Code 内置 AI 不可用时使用）。兼容 OpenAI / DeepSeek / 任何 OpenAI-compatible API。配置后自动启用直接 HTTP 调用。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+        },
+        "stagent.llmBaseUrl": {
+          "type": "string",
+          "default": "https://api.openai.com/v1",
+          "description": "备用 LLM API Base URL（默认 OpenAI，可改为 DeepSeek：https://api.deepseek.com/v1 或其他兼容端点）",
+          "order": 11,
+          "markdownDescription": "备用 LLM API Base URL（默认 OpenAI，可改为 DeepSeek：https://api.deepseek.com/v1 或其他兼容端点）\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+        },
+        "stagent.llmModel": {
+          "type": "string",
+          "default": "gpt-4o",
+          "description": "备用 LLM 模型名称（如 gpt-4o、deepseek-chat 等）",
+          "order": 12,
+          "markdownDescription": "备用 LLM 模型名称（如 gpt-4o、deepseek-chat 等）\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+        },
+        "stagent.llmTimeoutSeconds": {
+          "type": "number",
+          "default": 300,
+          "minimum": 30,
+          "maximum": 600,
+          "description": "单次 LLM 调用（润色、生成工作流、阶段 llm-text）最长等待秒数。生成完整 software 工作流 JSON 建议 180～300；默认 180。",
+          "order": 13,
+          "markdownDescription": "单次 LLM 调用（润色、生成工作流、阶段 llm-text）最长等待秒数。生成完整 software 工作流 JSON 建议 180～300；默认 180。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+        },
+        "stagent.llmMaxOutputTokens": {
+          "type": "number",
+          "default": 16384,
+          "minimum": 1024,
+          "maximum": 65536,
+          "description": "Direct API（stagent.llmApiKey）单次 completions 的 max_tokens 上限。大文件分阶段 writeOutputToFile 时仍建议 8192+；DeepSeek deepseek-chat 服务端上限常为 8192，超出会被 API 截断或报错。",
+          "order": 14,
+          "markdownDescription": "Direct API（stagent.llmApiKey）单次 completions 的 max_tokens 上限。大文件分阶段 writeOutputToFile 时仍建议 8192+；DeepSeek deepseek-chat 服务端上限常为 8192，超出会被 API 截断或报错。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+        },
+        "stagent.debugVerbose": {
+          "type": "boolean",
+          "default": false,
+          "description": "为 true 时，在 .wf-debug.log 中额外记录 llm-text 输出的长度与首尾预览（仍经脱敏）；默认关闭。",
+          "order": 2,
+          "markdownDescription": "为 true 时，在 .wf-debug.log 中额外记录 llm-text 输出的长度与首尾预览（仍经脱敏）；默认关闭。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+        },
+        "stagent.enableRuntimeRule20Verify": {
+          "type": "boolean",
+          "default": true,
+          "description": "generateWorkflow 时在引擎内运行 verifyRule20（与 CI 同源）；violations 阻断生成（workflowFailed），warnings 写入 workflowGenerated.warnings。设为 false 则跳过运行时 Rule20 校验。",
+          "order": 20,
+          "markdownDescription": "generateWorkflow 时在引擎内运行 verifyRule20（与 CI 同源）；violations 阻断生成（workflowFailed），warnings 写入 workflowGenerated.warnings。设为 false 则跳过运行时 Rule20 校验。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+        },
+        "stagent.autoInsertGlobalArchitectureDecision": {
+          "type": "boolean",
+          "default": false,
+          "description": "为 true 时：software 多模块计划若缺全局架构决策（与 verifyRule20 的 software-missing-global-architecture-decision 同条件），在 normalize 阶段自动插入 stage_decide_architecture_overview 空壳，并追加 SOFT warning（global-architecture-decision-auto-inserted）；默认关闭。",
+          "order": 21,
+          "markdownDescription": "为 true 时：software 多模块计划若缺全局架构决策（与 verifyRule20 的 software-missing-global-architecture-decision 同条件），在 normalize 阶段自动插入 stage_decide_architecture_overview 空壳，并追加 SOFT warning（global-architecture-decision-auto-inserted）；默认关闭。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+        },
+        "stagent.enableDecisionContentLint": {
+          "type": "boolean",
+          "default": true,
+          "description": "approveDecision 时对 DecisionRecord 做结构校验（I-17~I-19）。workflow globalConfig.enableDecisionContentLint 可覆盖；显式 false 关闭。",
+          "order": 53,
+          "markdownDescription": "approveDecision 时对 DecisionRecord 做结构校验（I-17~I-19）。workflow globalConfig.enableDecisionContentLint 可覆盖；显式 false 关闭。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+        },
+        "stagent.maxManualStageRetries": {
+          "type": "number",
+          "default": 3,
+          "minimum": 1,
+          "description": "单阶段「手动重试」次数上限（每次点击重试会使该阶段 retryCount +1；达到上限后拒绝再次重试并提示 retry-limit-exceeded）。不含首轮自动执行。",
+          "order": 54,
+          "markdownDescription": "单阶段「手动重试」次数上限（每次点击重试会使该阶段 retryCount +1；达到上限后拒绝再次重试并提示 retry-limit-exceeded）。不含首轮自动执行。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+        },
+        "stagent.injectApprovedDecisionContext": {
+          "type": "boolean",
+          "default": true,
+          "description": "为 true 时，非决策 llm-text 阶段将已批准 decisionRecord 摘要/全文追加到 systemPrompt（已在 input.sources 显式引用的不重复）。workflow globalConfig.injectApprovedDecisionContext 可覆盖。",
+          "order": 55,
+          "markdownDescription": "为 true 时，非决策 llm-text 阶段将已批准 decisionRecord 摘要/全文追加到 systemPrompt（已在 input.sources 显式引用的不重复）。workflow globalConfig.injectApprovedDecisionContext 可覆盖。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+        },
+        "stagent.globalDecisionInjectMode": {
+          "type": "string",
+          "enum": [
+            "summary",
+            "full"
+          ],
+          "default": "summary",
+          "description": "全局决策注入模式：summary=每条决策截断摘要（默认）；full=全文。workflow globalConfig.globalDecisionInjectMode 可覆盖。",
+          "order": 56,
+          "markdownDescription": "全局决策注入模式：summary=每条决策截断摘要（默认）；full=全文。workflow globalConfig.globalDecisionInjectMode 可覆盖。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+        },
+        "stagent.dagMaxParallelism": {
+          "type": "number",
+          "default": 2,
+          "minimum": 1,
+          "description": "DAG 模式下每波最多并行执行的阶段数（默认 2；设为 1 等同单线程）。≥2 时无依赖关系的 ready 阶段可同波并行；决策/pauseAfter/questionBefore 仍串行。workflow globalConfig.dagMaxParallelism 可覆盖。",
+          "order": 35,
+          "markdownDescription": "DAG 模式下每波最多并行执行的阶段数（默认 2；设为 1 等同单线程）。≥2 时无依赖关系的 ready 阶段可同波并行；决策/pauseAfter/questionBefore 仍串行。workflow globalConfig.dagMaxParallelism 可覆盖。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+        },
+        "stagent.confidence.pauseThreshold": {
+          "type": "number",
+          "default": 0.4,
+          "minimum": 0,
+          "maximum": 1,
+          "description": "置信度低于此值时强制暂停等待人工审核（0-1）。由 AdaptiveHITLPolicy 消费。",
+          "order": 50,
+          "markdownDescription": "置信度低于此值时强制暂停等待人工审核（0-1）。由 AdaptiveHITLPolicy 消费。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+        },
+        "stagent.hitl.pauseContractNodes": {
+          "type": "boolean",
+          "default": true,
+          "description": "对「契约节点」（被 ≥2 个下游引用，或 reader/fetcher/analyzer/writer/main 等数据管道核心 impl）在置信度未达 contractNodePauseThreshold 时升级为人工暂停复审。设为 false 则仅使用 confidence.pauseThreshold。",
+          "order": 51,
+          "markdownDescription": "对「契约节点」（被 ≥2 个下游引用，或 reader/fetcher/analyzer/writer/main 等数据管道核心 impl）在置信度未达 contractNodePauseThreshold 时升级为人工暂停复审。设为 false 则仅使用 confidence.pauseThreshold。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+        },
+        "stagent.hitl.contractNodePauseThreshold": {
+          "type": "number",
+          "default": 0.75,
+          "minimum": 0,
+          "maximum": 1,
+          "description": "契约节点暂停阈值（0-1）。契约节点置信度低于此值即暂停（默认 0.75）。",
+          "order": 52,
+          "markdownDescription": "契约节点暂停阈值（0-1）。契约节点置信度低于此值即暂停（默认 0.75）。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+        },
+        "stagent.plan.requireCompleteness": {
+          "type": "boolean",
+          "default": true,
+          "description": "多文件 prototype/software 计划完整性硬门。缺少可执行验证阶段、main 入口装配（≥3 模块）、或首个 test_run 前的 Jest/Babel/tsconfig 测试基础设施时，阻断生成并在只读确认页展示拦截原因。设为 false 关闭。",
+          "order": 22,
+          "markdownDescription": "多文件 prototype/software 计划完整性硬门。缺少可执行验证阶段、main 入口装配（≥3 模块）、或首个 test_run 前的 Jest/Babel/tsconfig 测试基础设施时，阻断生成并在只读确认页展示拦截原因。设为 false 关闭。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+        },
+        "stagent.plan.structuralRepair": {
+          "type": "string",
+          "enum": [
+            "off",
+            "auto"
+          ],
+          "default": "off",
+          "description": "计划完整性门禁命中后，对 missing-verification-stage / missing-test-infrastructure / missing-self-heal-chain 做确定性阶段插入（标有「[系统插入]」），再 normalize 并重跑校验。不修 missing-main-assembly。auto 启用；off 仅阻断（默认）。",
+          "order": 23,
+          "markdownDescription": "计划完整性门禁命中后，对 missing-verification-stage / missing-test-infrastructure / missing-self-heal-chain 做确定性阶段插入（标有「[系统插入]」），再 normalize 并重跑校验。不修 missing-main-assembly。auto 启用；off 仅阻断（默认）。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+        },
+        "stagent.execution.testRunPreflight": {
+          "type": "boolean",
+          "default": true,
+          "description": "stage_test_run_* 执行前检测工作区是否已有 jest.config.* / babel.config.* / tsconfig.json（Expo 栈需 jest+babel）。缺失则阻断并给出可读 stageError。设为 false 关闭运行期预检。",
+          "order": 30,
+          "markdownDescription": "stage_test_run_* 执行前检测工作区是否已有 jest.config.* / babel.config.* / tsconfig.json（Expo 栈需 jest+babel）。缺失则阻断并给出可读 stageError。设为 false 关闭运行期预检。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+        },
+        "stagent.execution.splitTestRunBundledCommands": {
+          "type": "boolean",
+          "default": true,
+          "description": "生成 normalize 时将 stage_test_run_* 内「npm install && jest/test」等复合 command 拆成独立 stage_deps_install_* 与纯测试 command。设为 false 关闭自动拆分。",
+          "order": 31,
+          "markdownDescription": "生成 normalize 时将 stage_test_run_* 内「npm install && jest/test」等复合 command 拆成独立 stage_deps_install_* 与纯测试 command。设为 false 关闭自动拆分。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+        },
+        "stagent.execution.testRunAutoNpmInstall": {
+          "type": "boolean",
+          "default": true,
+          "description": "stage_test_run_* 执行前在 effective cwd 检测 package.json；缺 node_modules 时自动 npm install。设为 false 关闭。",
+          "order": 31.5,
+          "markdownDescription": "stage_test_run_* 执行前在 effective cwd（含 cd 目标目录）检测 package.json；缺 node_modules 时自动 npm install。已有 stage_deps_install_* 且已完成则跳过。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+        },
+        "stagent.generation.maxParseRetries": {
+          "type": "number",
+          "default": 2,
+          "minimum": 1,
+          "description": "工作流生成时整轮 LLM 输出解析重试上限（含首次尝试）。截断续接为有界循环且其 token 计入预算；增大可提高大计划成功率但增加 token 成本。",
+          "order": 24,
+          "markdownDescription": "工作流生成时整轮 LLM 输出解析重试上限（含首次尝试）。截断续接为有界循环（默认 2 次）且其 token 计入生成预算；增大可提高大计划成功率但增加 token 成本。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+        },
+        "stagent.execution.writeOutputIntegrity": {
+          "type": "string",
+          "enum": [
+            "off",
+            "warn",
+            "retry"
+          ],
+          "default": "retry",
+          "description": "LLM 输出与落盘字符数严重不一致时：off 忽略；warn 仅警告；retry 自动重试 LLM 一次（默认）。",
+          "order": 31.6,
+          "markdownDescription": "检测 writeOutputToFile 落盘内容与 LLM 原始输出长度是否严重不一致。retry（默认）自动重试一次；warn 仅 stream 警告；off 关闭。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+        },
+        "stagent.execution.testRunFailurePlaybook": {
+          "type": "boolean",
+          "default": true,
+          "description": "stage_test_run_* 失败时根据 stderr 分类生成可读修复 playbook，替换裸 tool-execution-failed。设为 false 关闭。",
+          "order": 32,
+          "markdownDescription": "stage_test_run_* 失败时根据 stderr 分类生成可读修复 playbook，替换裸 tool-execution-failed。设为 false 关闭。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+        },
+        "stagent.execution.sdkPathContractLint": {
+          "type": "string",
+          "enum": [
+            "off",
+            "warn",
+            "hard"
+          ],
+          "default": "warn",
+          "description": "DecisionRecord ↔ impl ↔ test SDK/路径契约 lint。warn=写 warning 日志（默认）；hard=stage_test_run_* 前阻断；off=关闭。",
+          "order": 33,
+          "markdownDescription": "DecisionRecord ↔ impl ↔ test SDK/路径契约 lint。warn=写 warning 日志（默认）；hard=stage_test_run_* 前阻断；off=关闭。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+        },
+        "stagent.execution.dangerousCommandLint": {
+          "type": "string",
+          "enum": [
+            "off",
+            "warn",
+            "hard"
+          ],
+          "default": "warn",
+          "description": "检测 code-runner 危险 shell（如 rm -rf /、curl|bash）。warn=写入 workflowGenerated.warnings；hard=生成期与运行期阻断；off=关闭。",
+          "order": 34,
+          "markdownDescription": "检测 code-runner 危险 shell（如 rm -rf /、curl|bash）。warn=写入 workflowGenerated.warnings；hard=生成期与运行期阻断；off=关闭。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+        },
+        "stagent.toIssues.horizontalLayeringFail": {
+          "type": "boolean",
+          "default": false,
+          "description": "to-issues horizontal-tdd 观测升级为 fail（Phase 4 可选）。为 true 时横向分层 TDD 违规由 warning 升为 violation 阻断。",
+          "order": 42,
+          "markdownDescription": "to-issues horizontal-tdd 观测升级为 fail（Phase 4 可选）。为 true 时横向分层 TDD 违规由 warning 升为 violation 阻断。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+        },
+        "stagent.tdd.redGreenGate": {
+          "type": "string",
+          "enum": [
+            "off",
+            "warn",
+            "hard"
+          ],
+          "default": "warn",
+          "description": "红绿门：impl 执行前要求配对测试处于 RED。off=关闭；warn=仅写日志/告警（默认）；hard=在 impl 前运行配对测试，若已 GREEN 则阻断。",
+          "order": 40,
+          "markdownDescription": "红绿门：impl 执行前要求配对测试处于 RED。off=关闭；warn=仅写日志/告警（默认）；hard=在 impl 前运行配对测试，若已 GREEN 则阻断。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+        },
+        "stagent.debug.requireFeedbackLoop": {
+          "type": "string",
+          "enum": [
+            "off",
+            "warn",
+            "hard"
+          ],
+          "default": "hard",
+          "description": "debug 任务「反馈回路优先」。hard=生成期 Rule20 violation + 运行期阻断；warn=仅 warning；off=关闭。兼容旧版 boolean（true→hard，false→off）。",
+          "order": 41,
+          "markdownDescription": "debug 任务「反馈回路优先」。hard=生成期 Rule20 violation + 运行期阻断；warn=仅 warning；off=关闭。兼容旧版 boolean（true→hard，false→off）。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+        },
+        "stagent.grill.adaptiveMode": {
+          "type": "boolean",
+          "default": false,
+          "description": "强制开启决策阶段「一次一问」grill（覆盖 autoOnDecisionStages）。false 时仅在 autoOnDecisionStages 启发式命中时启用。",
+          "order": 60,
+          "markdownDescription": "强制开启决策阶段「一次一问」grill（覆盖 autoOnDecisionStages）。false 时仅在 autoOnDecisionStages 启发式命中时启用。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+        },
+        "stagent.grill.autoOnDecisionStages": {
+          "type": "boolean",
+          "default": true,
+          "description": "决策阶段且含 questionBefore 时，对契约节点或高复杂度任务自动启用 adaptive grill（一次一问 + code-explore）。设为 false 回退批量追问表单。",
+          "order": 61,
+          "markdownDescription": "决策阶段且含 questionBefore 时，对契约节点或高复杂度任务自动启用 adaptive grill（一次一问 + code-explore）。设为 false 回退批量追问表单。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+        },
+        "stagent.glossary.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "活 .stagent/CONTEXT.md 词汇表 + 轻量 ADR 留存。开启后跨文件键名一致性以词汇表为权威字典。设为 false 关闭读写。",
+          "order": 62,
+          "markdownDescription": "活 .stagent/CONTEXT.md 词汇表 + 轻量 ADR 留存。开启后跨文件键名一致性以词汇表为权威字典。设为 false 关闭读写。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+        },
+        "stagent.architecture.depthScoring": {
+          "type": "boolean",
+          "default": false,
+          "description": "深模块评分接入质量分：对「浅模块」降分并提示。默认关闭。",
+          "order": 63,
+          "markdownDescription": "深模块评分接入质量分：对「浅模块」降分并提示。默认关闭。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+        },
+        "stagent.memory.enableExperienceStore": {
+          "type": "boolean",
+          "default": true,
+          "description": "持久化工作流执行经验到 .stagent/experiences.jsonl。设为 false 可关闭写入。",
+          "order": 70,
+          "markdownDescription": "持久化工作流执行经验到 .stagent/experiences.jsonl。设为 false 可关闭写入。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+        },
+        "stagent.memory.maxExperienceEntries": {
+          "type": "number",
+          "default": 500,
+          "minimum": 1,
+          "description": "经验库最大条目数（超出时 FIFO 淘汰）。",
+          "order": 71,
+          "markdownDescription": "经验库最大条目数（超出时 FIFO 淘汰）。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+        },
+        "stagent.sandbox.enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "为 code-runner 启用实验性沙箱。macOS 经 sandbox-exec 做内核级写隔离（写仅限工作目录/临时目录）+ 真网络封锁；Linux/Windows 仅资源约束 + 网络软阻断（非安全边界）。npm/pip 等安装命令仍自动放行网络。",
+          "order": 80,
+          "markdownDescription": "为 code-runner 启用**实验性**沙箱。\n\n- **macOS**：经 `sandbox-exec` 内核级写隔离——写入仅限工作目录与临时目录，`rm -rf ~`、写 `~/.ssh` 等会被拒绝；`networkAllowed=false` 时真断网。\n- **Linux / Windows**：暂无内核级隔离，仅 `ulimit` 资源约束 + 代理环境变量软网络阻断（子进程可绕过，**非安全边界**，勿运行不可信代码）。\n\nnpm/pip 等安装命令仍自动放行网络。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+        },
+        "stagent.codebaseContext.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "生成工作流时注入代码库快照上下文。由 generateWorkflow 消费。",
+          "order": 81,
+          "markdownDescription": "生成工作流时注入代码库快照上下文。由 generateWorkflow 消费。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+        },
+        "stagent.codebaseContext.maxTokens": {
+          "type": "number",
+          "default": 4000,
+          "minimum": 1,
+          "description": "代码库快照注入的最大 token 数。由 generateWorkflow 消费。",
+          "order": 82,
+          "markdownDescription": "代码库快照注入的最大 token 数。由 generateWorkflow 消费。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+        },
+        "stagent.agentRoleOverrides": {
+          "type": "object",
+          "default": {},
+          "description": "按阶段角色分配模型（decision/implementation/test-write/lightweight）。由 AgentSpecializationRouter 消费。",
+          "order": 83,
+          "markdownDescription": "按阶段角色分配模型（decision/implementation/test-write/lightweight）。由 AgentSpecializationRouter 消费。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+        },
+        "stagent.experience.injectOnGenerate": {
+          "type": "boolean",
+          "default": false,
+          "description": "generateWorkflow 时从 .stagent/experiences.jsonl 注入 few-shot 摘要（不含 userInput 原文；不改写决策阶段合同 prompt）。",
+          "order": 72,
+          "markdownDescription": "generateWorkflow 时从 .stagent/experiences.jsonl 注入 few-shot 摘要（不含 userInput 原文；不改写决策阶段合同 prompt）。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+        },
+        "stagent.promptVersions.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "generateWorkflow 从 .stagent/prompt-versions.json 读取可变 prompt 槽位（protected 槽位仍不可改写）。设为 false 回退 WorkflowPrompts 硬编码 seed。",
+          "order": 84,
+          "markdownDescription": "generateWorkflow 从 .stagent/prompt-versions.json 读取可变 prompt 槽位（protected 槽位仍不可改写）。设为 false 回退 WorkflowPrompts 硬编码 seed。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+        },
+        "stagent.staticAnalysis.enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "工作流生成后与 stage_impl_* 完成后运行 StaticAnalysisPipeline（tsc / imports；不阻断 workflow）。",
+          "order": 85,
+          "markdownDescription": "工作流生成后与 stage_impl_* 完成后运行 StaticAnalysisPipeline（tsc / imports；不阻断 workflow）。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+        },
+        "stagent.feedback.formUrl": {
+          "type": "string",
+          "default": "",
+          "description": "工作流完成后引导用户反馈的表单链接（如 Google Form）。留空则不弹出反馈提示。",
+          "order": 90,
+          "markdownDescription": "工作流完成后引导用户反馈的表单链接（如 Google Form）。留空则不弹出反馈提示。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+        },
+        "stagent.feedback.cooldownDays": {
+          "type": "number",
+          "default": 7,
+          "minimum": 0,
+          "description": "两次反馈提示之间的最小间隔天数（冷却期），避免频繁打扰。默认 7 天。",
+          "order": 91,
+          "markdownDescription": "两次反馈提示之间的最小间隔天数（冷却期），避免频繁打扰。默认 7 天。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+        },
+        "stagent.settingsProfile": {
+          "type": "string",
+          "enum": [
+            "default",
+            "strict",
+            "relaxed",
+            "minimal"
+          ],
+          "default": "default",
+          "description": "预设 Profile：strict=全 hard 门禁；relaxed=warn 为主；minimal=关闭非核心门禁。显式 stagent.* 键值仍优先；激活时 validateSettings 会提示矛盾或漂移。",
+          "order": 1,
+          "markdownDescription": "预设 Profile：strict=全 hard 门禁；relaxed=warn 为主；minimal=关闭非核心门禁。显式 stagent.* 键值仍优先；激活时 validateSettings 会提示矛盾或漂移。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "build:prompts": "node scripts/build-prompts.mjs",
+    "build:webview": "node scripts/build-webview.mjs",
+    "extract:webview-templates": "node scripts/extract-webview-templates.mjs && node scripts/gen-webview-id-snapshots.mjs",
+    "compile": "npm run build:prompts && tsc -p ./ && node -e \"require('fs').cpSync('src/l10n/webview-ui-strings.json','out/l10n/webview-ui-strings.json')\" && npm run build:webview",
+    "watch": "tsc -watch -p ./",
+    "lint": "eslint \"src/**/*.ts\"",
+    "lint:fix": "eslint \"src/**/*.ts\" --fix",
+    "test": "npm run test:full",
+    "test:compile": "tsc -p ./ && node -e \"require('fs').mkdirSync('out/l10n',{recursive:true}); require('fs').cpSync('src/l10n/webview-ui-strings.json','out/l10n/webview-ui-strings.json')\"",
+    "test:unit": "npm run test:compile && npm run build:webview && node scripts/run-unit-tests.mjs",
+    "test:integration": "npm run test:compile && node scripts/run-integration-tests.mjs",
+    "test:full": "npm run test:unit && npm run test:integration",
+    "test:coverage": "npm run compile && node scripts/run-all-tests.mjs --coverage",
+    "test:coverage:critical": "npm run test:coverage && node scripts/check-critical-coverage.mjs",
+    "verify:rule20": "ts-node scripts/verify-rule20.ts --fixtures-dir scripts/fixtures/rule20",
+    "verify:rule20:runtime": "ts-node scripts/verify-rule20.ts --fixtures-dir scripts/fixtures/runtime-rule20",
+    "verify:refactor": "ts-node scripts/verify-rule20.ts --fixtures-dir scripts/fixtures/refactor",
+    "verify:to-issues": "ts-node scripts/verify-rule20.ts --fixtures-dir scripts/fixtures/to-issues-audit",
+    "verify:debug": "ts-node scripts/verify-rule20.ts --fixtures-dir scripts/fixtures/debug",
+    "verify:prototype": "ts-node scripts/verify-rule20.ts --fixtures-dir scripts/fixtures/prototype",
+    "verify:quality-scorer": "ts-node scripts/verify-quality-scorer.ts --fixtures-dir scripts/fixtures/confidence",
+    "analyze:experiences": "ts-node scripts/analyze-experiences.ts",
+    "analyze:failures": "ts-node scripts/analyze-failures.ts",
+    "verify:rule20:mock": "ts-node scripts/verify-rule20.ts",
+    "gen:message-schema": "node scripts/gen-message-schema.mjs",
+    "check:message-handlers": "node scripts/check-message-handlers.mjs",
+    "check:message-schema": "node scripts/gen-message-schema.mjs && node scripts/check-message-schema-contract.mjs && node scripts/check-message-handlers.mjs",
+    "sync:settings-contributes": "node scripts/sync-settings-contributes.mjs",
+    "check:settings-contract": "node scripts/sync-settings-contributes.mjs --check",
+    "verify:webview-source": "node scripts/check-webview-source-of-truth.mjs",
+    "verify:architecture": "node scripts/verify-architecture.mjs",
+    "verify:all": "npm run compile && npm run lint && npm run test && npm run test:coverage:critical && npm run verify:architecture && npm run verify:webview-source && npm run verify:rule20 && npm run verify:refactor && npm run verify:to-issues && npm run verify:debug && npm run verify:prototype && npm run verify:quality-scorer && npm run check:message-schema && npm run check:settings-contract",
+    "observe:v281": "ts-node scripts/v281-e2e-observation.ts",
+    "benchmark:dag": "npm run test:compile && node --import ./out/test/install-vscode-stub.js scripts/benchmark/dag-parallel-bench.mjs",
+    "benchmark:context": "npm run test:compile && node --import ./out/test/install-vscode-stub.js scripts/benchmark/context-load-bench.mjs",
+    "test:benchmark": "npm run test:compile && node --import ./out/test/install-vscode-stub.js --test out/test/dag-parallel-benchmark.integration.test.js out/test/context-load-benchmark.integration.test.js"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^18.0.0",
+    "@types/vscode": "^1.85.0",
+    "c8": "^11.0.0",
+    "esbuild": "^0.25.0",
+    "eslint": "^10.4.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.0",
+    "typescript-eslint": "^8.60.0",
+    "preact": "^10.25.4"
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "id": "wf_engine_two_stage",
+  "version": "2.0",
+  "meta": {
+    "title": "Engine integration two-stage",
+    "taskType": "writing",
+    "userInput": "integration test task",
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  "stages": [
+    {
+      "id": "stage_writing_outline",
+      "title": "Outline",
+      "tool": "llm-text",
+      "toolConfig": { "type": "llm-text", "systemPrompt": "Write a short outline." },
+      "input": { "sources": [{ "type": "user-input", "label": "task" }], "mergeStrategy": "concat" },
+      "outputs": [{ "key": "text", "format": "text" }],
+      "pauseAfter": false
+    },
+    {
+      "id": "stage_writing_draft",
+      "title": "Draft",
+      "tool": "llm-text",
+      "toolConfig": { "type": "llm-text", "systemPrompt": "Write a short draft." },
+      "input": {
+        "sources": [
+          {
+            "type": "stage-output",
+            "stageId": "stage_writing_outline",
+            "outputKey": "text",
+            "label": "outline"
+          }
+        ],
+        "mergeStrategy": "concat"
+      },
+      "outputs": [{ "key": "text", "format": "text" }],
+      "pauseAfter": false
+    }
+  ]
+}

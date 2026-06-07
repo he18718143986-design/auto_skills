@@ -1,0 +1,25 @@
+{
+  "id": "wf_engine_blocked",
+  "version": "2.0",
+  "meta": {
+    "title": "Blocked prototype runner",
+    "taskType": "prototype",
+    "userInput": "run main.py without impl",
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  "stages": [
+    {
+      "id": "stage_test_run_prototype_experiment",
+      "title": "Run main.py",
+      "tool": "code-runner",
+      "toolConfig": {
+        "type": "code-runner",
+        "command": "python main.py",
+        "captureOutput": true
+      },
+      "input": { "sources": [], "mergeStrategy": "concat" },
+      "outputs": [{ "key": "log", "format": "text" }],
+      "pauseAfter": false
+    }
+  ]
+}

@@ -1,0 +1,2532 @@
+{
+  "rows": [
+    {
+      "path": ".c8rc.json",
+      "lines": 13,
+      "role": "模块 .c8rc（路径 .）。"
+    },
+    {
+      "path": ".DS_Store",
+      "lines": 7,
+      "role": "模块 .DS_Store（路径 .）。"
+    },
+    {
+      "path": ".github/workflows/verify-all.yml",
+      "lines": 29,
+      "role": "CI 工作流或 GitHub 配置。"
+    },
+    {
+      "path": ".github/workflows/verify-fixtures.yml",
+      "lines": 28,
+      "role": "CI 工作流或 GitHub 配置。"
+    },
+    {
+      "path": ".github/workflows/verify-lint-test.yml",
+      "lines": 25,
+      "role": "CI 工作流或 GitHub 配置。"
+    },
+    {
+      "path": ".github/workflows/verify-prompts.yml",
+      "lines": 48,
+      "role": "CI 工作流或 GitHub 配置。"
+    },
+    {
+      "path": ".github/workflows/verify-webview.yml",
+      "lines": 52,
+      "role": "CI 工作流或 GitHub 配置。"
+    },
+    {
+      "path": ".gitignore",
+      "lines": 25,
+      "role": "模块 .gitignore（路径 .）。"
+    },
+    {
+      "path": ".vscodeignore",
+      "lines": 36,
+      "role": "模块 .vscodeignore（路径 .）。"
+    },
+    {
+      "path": "AGENTS.md",
+      "lines": 52,
+      "role": "模块 AGENTS（路径 .）。"
+    },
+    {
+      "path": "CHANGELOG.md",
+      "lines": 26,
+      "role": "模块 CHANGELOG（路径 .）。"
+    },
+    {
+      "path": "CONTRIBUTING.md",
+      "lines": 66,
+      "role": "模块 CONTRIBUTING（路径 .）。"
+    },
+    {
+      "path": "docs/architecture.md",
+      "lines": 96,
+      "role": "项目文档：architecture。"
+    },
+    {
+      "path": "docs/dag-scheduling.md",
+      "lines": 52,
+      "role": "项目文档：dag-scheduling。"
+    },
+    {
+      "path": "docs/esm-migration-spike.md",
+      "lines": 49,
+      "role": "项目文档：esm-migration-spike。"
+    },
+    {
+      "path": "docs/persistence.md",
+      "lines": 65,
+      "role": "项目文档：persistence。"
+    },
+    {
+      "path": "docs/preact-spike.md",
+      "lines": 28,
+      "role": "项目文档：preact-spike。"
+    },
+    {
+      "path": "docs/quality-gates.md",
+      "lines": 77,
+      "role": "项目文档：quality-gates。"
+    },
+    {
+      "path": "docs/README.md",
+      "lines": 26,
+      "role": "项目文档：README。"
+    },
+    {
+      "path": "docs/settings/README.md",
+      "lines": 177,
+      "role": "项目文档：README。"
+    },
+    {
+      "path": "eslint.config.mjs",
+      "lines": 59,
+      "role": "模块 eslint.config（路径 .）。"
+    },
+    {
+      "path": "examples/custom-quality-gate.ts",
+      "lines": 25,
+      "role": "示例：在 fork 的 extension activate() 中注册自定义 QualityGate。"
+    },
+    {
+      "path": "examples/sample-tasks.md",
+      "lines": 48,
+      "role": "示例：sample-tasks。"
+    },
+    {
+      "path": "package-lock.json",
+      "lines": 2420,
+      "role": "模块 package-lock（路径 .）。"
+    },
+    {
+      "path": "package.json",
+      "lines": 485,
+      "role": "模块 package（路径 .）。"
+    },
+    {
+      "path": "package.nls.json",
+      "lines": 12,
+      "role": "模块 package.nls（路径 .）。"
+    },
+    {
+      "path": "package.nls.zh-cn.json",
+      "lines": 12,
+      "role": "模块 package.nls.zh-cn（路径 .）。"
+    },
+    {
+      "path": "prompts/artifact-input-alignment.md",
+      "lines": 30,
+      "role": "LLM 提示词模板：artifact-input-alignment。"
+    },
+    {
+      "path": "prompts/decision-record-strict-suffix.md",
+      "lines": 17,
+      "role": "LLM 提示词模板：decision-record-strict-suffix。"
+    },
+    {
+      "path": "prompts/engineering-test-strategy-borrowing.md",
+      "lines": 17,
+      "role": "LLM 提示词模板：engineering-test-strategy-borrowing。"
+    },
+    {
+      "path": "prompts/generator-json-schema-base.md",
+      "lines": 20,
+      "role": "LLM 提示词模板：generator-json-schema-base。"
+    },
+    {
+      "path": "prompts/layer-1-to-5.md",
+      "lines": 23,
+      "role": "LLM 提示词模板：layer-1-to-5。"
+    },
+    {
+      "path": "prompts/main-assembly-naming.md",
+      "lines": 5,
+      "role": "LLM 提示词模板：main-assembly-naming。"
+    },
+    {
+      "path": "prompts/manifest.json",
+      "lines": 90,
+      "role": "LLM 提示词模板：manifest。"
+    },
+    {
+      "path": "prompts/prototype-excel-fixture-alignment.md",
+      "lines": 11,
+      "role": "LLM 提示词模板：prototype-excel-fixture-alignment。"
+    },
+    {
+      "path": "prompts/prototype-multi-file-write.md",
+      "lines": 21,
+      "role": "LLM 提示词模板：prototype-multi-file-write。"
+    },
+    {
+      "path": "prompts/python-code-runner-constraint.md",
+      "lines": 14,
+      "role": "LLM 提示词模板：python-code-runner-constraint。"
+    },
+    {
+      "path": "prompts/rule20-system.md",
+      "lines": 65,
+      "role": "LLM 提示词模板：rule20-system。"
+    },
+    {
+      "path": "prompts/spec-75-original.md",
+      "lines": 25,
+      "role": "LLM 提示词模板：spec-75-original。"
+    },
+    {
+      "path": "prompts/spec-78-multi-module.md",
+      "lines": 23,
+      "role": "LLM 提示词模板：spec-78-multi-module。"
+    },
+    {
+      "path": "prompts/task-type-classification.md",
+      "lines": 15,
+      "role": "LLM 提示词模板：task-type-classification。"
+    },
+    {
+      "path": "prompts/task-type/debug-constraint.md",
+      "lines": 16,
+      "role": "LLM 提示词模板：debug-constraint。"
+    },
+    {
+      "path": "prompts/task-type/improve-architecture-constraint.md",
+      "lines": 12,
+      "role": "LLM 提示词模板：improve-architecture-constraint。"
+    },
+    {
+      "path": "prompts/task-type/prototype-constraint.md",
+      "lines": 27,
+      "role": "LLM 提示词模板：prototype-constraint。"
+    },
+    {
+      "path": "prompts/task-type/refactor-constraint.md",
+      "lines": 16,
+      "role": "LLM 提示词模板：refactor-constraint。"
+    },
+    {
+      "path": "prompts/test-infrastructure-before-test-run.md",
+      "lines": 29,
+      "role": "LLM 提示词模板：test-infrastructure-before-test-run。"
+    },
+    {
+      "path": "prompts/vertical-slice-constraint.md",
+      "lines": 12,
+      "role": "LLM 提示词模板：vertical-slice-constraint。"
+    },
+    {
+      "path": "README.md",
+      "lines": 63,
+      "role": "模块 README（路径 .）。"
+    },
+    {
+      "path": "schemas/messages.schema.json",
+      "lines": 72,
+      "role": "JSON Schema：messages.schema。"
+    },
+    {
+      "path": "scripts/analyze-experiences.ts",
+      "lines": 62,
+      "role": "构建/校验脚本：analyze-experiences。"
+    },
+    {
+      "path": "scripts/analyze-failures.ts",
+      "lines": 100,
+      "role": "构建/校验脚本：analyze-failures。"
+    },
+    {
+      "path": "scripts/build-prompts.mjs",
+      "lines": 116,
+      "role": "构建/校验脚本：build-prompts。"
+    },
+    {
+      "path": "scripts/build-webview.mjs",
+      "lines": 170,
+      "role": "构建/校验脚本：build-webview。"
+    },
+    {
+      "path": "scripts/check-critical-coverage.mjs",
+      "lines": 58,
+      "role": "构建/校验脚本：check-critical-coverage。"
+    },
+    {
+      "path": "scripts/check-message-schema-contract.mjs",
+      "lines": 43,
+      "role": "构建/校验脚本：check-message-schema-contract。"
+    },
+    {
+      "path": "scripts/extract-prompts-from-workflow-prompts.mjs",
+      "lines": 68,
+      "role": "构建/校验脚本：extract-prompts-from-workflow-prompts。"
+    },
+    {
+      "path": "scripts/extract-webview-templates.mjs",
+      "lines": 96,
+      "role": "CSS from WebviewStyles.ts"
+    },
+    {
+      "path": "scripts/fixtures/confidence/high-quality-decision.md",
+      "lines": 15,
+      "role": "Rule20/校验夹具：confidence/high-quality-decision.md。"
+    },
+    {
+      "path": "scripts/fixtures/confidence/high-quality-decision.meta.json",
+      "lines": 6,
+      "role": "Rule20/校验夹具：confidence/high-quality-decision.meta.json。"
+    },
+    {
+      "path": "scripts/fixtures/confidence/hollow-impl-output.meta.json",
+      "lines": 6,
+      "role": "Rule20/校验夹具：confidence/hollow-impl-output.meta.json。"
+    },
+    {
+      "path": "scripts/fixtures/confidence/missing-sections-decision.md",
+      "lines": 8,
+      "role": "Rule20/校验夹具：confidence/missing-sections-decision.md。"
+    },
+    {
+      "path": "scripts/fixtures/confidence/missing-sections-decision.meta.json",
+      "lines": 6,
+      "role": "Rule20/校验夹具：confidence/missing-sections-decision.meta.json。"
+    },
+    {
+      "path": "scripts/fixtures/debug/fail-feedback-loop-order.json",
+      "lines": 43,
+      "role": "Rule20/校验夹具：debug/fail-feedback-loop-order.json。"
+    },
+    {
+      "path": "scripts/fixtures/debug/pass-minimal.json",
+      "lines": 62,
+      "role": "Rule20/校验夹具：debug/pass-minimal.json。"
+    },
+    {
+      "path": "scripts/fixtures/debug/warn-missing-reproduce.json",
+      "lines": 43,
+      "role": "Rule20/校验夹具：debug/warn-missing-reproduce.json。"
+    },
+    {
+      "path": "scripts/fixtures/debug/warn-missing-verification.json",
+      "lines": 53,
+      "role": "Rule20/校验夹具：debug/warn-missing-verification.json。"
+    },
+    {
+      "path": "scripts/fixtures/prototype/fail-missing-config-py-import.json",
+      "lines": 84,
+      "role": "Rule20/校验夹具：prototype/fail-missing-config-py-import.json。"
+    },
+    {
+      "path": "scripts/fixtures/prototype/pass-minimal.json",
+      "lines": 41,
+      "role": "Rule20/校验夹具：prototype/pass-minimal.json。"
+    },
+    {
+      "path": "scripts/fixtures/prototype/warn-missing-success-criteria.json",
+      "lines": 31,
+      "role": "Rule20/校验夹具：prototype/warn-missing-success-criteria.json。"
+    },
+    {
+      "path": "scripts/fixtures/prototype/warn-missing-verification.json",
+      "lines": 32,
+      "role": "Rule20/校验夹具：prototype/warn-missing-verification.json。"
+    },
+    {
+      "path": "scripts/fixtures/refactor/minimal-warning-monolithic-no-verify.json",
+      "lines": 35,
+      "role": "Rule20/校验夹具：refactor/minimal-warning-monolithic-no-verify.json。"
+    },
+    {
+      "path": "scripts/fixtures/refactor/minimal-warning-no-decision.json",
+      "lines": 40,
+      "role": "Rule20/校验夹具：refactor/minimal-warning-no-decision.json。"
+    },
+    {
+      "path": "scripts/fixtures/refactor/pass-minimal.json",
+      "lines": 62,
+      "role": "Rule20/校验夹具：refactor/pass-minimal.json。"
+    },
+    {
+      "path": "scripts/fixtures/rule20/fail-missing-constraint-prompt.json",
+      "lines": 45,
+      "role": "Rule20/校验夹具：rule20/fail-missing-constraint-prompt.json。"
+    },
+    {
+      "path": "scripts/fixtures/rule20/fail-missing-decision-source.json",
+      "lines": 38,
+      "role": "Rule20/校验夹具：rule20/fail-missing-decision-source.json。"
+    },
+    {
+      "path": "scripts/fixtures/rule20/fail-test-run-not-code-runner.json",
+      "lines": 63,
+      "role": "Rule20/校验夹具：rule20/fail-test-run-not-code-runner.json。"
+    },
+    {
+      "path": "scripts/fixtures/rule20/pass-minimal.json",
+      "lines": 45,
+      "role": "Rule20/校验夹具：rule20/pass-minimal.json。"
+    },
+    {
+      "path": "scripts/fixtures/rule20/warn-missing-global-architecture.json",
+      "lines": 119,
+      "role": "Rule20/校验夹具：rule20/warn-missing-global-architecture.json。"
+    },
+    {
+      "path": "scripts/fixtures/runtime-rule20/fail-missing-decision-stage.json",
+      "lines": 41,
+      "role": "Rule20/校验夹具：runtime-rule20/fail-missing-decision-stage.json。"
+    },
+    {
+      "path": "scripts/fixtures/runtime-rule20/pass-minimal-todo-extension.json",
+      "lines": 70,
+      "role": "Rule20/校验夹具：runtime-rule20/pass-minimal-todo-extension.json。"
+    },
+    {
+      "path": "scripts/fixtures/runtime-rule20/README.md",
+      "lines": 27,
+      "role": "Rule20/校验夹具：runtime-rule20/README.md。"
+    },
+    {
+      "path": "scripts/fixtures/runtime-rule20/warn-missing-architecture.json",
+      "lines": 165,
+      "role": "Rule20/校验夹具：runtime-rule20/warn-missing-architecture.json。"
+    },
+    {
+      "path": "scripts/fixtures/to-issues-audit/workflow-theme-a-search-index.json",
+      "lines": 112,
+      "role": "Rule20/校验夹具：to-issues-audit/workflow-theme-a-search-index.json。"
+    },
+    {
+      "path": "scripts/fixtures/to-issues-audit/workflow-theme-b-billing-retry.json",
+      "lines": 112,
+      "role": "Rule20/校验夹具：to-issues-audit/workflow-theme-b-billing-retry.json。"
+    },
+    {
+      "path": "scripts/fixtures/to-issues-audit/workflow-theme-c-auth-session.json",
+      "lines": 75,
+      "role": "Rule20/校验夹具：to-issues-audit/workflow-theme-c-auth-session.json。"
+    },
+    {
+      "path": "scripts/fixtures/to-issues-audit/workflow-theme-d-cache-invalidation.json",
+      "lines": 75,
+      "role": "Rule20/校验夹具：to-issues-audit/workflow-theme-d-cache-invalidation.json。"
+    },
+    {
+      "path": "scripts/fixtures/to-issues-audit/workflow-theme-e-api-rate-limit.json",
+      "lines": 75,
+      "role": "Rule20/校验夹具：to-issues-audit/workflow-theme-e-api-rate-limit.json。"
+    },
+    {
+      "path": "scripts/fixtures/to-issues-audit/workflow-warning-high-hitl.json",
+      "lines": 59,
+      "role": "Rule20/校验夹具：to-issues-audit/workflow-warning-high-hitl.json。"
+    },
+    {
+      "path": "scripts/fixtures/to-issues-audit/workflow-warning-horizontal-layering.json",
+      "lines": 116,
+      "role": "Rule20/校验夹具：to-issues-audit/workflow-warning-horizontal-layering.json。"
+    },
+    {
+      "path": "scripts/fixtures/to-issues-audit/workflow-warning-missing-chain.json",
+      "lines": 44,
+      "role": "Rule20/校验夹具：to-issues-audit/workflow-warning-missing-chain.json。"
+    },
+    {
+      "path": "scripts/gen-message-schema.mjs",
+      "lines": 86,
+      "role": "构建/校验脚本：gen-message-schema。"
+    },
+    {
+      "path": "scripts/gen-webview-id-snapshots.mjs",
+      "lines": 29,
+      "role": "构建/校验脚本：gen-webview-id-snapshots。"
+    },
+    {
+      "path": "scripts/project-scan.mjs",
+      "lines": 253,
+      "role": "构建/校验脚本：project-scan。"
+    },
+    {
+      "path": "scripts/run-unit-tests.mjs",
+      "lines": 20,
+      "role": "构建/校验脚本：run-unit-tests。"
+    },
+    {
+      "path": "scripts/split-webview-runtime.mjs",
+      "lines": 485,
+      "role": "构建/校验脚本：split-webview-runtime。"
+    },
+    {
+      "path": "scripts/sync-settings-contributes.mjs",
+      "lines": 134,
+      "role": "构建/校验脚本：sync-settings-contributes。"
+    },
+    {
+      "path": "scripts/v281-e2e-observation.ts",
+      "lines": 142,
+      "role": "v2.8.1 / M20 前置：对 fixture 工作流批量跑 verifyRule20，模拟 E2E 观测通过率。"
+    },
+    {
+      "path": "scripts/verify-quality-scorer.ts",
+      "lines": 135,
+      "role": "构建/校验脚本：verify-quality-scorer。"
+    },
+    {
+      "path": "scripts/verify-rule20.ts",
+      "lines": 166,
+      "role": "构建/校验脚本：verify-rule20。"
+    },
+    {
+      "path": "src/.DS_Store",
+      "lines": 1,
+      "role": "模块 .DS_Store（路径 src）。"
+    },
+    {
+      "path": "src/.gitkeep",
+      "lines": 2,
+      "role": "模块 .gitkeep（路径 src）。"
+    },
+    {
+      "path": "src/ActiveInstanceGuard.ts",
+      "lines": 31,
+      "role": "#5：单引擎活跃实例切换守卫（非多实例队列，仅防执行中误切换与丢盘）。"
+    },
+    {
+      "path": "src/AdaptiveHITLPolicy.ts",
+      "lines": 111,
+      "role": "导出 HITLDecision 及相关类型/工具。"
+    },
+    {
+      "path": "src/AdrPersistence.ts",
+      "lines": 77,
+      "role": "M34 / #13：ADR 磁盘读写（`.stagent/adr/`）。纯 fs 封装，无 vscode 依赖。"
+    },
+    {
+      "path": "src/AdrStore.ts",
+      "lines": 200,
+      "role": "M24：轻量 ADR（Architecture Decision Record）留存（借鉴 skills `grill-with-docs`"
+    },
+    {
+      "path": "src/AgentSpecializationRouter.ts",
+      "lines": 96,
+      "role": "导出 AgentRole 及相关类型/工具。"
+    },
+    {
+      "path": "src/ApproveDecisionGate.ts",
+      "lines": 37,
+      "role": "导出 ApproveDecisionGateInput，承担对应领域编排或策略。"
+    },
+    {
+      "path": "src/ArtifactLifecycleManager.ts",
+      "lines": 225,
+      "role": "导出 ArtifactState 及相关类型/工具。"
+    },
+    {
+      "path": "src/ArtifactUiHints.ts",
+      "lines": 196,
+      "role": "导出 StageArtifactHint 及相关类型/工具。"
+    },
+    {
+      "path": "src/BuiltinQualityGates.ts",
+      "lines": 417,
+      "role": "内置 QualityGate 注册 — 将原生成/执行链中的硬编码 lint 统一挂到注册表。"
+    },
+    {
+      "path": "src/CodebaseContextProvider.ts",
+      "lines": 276,
+      "role": "导出 ProjectType 及相关类型/工具。"
+    },
+    {
+      "path": "src/CodeRunnerCommandLint.ts",
+      "lines": 309,
+      "role": "code-runner 命令的反模式 lint（B-2）。"
+    },
+    {
+      "path": "src/CodeRunnerImportLint.ts",
+      "lines": 271,
+      "role": "导出 detectPythonImportLintIssues，承担对应领域编排或策略。"
+    },
+    {
+      "path": "src/CodeRunnerInvokeHelpers.ts",
+      "lines": 110,
+      "role": "code-runner 执行期策略：沙箱网络放行、超时秒数解析、生成工作流 timeout 字段归一化。"
+    },
+    {
+      "path": "src/ConfidenceScorer.ts",
+      "lines": 160,
+      "role": "导出 CONFIDENCE_OUTPUT_KEY 及相关类型/工具。"
+    },
+    {
+      "path": "src/ConfigContractLint.ts",
+      "lines": 189,
+      "role": "导出 ConfigContractIssue 及相关类型/工具。"
+    },
+    {
+      "path": "src/CrossFileKeyContractLint.ts",
+      "lines": 317,
+      "role": "M21.1b：跨文件键名一致性 lint（运行期，test_run 前）。"
+    },
+    {
+      "path": "src/DebugFeedbackLoopGate.ts",
+      "lines": 76,
+      "role": "导出 DebugFeedbackLoopOutcome 及相关类型/工具。"
+    },
+    {
+      "path": "src/DebugLogUtils.ts",
+      "lines": 24,
+      "role": "导出 getRecentDebugLogLines 及相关类型/工具。"
+    },
+    {
+      "path": "src/DecisionContentLintPolicy.ts",
+      "lines": 10,
+      "role": "导出 isDecisionContentLintEnabled，承担对应领域编排或策略。"
+    },
+    {
+      "path": "src/DecisionRecordVerify.ts",
+      "lines": 200,
+      "role": "导出 DecisionViolationCode 及相关类型/工具。"
+    },
+    {
+      "path": "src/DecisionReviewUi.ts",
+      "lines": 54,
+      "role": "导出 shouldShowQualitySoftPrompt 及相关类型/工具。"
+    },
+    {
+      "path": "src/DependencyGraphAnalyzer.ts",
+      "lines": 239,
+      "role": "导出 DependencyLayer 及相关类型/工具。"
+    },
+    {
+      "path": "src/EffectiveSettings.ts",
+      "lines": 58,
+      "role": "有效配置：workflow.globalConfig 显式值 > vscode stagent.* > 调用方传入 default。"
+    },
+    {
+      "path": "src/engine-host/ExecutionHostDeps.ts",
+      "lines": 10,
+      "role": "WorkflowEngine Host 依赖切片：ExecutionHostDeps。"
+    },
+    {
+      "path": "src/engine-host/GenerationHostDeps.ts",
+      "lines": 31,
+      "role": "WorkflowEngine Host 依赖切片：GenerationHostDeps。"
+    },
+    {
+      "path": "src/engine-host/index.ts",
+      "lines": 60,
+      "role": "WorkflowEngine Host 依赖切片：index。"
+    },
+    {
+      "path": "src/engine-host/MessagingHostDeps.ts",
+      "lines": 20,
+      "role": "WorkflowEngine Host 依赖切片：MessagingHostDeps。"
+    },
+    {
+      "path": "src/engine-host/PersistenceHostDeps.ts",
+      "lines": 40,
+      "role": "WorkflowEngine Host 依赖切片：PersistenceHostDeps。"
+    },
+    {
+      "path": "src/ErrorTypeUtils.ts",
+      "lines": 104,
+      "role": "导出 normalizeErrorType 及相关类型/工具。"
+    },
+    {
+      "path": "src/ExperienceGeneratorContext.ts",
+      "lines": 84,
+      "role": "导出 buildExperienceFewShotForGenerator 及相关类型/工具。"
+    },
+    {
+      "path": "src/extension.ts",
+      "lines": 316,
+      "role": "VS Code 扩展激活入口与命令注册。"
+    },
+    {
+      "path": "src/FailurePatternAnalyzer.ts",
+      "lines": 159,
+      "role": "导出 ActionablePatternKind 及相关类型/工具。"
+    },
+    {
+      "path": "src/FsAsync.ts",
+      "lines": 90,
+      "role": "#7 / M33：异步 fs 薄封装。热路径（阶段执行、状态持久化、会话日志）统一走此模块，"
+    },
+    {
+      "path": "src/generated/PromptFragments.ts",
+      "lines": 554,
+      "role": "AUTO-GENERATED by scripts/build-prompts.mjs — DO NOT EDIT."
+    },
+    {
+      "path": "src/GeneratedWorkflowGate.ts",
+      "lines": 21,
+      "role": "导出 formatRule20ViolationsBlockReason 及相关类型/工具。"
+    },
+    {
+      "path": "src/GlobalDecisionContext.ts",
+      "lines": 158,
+      "role": "导出 STAGENT_GLOBAL_DECISIONS_LABEL 及相关类型/工具。"
+    },
+    {
+      "path": "src/GrillAdaptiveFlow.ts",
+      "lines": 103,
+      "role": "导出 AdaptiveGrillState 及相关类型/工具。"
+    },
+    {
+      "path": "src/GrillCodeExplore.ts",
+      "lines": 160,
+      "role": "导出 CodeExploreHit 及相关类型/工具。"
+    },
+    {
+      "path": "src/GrillLoopPolicy.ts",
+      "lines": 98,
+      "role": "导出 DEFAULT_MAX_GRILL_ROUNDS 及相关类型/工具。"
+    },
+    {
+      "path": "src/HITLContractNodePolicy.ts",
+      "lines": 118,
+      "role": "导出 DEFAULT_CONTRACT_NODE_PAUSE_THRESHOLD 及相关类型/工具。"
+    },
+    {
+      "path": "src/ImplOutputExecution.ts",
+      "lines": 32,
+      "role": "导出 ImplOutputGuardResult 及相关类型/工具。"
+    },
+    {
+      "path": "src/ImplOutputGuard.ts",
+      "lines": 13,
+      "role": "导出 isHollowImplOutput 及相关类型/工具。"
+    },
+    {
+      "path": "src/InputContextPolicy.ts",
+      "lines": 361,
+      "role": "导出 DEFAULT_CONTEXT_TOTAL_TOKEN_LIMIT 及相关类型/工具。"
+    },
+    {
+      "path": "src/InstanceSession.ts",
+      "lines": 115,
+      "role": "M44：Webview / Engine 实例一致性 — 单一 Session 模型。"
+    },
+    {
+      "path": "src/JsonExtract.ts",
+      "lines": 124,
+      "role": "导出 extractJsonObject 及相关类型/工具。"
+    },
+    {
+      "path": "src/LlmClient.ts",
+      "lines": 322,
+      "role": "LlmClient（M30.1）"
+    },
+    {
+      "path": "src/LlmInvokeHelpers.ts",
+      "lines": 142,
+      "role": "与 `package.json` → `stagent.llmTimeoutSeconds` 默认值一致"
+    },
+    {
+      "path": "src/ManualRetryLimit.ts",
+      "lines": 41,
+      "role": "与 `package.json` → `stagent.maxManualStageRetries` 默认值一致"
+    },
+    {
+      "path": "src/ModuleDepthScorer.ts",
+      "lines": 148,
+      "role": "M25：深模块评分（借鉴 skills `improve-codebase-architecture` / Ousterhout「深模块」）。"
+    },
+    {
+      "path": "src/OpenAiCompatibleLlm.ts",
+      "lines": 153,
+      "role": "导出 STAGENT_DIRECT_HTTP_VENDOR 及相关类型/工具。"
+    },
+    {
+      "path": "src/OutputQualityScorer.ts",
+      "lines": 309,
+      "role": "导出 QUALITY_SCORE_OUTPUT_KEY 及相关类型/工具。"
+    },
+    {
+      "path": "src/PlanCompletenessGate.ts",
+      "lines": 376,
+      "role": "导出 PlanCompletenessViolationType 及相关类型/工具。"
+    },
+    {
+      "path": "src/ProjectGlossaryStore.ts",
+      "lines": 84,
+      "role": "形如 `- **term** — definition` 或 `- **term**: definition`"
+    },
+    {
+      "path": "src/PromptVersionManager.ts",
+      "lines": 175,
+      "role": "导出 PromptVersion 及相关类型/工具。"
+    },
+    {
+      "path": "src/PrototypeContractLint.ts",
+      "lines": 238,
+      "role": "导出 PrototypeContractWarningType 及相关类型/工具。"
+    },
+    {
+      "path": "src/QualityGate.ts",
+      "lines": 191,
+      "role": "导出 QualityGatePhase，承担对应领域编排或策略。"
+    },
+    {
+      "path": "src/QualityGateContrib.ts",
+      "lines": 37,
+      "role": "第三方 / 扩展贡献 QualityGate 的公开 API。"
+    },
+    {
+      "path": "src/QualityGateRunner.ts",
+      "lines": 62,
+      "role": "导出 runQualityGates，承担对应领域编排或策略。"
+    },
+    {
+      "path": "src/QuestionAfterFlow.ts",
+      "lines": 112,
+      "role": "导出 buildAnswerQuestionsMessage 及相关类型/工具。"
+    },
+    {
+      "path": "src/QuestionBeforeFlow.ts",
+      "lines": 26,
+      "role": "导出 getMissingRequiredQuestionIds 及相关类型/工具。"
+    },
+    {
+      "path": "src/QuestionNormalization.ts",
+      "lines": 43,
+      "role": "导出 normalizeQuestions 及相关类型/工具。"
+    },
+    {
+      "path": "src/RedGreenFsm.ts",
+      "lines": 108,
+      "role": "导出 ImplRedFsmPhase 及相关类型/工具。"
+    },
+    {
+      "path": "src/RedGreenGate.ts",
+      "lines": 97,
+      "role": "导出 RedGreenMode 及相关类型/工具。"
+    },
+    {
+      "path": "src/RetryOutputPolicy.ts",
+      "lines": 8,
+      "role": "导出 resetOutputsForNonDecisionRetry 及相关类型/工具。"
+    },
+    {
+      "path": "src/ReuseStrategy.ts",
+      "lines": 27,
+      "role": "生成前澄清 `q_files`「如何处理已有文件」选项 ↔ reuseStrategy 的**单一事实源**（#16）。"
+    },
+    {
+      "path": "src/rule20/architecture.ts",
+      "lines": 34,
+      "role": "Rule20 校验规则：architecture。"
+    },
+    {
+      "path": "src/rule20/debug-feedback.ts",
+      "lines": 30,
+      "role": "Rule20 校验规则：debug-feedback。"
+    },
+    {
+      "path": "src/rule20/index.ts",
+      "lines": 16,
+      "role": "Rule20 校验规则：index。"
+    },
+    {
+      "path": "src/rule20/prototype.ts",
+      "lines": 99,
+      "role": "Rule20 校验规则：prototype。"
+    },
+    {
+      "path": "src/rule20/types.ts",
+      "lines": 57,
+      "role": "Rule20 校验规则：types。"
+    },
+    {
+      "path": "src/rule20/verify.ts",
+      "lines": 427,
+      "role": "Rule20 校验规则：verify。"
+    },
+    {
+      "path": "src/Rule20RuntimeGate.ts",
+      "lines": 75,
+      "role": "Rule20RuntimeGate"
+    },
+    {
+      "path": "src/Rule20Verify.ts",
+      "lines": 16,
+      "role": "P0-3：Rule20Verify 门面 — 兼容现有 import 路径。"
+    },
+    {
+      "path": "src/Rule20WarningDisplay.ts",
+      "lines": 129,
+      "role": "将 `workflowGenerated.warnings` 中的机器可读 token（M14.4 / I-23）"
+    },
+    {
+      "path": "src/SampleHeaderContractLint.ts",
+      "lines": 146,
+      "role": "导出 extractExcelHeaderRow 及相关类型/工具。"
+    },
+    {
+      "path": "src/SandboxExecutor.ts",
+      "lines": 129,
+      "role": "导出 SandboxOptions 及相关类型/工具。"
+    },
+    {
+      "path": "src/SdkPathContractLint.ts",
+      "lines": 270,
+      "role": "M39.2：DecisionRecord ↔ impl ↔ test SDK/路径契约 lint。"
+    },
+    {
+      "path": "src/SessionDebugLog.ts",
+      "lines": 78,
+      "role": "导出 SESSION_DEBUG_FILENAME 及相关类型/工具。"
+    },
+    {
+      "path": "src/shared/WebviewMessages.ts",
+      "lines": 6,
+      "role": "P1-1：宿主与 webview 共用的消息类型与 type guard（无 vscode 依赖）。"
+    },
+    {
+      "path": "src/SseDeltaStream.ts",
+      "lines": 55,
+      "role": "按行缓冲解析 OpenAI 兼容 SSE，避免 chunk 切断 `data:` 行。"
+    },
+    {
+      "path": "src/stage-runners/StagePostRunPipeline.ts",
+      "lines": 82,
+      "role": "阶段执行管线：StagePostRunPipeline。"
+    },
+    {
+      "path": "src/StageErrorCatalog.ts",
+      "lines": 110,
+      "role": "导出 StageErrorEntry 及相关类型/工具。"
+    },
+    {
+      "path": "src/StagentAiControlsProvider.ts",
+      "lines": 123,
+      "role": "侧栏「Stagent · AI 控制」：对齐 ai-workflow AiControlsProvider 的轻量实现。"
+    },
+    {
+      "path": "src/StagentOnboarding.ts",
+      "lines": 47,
+      "role": "导出 runStagentOnboardingIfNeeded 及相关类型/工具。"
+    },
+    {
+      "path": "src/StagentProfileDiff.ts",
+      "lines": 87,
+      "role": "导出 buildProfileGateDiff，承担对应领域编排或策略。"
+    },
+    {
+      "path": "src/StagentProfileHighlights.ts",
+      "lines": 8,
+      "role": "导出 buildProfileHighlights 及相关类型/工具。"
+    },
+    {
+      "path": "src/StagentSettings.ts",
+      "lines": 442,
+      "role": "导出 readContractNodePauseThreshold 及相关类型/工具。"
+    },
+    {
+      "path": "src/StagentSettingsCatalog.ts",
+      "lines": 250,
+      "role": "M43：配置域目录 — 与 package.json contributes 同步维护。"
+    },
+    {
+      "path": "src/StagentSettingsDefaults.ts",
+      "lines": 51,
+      "role": "与 `package.json` → `stagent.confidence.pauseThreshold` 默认值一致"
+    },
+    {
+      "path": "src/StagentSettingsGovernance.ts",
+      "lines": 16,
+      "role": "M43：配置项治理门面 — 域分组、预设 Profile、矛盾组合检测。"
+    },
+    {
+      "path": "src/StagentSettingsProfiles.ts",
+      "lines": 92,
+      "role": "导出 SettingsProfileId 及相关类型/工具。"
+    },
+    {
+      "path": "src/StagentSettingsValidation.ts",
+      "lines": 179,
+      "role": "导出 SettingsValidationSeverity 及相关类型/工具。"
+    },
+    {
+      "path": "src/StagentTaskListProvider.ts",
+      "lines": 91,
+      "role": "侧栏「Stagent · 任务列表」：移植自 ai-workflow TaskListSidebarProvider。"
+    },
+    {
+      "path": "src/StaticAnalysisPipeline.ts",
+      "lines": 251,
+      "role": "导出 AnalysisCheck 及相关类型/工具。"
+    },
+    {
+      "path": "src/StreamingSummary.ts",
+      "lines": 71,
+      "role": "StreamingSummary"
+    },
+    {
+      "path": "src/TaskPolishPrompt.ts",
+      "lines": 23,
+      "role": "导出 buildTaskPolishSystemPrompt 及相关类型/工具。"
+    },
+    {
+      "path": "src/TaskTypeResolution.ts",
+      "lines": 72,
+      "role": "UI / 消息协议：由模型在 generateWorkflow 同次调用中决定 meta.taskType"
+    },
+    {
+      "path": "src/test/active-instance-guard.test.ts",
+      "lines": 116,
+      "role": "active-instance-guard.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/adaptive-hitl-policy.test.ts",
+      "lines": 65,
+      "role": "adaptive-hitl-policy.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/adr-wiring.test.ts",
+      "lines": 101,
+      "role": "adr-wiring.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/agent-specialization-router.test.ts",
+      "lines": 45,
+      "role": "agent-specialization-router.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/analyze-experiences.test.ts",
+      "lines": 38,
+      "role": "analyze-experiences.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/approve-decision-gate.test.ts",
+      "lines": 52,
+      "role": "approve-decision-gate.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/artifact-lifecycle-manager.test.ts",
+      "lines": 194,
+      "role": "artifact-lifecycle-manager.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/artifact-pause-ui.test.ts",
+      "lines": 59,
+      "role": "artifact-pause-ui.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/artifact-ui-hints.test.ts",
+      "lines": 93,
+      "role": "artifact-ui-hints.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/clarify-overlay-esc.test.ts",
+      "lines": 25,
+      "role": "clarify-overlay-esc.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/code-runner-command-lint.test.ts",
+      "lines": 223,
+      "role": "code-runner-command-lint.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/code-runner-import-lint.test.ts",
+      "lines": 134,
+      "role": "code-runner-import-lint.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/code-runner-invoke-helpers.test.ts",
+      "lines": 105,
+      "role": "code-runner-invoke-helpers.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/codebase-context-provider.test.ts",
+      "lines": 56,
+      "role": "codebase-context-provider.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/confidence-scorer.test.ts",
+      "lines": 186,
+      "role": "confidence-scorer.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/config-contract-lint.test.ts",
+      "lines": 133,
+      "role": "config-contract-lint.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/contract-source-detection.test.ts",
+      "lines": 110,
+      "role": "contract-source-detection.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/cross-file-context-authority.test.ts",
+      "lines": 27,
+      "role": "cross-file-context-authority.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/cross-file-key-contract-lint.test.ts",
+      "lines": 74,
+      "role": "cross-file-key-contract-lint.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/debug-e2e-mock-chain.test.ts",
+      "lines": 112,
+      "role": "debug-e2e-mock-chain.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/debug-feedback-loop-gate.test.ts",
+      "lines": 77,
+      "role": "debug-feedback-loop-gate.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/debug-feedback-loop-rule20.test.ts",
+      "lines": 37,
+      "role": "debug-feedback-loop-rule20.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/debug-log-utils.test.ts",
+      "lines": 35,
+      "role": "debug-log-utils.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/decision-record-verify.test.ts",
+      "lines": 234,
+      "role": "decision-record-verify.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/deep-defense.test.ts",
+      "lines": 62,
+      "role": "用两个**内部常量中独特出现**的短语作为存在性 / 计数锚点，避免依赖未导出的常量"
+    },
+    {
+      "path": "src/test/dependency-graph-analyzer.test.ts",
+      "lines": 42,
+      "role": "dependency-graph-analyzer.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/downstream-reset-ui.test.ts",
+      "lines": 38,
+      "role": "downstream-reset-ui.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/effective-settings.test.ts",
+      "lines": 38,
+      "role": "effective-settings.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/error-type-utils.test.ts",
+      "lines": 49,
+      "role": "error-type-utils.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/experience-generator-context.test.ts",
+      "lines": 42,
+      "role": "experience-generator-context.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/experience-store-lock.test.ts",
+      "lines": 126,
+      "role": "experience-store-lock.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/failure-pattern-analyzer.test.ts",
+      "lines": 70,
+      "role": "failure-pattern-analyzer.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/fixtures/engine/blocked-python-runner.json",
+      "lines": 26,
+      "role": "blocked-python-runner 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/fixtures/engine/two-stage-writing.json",
+      "lines": 41,
+      "role": "two-stage-writing 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/fixtures/webview/ai-controls-element-ids.json",
+      "lines": 14,
+      "role": "ai-controls-element-ids 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/fixtures/webview/main-panel-element-ids.json",
+      "lines": 81,
+      "role": "main-panel-element-ids 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/fixtures/webview/task-list-element-ids.json",
+      "lines": 6,
+      "role": "task-list-element-ids 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/fs-async.test.ts",
+      "lines": 80,
+      "role": "fs-async.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/global-config-confirm-ui.test.ts",
+      "lines": 27,
+      "role": "global-config-confirm-ui.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/global-decision-context.test.ts",
+      "lines": 158,
+      "role": "global-decision-context.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/grill-adaptive-mode-for-stage.test.ts",
+      "lines": 124,
+      "role": "grill-adaptive-mode-for-stage.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/grill-loop.test.ts",
+      "lines": 80,
+      "role": "grill-loop.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/grill-me-section2-ui-contract.test.ts",
+      "lines": 179,
+      "role": "SKILLS-MAPPING.md §2（grill-me → questionBefore / questionAfter）最小回归清单（代码锁）"
+    },
+    {
+      "path": "src/test/hitl-contract-node-policy.test.ts",
+      "lines": 152,
+      "role": "hitl-contract-node-policy.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/impl-output-execution.test.ts",
+      "lines": 32,
+      "role": "impl-output-execution.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/impl-output-guard.test.ts",
+      "lines": 19,
+      "role": "impl-output-guard.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/input-context-policy.test.ts",
+      "lines": 139,
+      "role": "input-context-policy.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/install-vscode-stub.ts",
+      "lines": 30,
+      "role": "node --test 无 VS Code 运行时：在 require('vscode') 前注入轻量桩。"
+    },
+    {
+      "path": "src/test/instance-session.test.ts",
+      "lines": 69,
+      "role": "instance-session.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/json-extract.test.ts",
+      "lines": 42,
+      "role": "json-extract.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/llm-client.test.ts",
+      "lines": 119,
+      "role": "llm-client.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/llm-invoke-helpers.test.ts",
+      "lines": 119,
+      "role": "llm-invoke-helpers.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/m20-artifact-validation.test.ts",
+      "lines": 99,
+      "role": "m20-artifact-validation.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/m20-quality-chain.test.ts",
+      "lines": 133,
+      "role": "m20-quality-chain.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/m8-decision-conflict-banner.test.ts",
+      "lines": 14,
+      "role": "m8-decision-conflict-banner.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/m8-quality-gate.test.ts",
+      "lines": 14,
+      "role": "m8-quality-gate.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/m8-webview-decision-branches.test.ts",
+      "lines": 78,
+      "role": "m8-webview-decision-branches.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/m8-webview-script-integration.test.ts",
+      "lines": 208,
+      "role": "m8-webview-script-integration.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/manual-retry-limit.test.ts",
+      "lines": 35,
+      "role": "manual-retry-limit.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/module-depth-scorer.test.ts",
+      "lines": 127,
+      "role": "module-depth-scorer.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/openai-compatible-llm.test.ts",
+      "lines": 76,
+      "role": "openai-compatible-llm.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/openai-token-estimate.test.ts",
+      "lines": 55,
+      "role": "openai-token-estimate.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/output-quality-scorer.test.ts",
+      "lines": 106,
+      "role": "output-quality-scorer.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/pause-ui-state.test.ts",
+      "lines": 31,
+      "role": "pause-ui-state.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/plan-completeness-gate.test.ts",
+      "lines": 242,
+      "role": "plan-completeness-gate.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/project-glossary-store.test.ts",
+      "lines": 110,
+      "role": "project-glossary-store.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/prompt-fragments.test.ts",
+      "lines": 39,
+      "role": "prompt-fragments.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/prompt-version-manager.test.ts",
+      "lines": 42,
+      "role": "prompt-version-manager.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/prototype-contract-lint.test.ts",
+      "lines": 116,
+      "role": "prototype-contract-lint.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/quality-gate-registry.test.ts",
+      "lines": 140,
+      "role": "quality-gate-registry.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/question-after-flow.test.ts",
+      "lines": 63,
+      "role": "question-after-flow.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/question-after-integration.test.ts",
+      "lines": 99,
+      "role": "question-after-integration.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/question-after-webview-html.test.ts",
+      "lines": 23,
+      "role": "question-after-webview-html.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/question-before-flow.test.ts",
+      "lines": 32,
+      "role": "question-before-flow.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/question-before-integration.test.ts",
+      "lines": 104,
+      "role": "question-before-integration.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/question-before-normalize-integration.test.ts",
+      "lines": 47,
+      "role": "question-before-normalize-integration.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/question-normalization.test.ts",
+      "lines": 23,
+      "role": "question-normalization.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/red-green-fsm.test.ts",
+      "lines": 97,
+      "role": "red-green-fsm.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/red-green-gate.test.ts",
+      "lines": 163,
+      "role": "red-green-gate.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/refactor-e2e-mock-chain.test.ts",
+      "lines": 99,
+      "role": "refactor-e2e-mock-chain.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/required-answer-validation.test.ts",
+      "lines": 136,
+      "role": "─── I-8: validateRequiredAnswers 纯函数 ─────────────────────────"
+    },
+    {
+      "path": "src/test/retry-output-policy.test.ts",
+      "lines": 17,
+      "role": "retry-output-policy.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/reuse-strategy.test.ts",
+      "lines": 33,
+      "role": "reuse-strategy.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/rule20-runtime-gate.test.ts",
+      "lines": 143,
+      "role": "Rule20RuntimeGate 纯函数测试"
+    },
+    {
+      "path": "src/test/rule20-warning-display.test.ts",
+      "lines": 48,
+      "role": "rule20-warning-display.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/sample-header-contract-lint.test.ts",
+      "lines": 81,
+      "role": "复刻真实失败：create_sample 写 [\"ASIN\",\"TK SKU\",\"目标价\",\"库存\"]，reader 只认 TK_SKU/目标价格"
+    },
+    {
+      "path": "src/test/sandbox-executor.test.ts",
+      "lines": 13,
+      "role": "sandbox-executor.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/sdk-path-contract-lint.test.ts",
+      "lines": 162,
+      "role": "sdk-path-contract-lint.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/session-debug-log.test.ts",
+      "lines": 98,
+      "role": "session-debug-log.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/stage-confidence-ui.test.ts",
+      "lines": 102,
+      "role": "stage-confidence-ui.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/stage-error-catalog.test.ts",
+      "lines": 26,
+      "role": "stage-error-catalog.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/stagent-profile-diff.test.ts",
+      "lines": 14,
+      "role": "stagent-profile-diff.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/stagent-settings-governance.test.ts",
+      "lines": 118,
+      "role": "stagent-settings-governance.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/stagent-settings.test.ts",
+      "lines": 33,
+      "role": "stagent-settings.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/static-analysis-pipeline.test.ts",
+      "lines": 91,
+      "role": "static-analysis-pipeline.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/streaming-summary.test.ts",
+      "lines": 202,
+      "role": "StreamingSummary 纯函数 + WorkflowExecutor skip 集成测试"
+    },
+    {
+      "path": "src/test/task-polish-prompt.test.ts",
+      "lines": 16,
+      "role": "task-polish-prompt.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/task-type-resolution.test.ts",
+      "lines": 62,
+      "role": "task-type-resolution.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/test-quality-lint.test.ts",
+      "lines": 64,
+      "role": "test-quality-lint.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/test-run-command-normalize.test.ts",
+      "lines": 129,
+      "role": "test-run-command-normalize.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/test-run-failure-playbook.test.ts",
+      "lines": 127,
+      "role": "test-run-failure-playbook.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/test-run-preflight.test.ts",
+      "lines": 133,
+      "role": "test-run-preflight.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/ui-visibility.test.ts",
+      "lines": 19,
+      "role": "ui-visibility.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/verify-debug-script.test.ts",
+      "lines": 57,
+      "role": "verify-debug-script.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/verify-rule20-script.test.ts",
+      "lines": 387,
+      "role": "verify-rule20-script.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/webview-bottom-dock-ui.test.ts",
+      "lines": 179,
+      "role": "webview-bottom-dock-ui.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/webview-bundle.test.ts",
+      "lines": 44,
+      "role": "webview-bundle.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/webview-confirm-plan-ui.test.ts",
+      "lines": 64,
+      "role": "webview-confirm-plan-ui.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/webview-confirm-plan.test.ts",
+      "lines": 113,
+      "role": "webview-confirm-plan.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/webview-input-generation-progress.test.ts",
+      "lines": 128,
+      "role": "webview-input-generation-progress.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/webview-input-generation-ui.test.ts",
+      "lines": 39,
+      "role": "webview-input-generation-ui.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/webview-input-hero-layout.test.ts",
+      "lines": 113,
+      "role": "webview-input-hero-layout.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/webview-message-guards.test.ts",
+      "lines": 19,
+      "role": "webview-message-guards.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/webview-script-test-harness.ts",
+      "lines": 544,
+      "role": "webview-script-test-harness 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/webview-session.test.ts",
+      "lines": 28,
+      "role": "webview-session.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/webview-template-snapshot.test.ts",
+      "lines": 59,
+      "role": "webview-template-snapshot.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/workflow-artifact-registry.test.ts",
+      "lines": 54,
+      "role": "workflow-artifact-registry.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/workflow-code-runner-host.integration.test.ts",
+      "lines": 47,
+      "role": "workflow-code-runner-host.integration.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/workflow-code-runner-host.test.ts",
+      "lines": 54,
+      "role": "workflow-code-runner-host.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/workflow-complexity-estimator.test.ts",
+      "lines": 22,
+      "role": "workflow-complexity-estimator.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/workflow-dag-graph.test.ts",
+      "lines": 75,
+      "role": "workflow-dag-graph.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/workflow-dag-parallel.test.ts",
+      "lines": 62,
+      "role": "workflow-dag-parallel.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/workflow-disk-bootstrap.test.ts",
+      "lines": 262,
+      "role": "workflow-disk-bootstrap.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/workflow-engine-continuation.test.ts",
+      "lines": 42,
+      "role": "workflow-engine-continuation.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/workflow-engine-dag-recovery.test.ts",
+      "lines": 98,
+      "role": "workflow-engine-dag-recovery.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/workflow-engine-decision-content-lint.test.ts",
+      "lines": 180,
+      "role": "────────────────────────────────────────────────────────────────"
+    },
+    {
+      "path": "src/test/workflow-engine-generate.test.ts",
+      "lines": 192,
+      "role": "workflow-engine-generate.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/workflow-engine-integration.test.ts",
+      "lines": 136,
+      "role": "workflow-engine-integration.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/workflow-engine-test-harness.ts",
+      "lines": 191,
+      "role": "WorkflowEngine 集成测试 harness — mock vscode.lm / ExtensionContext / WebviewPanel。"
+    },
+    {
+      "path": "src/test/workflow-executor-dag.test.ts",
+      "lines": 284,
+      "role": "workflow-executor-dag.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/workflow-executor-file-read-path.test.ts",
+      "lines": 36,
+      "role": "workflow-executor-file-read-path.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/workflow-executor-zoom-out-fallback.test.ts",
+      "lines": 55,
+      "role": "workflow-executor-zoom-out-fallback.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/workflow-experience-store.test.ts",
+      "lines": 174,
+      "role": "workflow-experience-store.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/workflow-failure-log.test.ts",
+      "lines": 77,
+      "role": "workflow-failure-log.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/workflow-generation-orchestrator.test.ts",
+      "lines": 137,
+      "role": "workflow-generation-orchestrator.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/workflow-generation-service.test.ts",
+      "lines": 140,
+      "role": "workflow-generation-service.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/workflow-generation.test.ts",
+      "lines": 144,
+      "role": "workflow-generation.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/workflow-global-arch-auto-insert.test.ts",
+      "lines": 91,
+      "role": "workflow-global-arch-auto-insert.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/workflow-hitl-coordinator.integration.test.ts",
+      "lines": 75,
+      "role": "workflow-hitl-coordinator.integration.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/workflow-input-content.test.ts",
+      "lines": 47,
+      "role": "workflow-input-content.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/workflow-input-resolver.test.ts",
+      "lines": 163,
+      "role": "workflow-input-resolver.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/workflow-instance-bind.test.ts",
+      "lines": 32,
+      "role": "workflow-instance-bind.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/workflow-instance-disk-index.test.ts",
+      "lines": 62,
+      "role": "workflow-instance-disk-index.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/workflow-instance-index.test.ts",
+      "lines": 30,
+      "role": "workflow-instance-index.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/workflow-instance-manager.test.ts",
+      "lines": 179,
+      "role": "workflow-instance-manager.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/workflow-instance-persistence-sync.test.ts",
+      "lines": 48,
+      "role": "workflow-instance-persistence-sync.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/workflow-instance-query.test.ts",
+      "lines": 40,
+      "role": "workflow-instance-query.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/workflow-instance-repository.test.ts",
+      "lines": 140,
+      "role": "workflow-instance-repository.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/workflow-logging.test.ts",
+      "lines": 37,
+      "role": "workflow-logging.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/workflow-parallel-monitor.test.ts",
+      "lines": 14,
+      "role": "workflow-parallel-monitor.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/workflow-path-resolver.test.ts",
+      "lines": 89,
+      "role": "workflow-path-resolver.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/workflow-prompts-auto-mode.test.ts",
+      "lines": 80,
+      "role": "workflow-prompts-auto-mode.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/workflow-prompts-codebase.test.ts",
+      "lines": 13,
+      "role": "workflow-prompts-codebase.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/workflow-prompts-m39.test.ts",
+      "lines": 30,
+      "role": "workflow-prompts-m39.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/workflow-prompts-pvm-integration.test.ts",
+      "lines": 23,
+      "role": "workflow-prompts-pvm-integration.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/workflow-prompts-refactor.test.ts",
+      "lines": 97,
+      "role": "workflow-prompts-refactor.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/workflow-recovery-view-model.test.ts",
+      "lines": 59,
+      "role": "workflow-recovery-view-model.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/workflow-rule20-normalize.test.ts",
+      "lines": 359,
+      "role": "workflow-rule20-normalize.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/workflow-stage-position.test.ts",
+      "lines": 125,
+      "role": "workflow-stage-position.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/workflow-state-envelope.test.ts",
+      "lines": 49,
+      "role": "workflow-state-envelope.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/workflow-state-transitions.test.ts",
+      "lines": 134,
+      "role": "workflow-state-transitions.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/workflow-structural-repair.test.ts",
+      "lines": 123,
+      "role": "workflow-structural-repair.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/workflow-ui-bridge.test.ts",
+      "lines": 89,
+      "role": "workflow-ui-bridge.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/workflow-validation.test.ts",
+      "lines": 362,
+      "role": "workflow-validation.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/write-output-normalize.test.ts",
+      "lines": 98,
+      "role": "write-output-normalize.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/test/zoom-out-upgrade.test.ts",
+      "lines": 32,
+      "role": "zoom-out-upgrade.test 的单元/集成测试。"
+    },
+    {
+      "path": "src/TestQualityLint.ts",
+      "lines": 85,
+      "role": "M26：测试质量 lint（借鉴 skills `tdd/tests.md`：测行为而非结构/实现）。"
+    },
+    {
+      "path": "src/TestRunCommandNormalize.ts",
+      "lines": 172,
+      "role": "M38.2：test_run 命令策略 — 拆分「依赖安装 && 测试执行」复合 command。"
+    },
+    {
+      "path": "src/TestRunFailurePlaybook.ts",
+      "lines": 249,
+      "role": "M38.3：test_run / code-runner 失败 stderr 分类 → 可读修复 playbook。"
+    },
+    {
+      "path": "src/TestRunPreflight.ts",
+      "lines": 202,
+      "role": "M38.1：stage_test_run_* 执行前测试栈 preflight（运行期兜底，与 M39.1 生成期门互补）。"
+    },
+    {
+      "path": "src/uniappPackagePins.ts",
+      "lines": 72,
+      "role": "uni-app（Vue3 + Vite + @dcloudio/vite-plugin-uni）在 npm 上的版本号易被 LLM 幻觉；"
+    },
+    {
+      "path": "src/webview/components/DecisionPauseBar.tsx",
+      "lines": 35,
+      "role": "Preact 试点：决策暂停条底栏按钮区。"
+    },
+    {
+      "path": "src/webview/components/StageTimeline.tsx",
+      "lines": 58,
+      "role": "Preact：执行页阶段时间线。"
+    },
+    {
+      "path": "src/webview/decision-pause-bar-entry.tsx",
+      "lines": 18,
+      "role": "Webview 前端（webview）：decision-pause-bar-entry。"
+    },
+    {
+      "path": "src/webview/runtime/_extracted-bootstrap.js",
+      "lines": 1825,
+      "role": "Webview 前端（runtime）：_extracted-bootstrap。"
+    },
+    {
+      "path": "src/webview/runtime/bootstrap.ts",
+      "lines": 111,
+      "role": "Webview 前端（runtime）：bootstrap。"
+    },
+    {
+      "path": "src/webview/runtime/messages.ts",
+      "lines": 501,
+      "role": "Webview 前端（runtime）：messages。"
+    },
+    {
+      "path": "src/webview/runtime/session.ts",
+      "lines": 20,
+      "role": "Webview 前端（runtime）：session。"
+    },
+    {
+      "path": "src/webview/runtime/shell.ts",
+      "lines": 130,
+      "role": "Webview 前端（runtime）：shell。"
+    },
+    {
+      "path": "src/webview/runtime/state.ts",
+      "lines": 45,
+      "role": "Shared mutable webview runtime state (main workflow panel)."
+    },
+    {
+      "path": "src/webview/runtime/view-confirm.ts",
+      "lines": 302,
+      "role": "Webview 前端（runtime）：view-confirm。"
+    },
+    {
+      "path": "src/webview/runtime/view-exec-dag-graph.ts",
+      "lines": 72,
+      "role": "Webview 前端（runtime）：view-exec-dag-graph。"
+    },
+    {
+      "path": "src/webview/runtime/view-exec-decision-form.ts",
+      "lines": 493,
+      "role": "Webview 前端（runtime）：view-exec-decision-form。"
+    },
+    {
+      "path": "src/webview/runtime/view-exec-error-card.ts",
+      "lines": 203,
+      "role": "Webview 前端（runtime）：view-exec-error-card。"
+    },
+    {
+      "path": "src/webview/runtime/view-exec-output-panel.ts",
+      "lines": 141,
+      "role": "Webview 前端（runtime）：view-exec-output-panel。"
+    },
+    {
+      "path": "src/webview/runtime/view-exec-stage-list.ts",
+      "lines": 144,
+      "role": "Webview 前端（runtime）：view-exec-stage-list。"
+    },
+    {
+      "path": "src/webview/runtime/view-exec.ts",
+      "lines": 89,
+      "role": "P1-6：执行视图门面 — 子模块 re-export + reset/register。"
+    },
+    {
+      "path": "src/webview/runtime/view-input.ts",
+      "lines": 523,
+      "role": "Webview 前端（runtime）：view-input。"
+    },
+    {
+      "path": "src/webview/runtime/vscode-api.ts",
+      "lines": 3,
+      "role": "Webview 前端（runtime）：vscode-api。"
+    },
+    {
+      "path": "src/webview/shared/escapeHtml.ts",
+      "lines": 9,
+      "role": "HTML 转义（主面板 webview、侧栏 webview 共用）。"
+    },
+    {
+      "path": "src/webview/shared/formatRelativeTimeZh.ts",
+      "lines": 23,
+      "role": "任务列表侧栏：相对时间文案。"
+    },
+    {
+      "path": "src/webview/shims/path-browser.ts",
+      "lines": 18,
+      "role": "浏览器 webview bundle 用的极简 `path` 子集（替代 Node `path`，供 ArtifactUiHints 等模块 tree-shake 后仍可能引用的路径工具）。"
+    },
+    {
+      "path": "src/webview/sidebar/ai-controls-entry.ts",
+      "lines": 100,
+      "role": "Webview 前端（sidebar）：ai-controls-entry。"
+    },
+    {
+      "path": "src/webview/sidebar/task-list-entry.ts",
+      "lines": 115,
+      "role": "Webview 前端（sidebar）：task-list-entry。"
+    },
+    {
+      "path": "src/webview/stage-timeline-entry.tsx",
+      "lines": 15,
+      "role": "Webview 前端（webview）：stage-timeline-entry。"
+    },
+    {
+      "path": "src/webview/styles/ai-controls.css",
+      "lines": 124,
+      "role": "Webview 前端（styles）：ai-controls。"
+    },
+    {
+      "path": "src/webview/styles/main-panel.css",
+      "lines": 184,
+      "role": "Webview 前端（styles）：main-panel。"
+    },
+    {
+      "path": "src/webview/styles/task-list.css",
+      "lines": 119,
+      "role": "Webview 前端（styles）：task-list。"
+    },
+    {
+      "path": "src/webview/templates/ai-controls.html",
+      "lines": 60,
+      "role": "Webview 前端（templates）：ai-controls。"
+    },
+    {
+      "path": "src/webview/templates/main-panel.html",
+      "lines": 178,
+      "role": "Webview 前端（templates）：main-panel。"
+    },
+    {
+      "path": "src/webview/templates/task-list.html",
+      "lines": 24,
+      "role": "Webview 前端（templates）：task-list。"
+    },
+    {
+      "path": "src/webview/webview-helpers-entry.ts",
+      "lines": 85,
+      "role": "M36 / #6：Webview 纯函数打包入口（esbuild → `out/webview/webview-helpers.js`）。"
+    },
+    {
+      "path": "src/webview/webview-main-entry.ts",
+      "lines": 3,
+      "role": "Webview 前端（webview）：webview-main-entry。"
+    },
+    {
+      "path": "src/webview/webview-shared-entry.ts",
+      "lines": 8,
+      "role": "侧栏 + 主面板共用的轻量 DOM 工具（esbuild → out/webview/webview-shared.js）。"
+    },
+    {
+      "path": "src/WebviewConfirmPlanUi.ts",
+      "lines": 130,
+      "role": "确认页计划审查 UI 纯函数（注入 Webview `<script>`，与 WorkflowArtifactRegistry 路径规则对齐）"
+    },
+    {
+      "path": "src/WebviewCsp.ts",
+      "lines": 35,
+      "role": "导出 WebviewCspOptions 及相关类型/工具。"
+    },
+    {
+      "path": "src/WebviewInputGenerationUi.ts",
+      "lines": 29,
+      "role": "输入页生成/润色进度文案（纯函数，便于单测）"
+    },
+    {
+      "path": "src/WebviewMessageGuards.ts",
+      "lines": 46,
+      "role": "导出 isFrontendMessage 及相关类型/工具。"
+    },
+    {
+      "path": "src/WebviewPanel.ts",
+      "lines": 17,
+      "role": "导出 buildWorkflowWebviewHtml 及相关类型/工具。"
+    },
+    {
+      "path": "src/WebviewPauseUiState.ts",
+      "lines": 55,
+      "role": "导出 PauseMode 及相关类型/工具。"
+    },
+    {
+      "path": "src/WebviewScript.ts",
+      "lines": 34,
+      "role": "主工作流 Webview 脚本：helpers + shared + 按视图拆分的 runtime（esbuild）。"
+    },
+    {
+      "path": "src/WebviewStyles.ts",
+      "lines": 5,
+      "role": "导出 WEBVIEW_STYLES 及相关类型/工具。"
+    },
+    {
+      "path": "src/WebviewTemplateLoader.ts",
+      "lines": 61,
+      "role": "导出 loadWebviewAsset 及相关类型/工具。"
+    },
+    {
+      "path": "src/WebviewUiState.ts",
+      "lines": 11,
+      "role": "导出 shouldHideOutput 及相关类型/工具。"
+    },
+    {
+      "path": "src/workflow-templates/uniapp-minimal-template.ts",
+      "lines": 99,
+      "role": "工作流模板：uniapp-minimal-template。"
+    },
+    {
+      "path": "src/workflow-templates/web-minimal-template.ts",
+      "lines": 77,
+      "role": "用户任务是否明显倾向“Web 前端项目”（用于模板化最小工程树约束）。"
+    },
+    {
+      "path": "src/WorkflowArtifactRegistry.ts",
+      "lines": 73,
+      "role": "导出 WorkflowArtifactRegistry，承担对应领域编排或策略。"
+    },
+    {
+      "path": "src/WorkflowArtifactUi.ts",
+      "lines": 127,
+      "role": "M41：生成物 UI 动作 — openArtifactFile / openArtifactDiff / 调试日志复制与打开。"
+    },
+    {
+      "path": "src/WorkflowCodeRunnerHost.ts",
+      "lines": 140,
+      "role": "M41：code-runner 执行层 — 从 WorkflowEngine 抽出 shell 执行与 cwd 解析。"
+    },
+    {
+      "path": "src/WorkflowComplexityEstimator.ts",
+      "lines": 91,
+      "role": "导出 ComplexityEstimate 及相关类型/工具。"
+    },
+    {
+      "path": "src/WorkflowDag.ts",
+      "lines": 235,
+      "role": "导出 getStageDependencyIds 及相关类型/工具。"
+    },
+    {
+      "path": "src/WorkflowDagGraph.ts",
+      "lines": 205,
+      "role": "导出 DagGraphNode 及相关类型/工具。"
+    },
+    {
+      "path": "src/WorkflowDefinition.ts",
+      "lines": 459,
+      "role": "─── 工具类型 ───────────────────────────────────────────────────"
+    },
+    {
+      "path": "src/WorkflowDeletePlan.ts",
+      "lines": 100,
+      "role": "导出 DeleteScope 及相关类型/工具。"
+    },
+    {
+      "path": "src/WorkflowDiskBootstrap.ts",
+      "lines": 139,
+      "role": "导出 STAGE_INIT_NPM_WORKSPACE_ID 及相关类型/工具。"
+    },
+    {
+      "path": "src/WorkflowDraftShell.ts",
+      "lines": 235,
+      "role": "M41：预执行草稿壳 — 润色/澄清/生成入口的 idle 实例生命周期。"
+    },
+    {
+      "path": "src/WorkflowEngine.ts",
+      "lines": 818,
+      "role": "导出 WorkflowEngine，承担对应领域编排或策略。"
+    },
+    {
+      "path": "src/WorkflowEngineArtifactBridge.ts",
+      "lines": 28,
+      "role": "导出 ensureArtifactRegistryForInstance，承担对应领域编排或策略。"
+    },
+    {
+      "path": "src/WorkflowEngineContinuation.ts",
+      "lines": 27,
+      "role": "导出 emitStageDoneAdvancePersist 及相关类型/工具。"
+    },
+    {
+      "path": "src/WorkflowEngineDiagnostics.ts",
+      "lines": 53,
+      "role": "导出 WorkflowEngineDiagnosticsDeps，承担对应领域编排或策略。"
+    },
+    {
+      "path": "src/WorkflowEngineExecutionBinder.ts",
+      "lines": 207,
+      "role": "M30-F1：执行循环参数绑定层 — 从 WorkflowEngine 抽出 executeNextStageLoop 入参组装。"
+    },
+    {
+      "path": "src/WorkflowEngineHelpers.ts",
+      "lines": 78,
+      "role": "导出 GeneratedWorkflowPreparationResult 及相关类型/工具。"
+    },
+    {
+      "path": "src/WorkflowEngineHostFactories.ts",
+      "lines": 288,
+      "role": "M41：引擎 Host / Context 工厂 — 集中各 *Host() / *Context() 依赖注入组装。"
+    },
+    {
+      "path": "src/WorkflowEngineMessaging.ts",
+      "lines": 226,
+      "role": "M41：Webview 消息副作用链 — postMessage 前后的 stageError 日志、experience、artifact hints。"
+    },
+    {
+      "path": "src/WorkflowEngineOutputHelper.ts",
+      "lines": 15,
+      "role": "导出 getOrCreateStagentOutputChannel 及相关类型/工具。"
+    },
+    {
+      "path": "src/WorkflowEnginePathHost.ts",
+      "lines": 154,
+      "role": "M41：引擎路径解析 + patch 落盘 — 从 WorkflowEngine 抽出实例/工作区路径与 applyPatchInstructions。"
+    },
+    {
+      "path": "src/WorkflowEnginePersistenceBridge.ts",
+      "lines": 62,
+      "role": "导出 PersistenceBridgeDeps，承担对应领域编排或策略。"
+    },
+    {
+      "path": "src/WorkflowEngineSettingsReaders.ts",
+      "lines": 128,
+      "role": "M41：引擎 settings 薄读取层 — 集中 vscode 配置读取，便于单测与 Host 工厂注入。"
+    },
+    {
+      "path": "src/WorkflowEngineWorkspaceLint.ts",
+      "lines": 124,
+      "role": "M41：工作区契约 lint 层 — 从 WorkflowEngine 抽出跨文件 / SDK / 测试质量 lint。"
+    },
+    {
+      "path": "src/WorkflowExecutor.ts",
+      "lines": 15,
+      "role": "P0-2：WorkflowExecutor 门面 — 类型与执行 API 统一 re-export。"
+    },
+    {
+      "path": "src/WorkflowExecutorLoop.ts",
+      "lines": 184,
+      "role": "导出 resolveWorkspaceFirstReadablePath 及相关类型/工具。"
+    },
+    {
+      "path": "src/WorkflowExecutorTypes.ts",
+      "lines": 106,
+      "role": "导出 StageStepOutcome 及相关类型/工具。"
+    },
+    {
+      "path": "src/WorkflowExperienceStore.ts",
+      "lines": 445,
+      "role": "导出 DEFAULT_MAX_EXPERIENCE_ENTRIES 及相关类型/工具。"
+    },
+    {
+      "path": "src/WorkflowFailureLog.ts",
+      "lines": 96,
+      "role": "导出 WorkflowFailureRecord 及相关类型/工具。"
+    },
+    {
+      "path": "src/WorkflowGeneration.ts",
+      "lines": 262,
+      "role": "M35 / #1：工作流生成链（从 `WorkflowEngine` 抽出 normalize / JSON 解析 / 生成前上下文组装）。"
+    },
+    {
+      "path": "src/WorkflowGenerationOrchestrator.ts",
+      "lines": 232,
+      "role": "M41：生成后校验编排层 — 从 WorkflowEngine.generateWorkflow 抽出"
+    },
+    {
+      "path": "src/WorkflowGenerationRunner.ts",
+      "lines": 413,
+      "role": "M41：工作流生成流水线 — generateWorkflow 主体（LLM 获取/解析 + 校验结果分发）。"
+    },
+    {
+      "path": "src/WorkflowGenerationService.ts",
+      "lines": 195,
+      "role": "M42：工作流生成服务 — polish / clarify / generate 全链（含 parse / normalize / 序号防覆盖）。"
+    },
+    {
+      "path": "src/WorkflowHitlCoordinator.ts",
+      "lines": 416,
+      "role": "M41：HITL 动作协调层 — approve / approveDecision / answerQuestions* / retry。"
+    },
+    {
+      "path": "src/WorkflowInputContent.ts",
+      "lines": 31,
+      "role": "导出 primaryOutputKey 及相关类型/工具。"
+    },
+    {
+      "path": "src/WorkflowInputResolver.ts",
+      "lines": 249,
+      "role": "M35 / #1：阶段输入合并与降级（从 `WorkflowEngine.resolveInput` 抽出）。"
+    },
+    {
+      "path": "src/WorkflowInstanceBind.ts",
+      "lines": 13,
+      "role": "导出 shouldUseEngineInstanceDespiteStaleWebviewKey，承担对应领域编排或策略。"
+    },
+    {
+      "path": "src/WorkflowInstanceDiskIndex.ts",
+      "lines": 104,
+      "role": "导出 listInstanceKeysUnderRoot 及相关类型/工具。"
+    },
+    {
+      "path": "src/WorkflowInstanceIndex.ts",
+      "lines": 95,
+      "role": "导出 INSTANCE_INDEX_FILE 及相关类型/工具。"
+    },
+    {
+      "path": "src/WorkflowInstanceManager.ts",
+      "lines": 265,
+      "role": "M42：实例生命周期管理 — CRUD / save-load / instanceKey / 恢复与草稿壳。"
+    },
+    {
+      "path": "src/WorkflowInstancePersistenceSync.ts",
+      "lines": 50,
+      "role": "导出 WF_STATE_FILE_NAME 及相关类型/工具。"
+    },
+    {
+      "path": "src/WorkflowInstanceQuery.ts",
+      "lines": 79,
+      "role": "导出 isRecoverableInstance 及相关类型/工具。"
+    },
+    {
+      "path": "src/WorkflowInstanceRepository.ts",
+      "lines": 435,
+      "role": "M41：实例仓库层 — 从 WorkflowEngine 抽出实例 CRUD、磁盘扫描与 globalState 同步。"
+    },
+    {
+      "path": "src/WorkflowInstanceResumeCoordinator.ts",
+      "lines": 173,
+      "role": "M41：实例恢复协调层 — resumeInstance / tryActivateInstance / ensureInstanceBound。"
+    },
+    {
+      "path": "src/WorkflowLogging.ts",
+      "lines": 61,
+      "role": "导出 sanitizeForLog 及相关类型/工具。"
+    },
+    {
+      "path": "src/WorkflowNonLlmToolRunner.ts",
+      "lines": 160,
+      "role": "导出 findStageRuntimeByOutputKey 及相关类型/工具。"
+    },
+    {
+      "path": "src/WorkflowPanelMessageRouter.ts",
+      "lines": 98,
+      "role": "导出 routeWorkflowPanelMessage 及相关类型/工具。"
+    },
+    {
+      "path": "src/WorkflowParallelMonitor.ts",
+      "lines": 73,
+      "role": "导出 ParallelWaveMetrics 及相关类型/工具。"
+    },
+    {
+      "path": "src/WorkflowPathResolver.ts",
+      "lines": 162,
+      "role": "导出 expandUserHomePath 及相关类型/工具。"
+    },
+    {
+      "path": "src/WorkflowPersistence.ts",
+      "lines": 133,
+      "role": "任务目录下 `.wf-state.json` 的读写（M12.3：与引擎 `resumeInstance` 配合；"
+    },
+    {
+      "path": "src/WorkflowPlanSummary.ts",
+      "lines": 302,
+      "role": "导出 PLAN_STAGE_HARD_CAP 及相关类型/工具。"
+    },
+    {
+      "path": "src/WorkflowPreGenerationCoordinator.ts",
+      "lines": 213,
+      "role": "M41：预生成协调层 — polishUserTask / generateClarifyQuestions。"
+    },
+    {
+      "path": "src/WorkflowProcessDocs.ts",
+      "lines": 115,
+      "role": "导出 ProcessDoc 及相关类型/工具。"
+    },
+    {
+      "path": "src/WorkflowPrompts.ts",
+      "lines": 315,
+      "role": "导出 multiModuleUserIntentHint 及相关类型/工具。"
+    },
+    {
+      "path": "src/WorkflowRecoveryViewModel.ts",
+      "lines": 121,
+      "role": "导出 findFirstFailedStage 及相关类型/工具。"
+    },
+    {
+      "path": "src/WorkflowRule20Normalize.ts",
+      "lines": 307,
+      "role": "M37 / Rule20 生成后结构归一化（verify 前确定性修补，不改变阶段 id 顺序）。"
+    },
+    {
+      "path": "src/WorkflowSkipCondition.ts",
+      "lines": 23,
+      "role": "导出 evaluateSkipCondition 及相关类型/工具。"
+    },
+    {
+      "path": "src/WorkflowStageErrorHelpers.ts",
+      "lines": 54,
+      "role": "导出 persistStageLastError 及相关类型/工具。"
+    },
+    {
+      "path": "src/WorkflowStagePosition.ts",
+      "lines": 82,
+      "role": "导出 ACTIVE_STAGE_STATUSES 及相关类型/工具。"
+    },
+    {
+      "path": "src/WorkflowStagePreGates.ts",
+      "lines": 128,
+      "role": "导出 failWorkflowStageFromGate，承担对应领域编排或策略。"
+    },
+    {
+      "path": "src/WorkflowStageQuestionGate.ts",
+      "lines": 89,
+      "role": "导出 handleQuestionBeforeGate，承担对应领域编排或策略。"
+    },
+    {
+      "path": "src/WorkflowStageStep.ts",
+      "lines": 426,
+      "role": "导出 executeStageStep 及相关类型/工具。"
+    },
+    {
+      "path": "src/WorkflowStartCoordinator.ts",
+      "lines": 188,
+      "role": "M41：执行启动协调层 — startExecution 入场 normalize / 实例绑定 / 首阶段调度。"
+    },
+    {
+      "path": "src/WorkflowStateEnvelope.ts",
+      "lines": 64,
+      "role": "导出 WF_STATE_SCHEMA_VERSION 及相关类型/工具。"
+    },
+    {
+      "path": "src/WorkflowStateTransitions.ts",
+      "lines": 104,
+      "role": "导出 markApproved 及相关类型/工具。"
+    },
+    {
+      "path": "src/WorkflowStructuralRepair.ts",
+      "lines": 374,
+      "role": "M40.0：生成期计划/门禁后的确定性结构修补（与 normalizeWorkflow / Rule20 归一化同族）。"
+    },
+    {
+      "path": "src/WorkflowUiBridge.ts",
+      "lines": 66,
+      "role": "M42：Webview UI 桥 — panel 绑定 + postMessage 推送（含副作用链）。"
+    },
+    {
+      "path": "src/WorkflowValidation.ts",
+      "lines": 128,
+      "role": "导出 validateGeneratedWorkflow 及相关类型/工具。"
+    },
+    {
+      "path": "src/WriteOutputNormalize.ts",
+      "lines": 120,
+      "role": "导出 normalizeLlmOutputForWritePath 及相关类型/工具。"
+    },
+    {
+      "path": "tsconfig.json",
+      "lines": 26,
+      "role": "模块 tsconfig（路径 .）。"
+    }
+  ],
+  "over500": [
+    {
+      "path": "package-lock.json",
+      "lines": 2420,
+      "role": "模块 package-lock（路径 .）。"
+    },
+    {
+      "path": "src/webview/runtime/_extracted-bootstrap.js",
+      "lines": 1825,
+      "role": "Webview 前端（runtime）：_extracted-bootstrap。"
+    },
+    {
+      "path": "src/WorkflowEngine.ts",
+      "lines": 818,
+      "role": "导出 WorkflowEngine，承担对应领域编排或策略。"
+    },
+    {
+      "path": "src/generated/PromptFragments.ts",
+      "lines": 554,
+      "role": "AUTO-GENERATED by scripts/build-prompts.mjs — DO NOT EDIT."
+    },
+    {
+      "path": "src/test/webview-script-test-harness.ts",
+      "lines": 544,
+      "role": "webview-script-test-harness 的单元/集成测试。"
+    },
+    {
+      "path": "src/webview/runtime/view-input.ts",
+      "lines": 523,
+      "role": "Webview 前端（runtime）：view-input。"
+    },
+    {
+      "path": "src/webview/runtime/messages.ts",
+      "lines": 501,
+      "role": "Webview 前端（runtime）：messages。"
+    }
+  ],
+  "topRefs": [
+    {
+      "path": "src/WorkflowDefinition.ts",
+      "count": 185,
+      "role": "─── 工具类型 ───────────────────────────────────────────────────"
+    },
+    {
+      "path": "src/Rule20Verify.ts",
+      "count": 18,
+      "role": "P0-3：Rule20Verify 门面 — 兼容现有 import 路径。"
+    },
+    {
+      "path": "src/WorkflowPrompts.ts",
+      "count": 15,
+      "role": "导出 multiModuleUserIntentHint 及相关类型/工具。"
+    },
+    {
+      "path": "src/FsAsync.ts",
+      "count": 13,
+      "role": "#7 / M33：异步 fs 薄封装。热路径（阶段执行、状态持久化、会话日志）统一走此模块，"
+    },
+    {
+      "path": "src/webview/runtime/state.ts",
+      "count": 13,
+      "role": "Shared mutable webview runtime state (main workflow panel)."
+    },
+    {
+      "path": "src/test/webview-script-test-harness.ts",
+      "count": 11,
+      "role": "webview-script-test-harness 的单元/集成测试。"
+    },
+    {
+      "path": "src/ArtifactLifecycleManager.ts",
+      "count": 9,
+      "role": "导出 ArtifactState 及相关类型/工具。"
+    },
+    {
+      "path": "src/StagentSettings.ts",
+      "count": 9,
+      "role": "导出 readContractNodePauseThreshold 及相关类型/工具。"
+    },
+    {
+      "path": "src/WorkflowArtifactRegistry.ts",
+      "count": 9,
+      "role": "导出 WorkflowArtifactRegistry，承担对应领域编排或策略。"
+    },
+    {
+      "path": "src/WorkflowDag.ts",
+      "count": 9,
+      "role": "导出 getStageDependencyIds 及相关类型/工具。"
+    }
+  ],
+  "pairs": [
+    {
+      "a": "src/ArtifactLifecycleManager.ts",
+      "b": "src/WorkflowDefinition.ts"
+    },
+    {
+      "a": "src/WorkflowPlanSummary.ts",
+      "b": "src/WorkflowDefinition.ts"
+    },
+    {
+      "a": "src/ArtifactUiHints.ts",
+      "b": "src/WorkflowDefinition.ts"
+    },
+    {
+      "a": "src/CodeRunnerCommandLint.ts",
+      "b": "src/CodeRunnerImportLint.ts"
+    }
+  ],
+  "longer": [
+    "src/WorkflowDefinition.ts → src/ArtifactLifecycleManager.ts → src/WorkflowStateTransitions.ts → src/WorkflowDefinition.ts",
+    "src/WorkflowDefinition.ts → src/ArtifactLifecycleManager.ts → src/WorkflowStateTransitions.ts → src/WorkflowDag.ts → src/WorkflowDefinition.ts",
+    "src/QualityGate.ts → src/WorkflowGenerationOrchestrator.ts → src/QualityGateRunner.ts → src/QualityGate.ts"
+  ],
+  "totalFiles": 483
+}

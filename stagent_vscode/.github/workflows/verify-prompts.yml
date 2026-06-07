@@ -1,0 +1,47 @@
+name: verify-prompts
+
+on:
+  pull_request:
+    paths:
+      - 'prompts/**'
+      - 'scripts/build-prompts.mjs'
+      - 'scripts/extract-prompts-from-workflow-prompts.mjs'
+      - 'src/WorkflowPrompts.ts'
+      - 'src/generated/**'
+  push:
+    branches:
+      - main
+      - master
+    paths:
+      - 'prompts/**'
+      - 'scripts/build-prompts.mjs'
+      - 'scripts/extract-prompts-from-workflow-prompts.mjs'
+      - 'src/WorkflowPrompts.ts'
+      - 'src/generated/**'
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Regenerate prompt fragments
+        run: npm run build:prompts
+
+      - name: Assert generated output is committed
+        run: |
+          git diff --exit-code src/generated/PromptFragments.ts src/generated/prompt-fragments.sha256
+
+      - name: Run verify:all
+        run: npm run verify:all

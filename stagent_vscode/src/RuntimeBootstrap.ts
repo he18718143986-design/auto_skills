@@ -1,0 +1,98 @@
+import * as crypto from 'crypto';
+import type * as vscode from 'vscode';
+import type { BackendMessage, StageRuntime, WorkflowDefinition, WorkflowInstance } from './WorkflowDefinition';
+import { canSwitchActiveInstance } from './ActiveInstanceGuard';
+import type { StartExecutionHost } from './WorkflowStartCoordinator';
+import { ERROR_TYPE_INVARIANT_VIOLATION } from './WorkflowStageErrorHelpers';
+import { DEBUG_EVENT_RUN_START } from './DebugLogEvents';
+import { WORKFLOW_LEVEL_STAGE_ID } from './workflow/WorkflowLevelIds';
+
+export type RuntimeBootstrapResult =
+  | { ok: false }
+  | {
+      ok: true;
+      wf: WorkflowDefinition;
+      instanceId: string;
+      taskDir: string;
+      reuse: boolean;
+      existing?: WorkflowInstance;
+    };
+
+export function bootstrapWorkflowRuntime(
+  host: StartExecutionHost,
+  panel: vscode.WebviewPanel,
+  wf: WorkflowDefinition,
+  instanceKey?: string,
+): RuntimeBootstrapResult {
+  const { reuse, existing, instanceId } = host.resolveReuseInstance(
+    instanceKey ?? host.getCurrentInstanceKey(),
+  );
+
+  if (instanceId !== host.getCurrentInstanceKey()) {
+    const decision = canSwitchActiveInstance({
+      currentKey: host.getCurrentInstanceKey(),
+      targetKey: instanceId,
+      executionDepth: host.getExecutionDepth(),
+    });
+    if (!decision.ok) {
+      host.postMessage(panel, {
+        type: 'instanceSwitchBlocked',
+        reason: decision.reason,
+        targetInstanceKey: instanceId,
+        activeInstanceKey: host.getCurrentInstanceKey(),
+      });
+      return { ok: false };
+    }
+    if (host.getCurrentInstanceKey() && host.getInstance()) {
+      host.clearSaveTimer();
+      host.persistInstanceSnapshot(host.getCurrentInstanceKey()!, host.getInstance()!);
+    }
+  }
+
+  host.setCurrentInstanceKey(instanceId);
+
+  let taskDir: string;
+  if (reuse && existing?.taskDir) {
+    taskDir = existing.taskDir;
+  } else {
+    const taskDirRes = host.resolveInitialTaskDirForStart(instanceId, wf);
+    if (!taskDirRes.ok) {
+      host.postMessage(panel, {
+        type: 'workflowFailed',
+        reason: taskDirRes.reason,
+        errorType: ERROR_TYPE_INVARIANT_VIOLATION,
+      });
+      return { ok: false };
+    }
+    taskDir = taskDirRes.dir;
+  }
+
+  const runtimes: StageRuntime[] = wf.stages.map((s) => ({
+    stageId: s.id,
+    status: 'pending',
+    outputs: {},
+    retryCount: 0,
+  }));
+
+  host.setInstance({
+    traceId: existing?.traceId ?? `trace_${crypto.randomUUID()}`,
+    definition: wf,
+    currentStageIndex: 0,
+    stageRuntimes: runtimes,
+    status: 'running',
+    taskDir,
+    startedAt: new Date().toISOString(),
+    ...(reuse && existing?.artifactRegistry?.length
+      ? { artifactRegistry: existing.artifactRegistry }
+      : {}),
+  });
+  host.clearExperiencePersistedFlag();
+  host.debugLog(WORKFLOW_LEVEL_STAGE_ID, DEBUG_EVENT_RUN_START, 0, {
+    workflowId: wf.id,
+    stageCount: wf.stages.length,
+    reusedInstance: reuse,
+    reusedFromStatus: existing?.status,
+  });
+
+  return { ok: true, wf, instanceId, taskDir, reuse, existing };
+}

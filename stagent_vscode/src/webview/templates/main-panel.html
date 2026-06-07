@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="{{CSP}}">
+  <title>Stagent</title>
+  <style>
+{{STYLES}}
+  </style>
+</head>
+<body>
+
+  <header class="workflow-header">
+    <h1 class="workflow-title">Stagent · Decision-First Workflow</h1>
+    <nav id="workflow-steps" class="workflow-steps" data-i18n-aria-label-key="stagent.webview.main.workflowStepsAria">
+      <button type="button" class="workflow-step" data-step="input" id="step-nav-input" data-i18n-key="stagent.webview.main.navStepInput"></button>
+      <span class="workflow-step-sep" aria-hidden="true">›</span>
+      <button type="button" class="workflow-step" data-step="confirm" id="step-nav-confirm" disabled data-i18n-key="stagent.webview.main.navStepConfirm"></button>
+      <span class="workflow-step-sep" aria-hidden="true">›</span>
+      <button type="button" class="workflow-step" data-step="exec" id="step-nav-exec" disabled data-i18n-key="stagent.webview.main.navStepExec"></button>
+    </nav>
+  </header>
+
+  <section id="view-input" class="view active input-chat-layout">
+    <div id="input-chat-shell" class="input-chat-shell">
+      <div id="input-view-scroll" class="view-scroll input-view-scroll">
+      <p id="polish-hint" class="muted polish-hint-banner" style="display:none"></p>
+      <div id="chat-history" class="chat-history" style="display:none" role="log" aria-live="polite">
+        <div class="chat-row-user">
+          <div id="user-message-bubble" class="chat-bubble-user"></div>
+        </div>
+        <div id="polish-assistant" class="chat-row-assistant" style="display:none">
+          <div class="chat-bubble-assistant">
+            <div class="chat-assistant-label" data-i18n-key="stagent.webview.main.polishResultLabel"></div>
+            <div id="polish-loading" class="polish-loading" style="display:none">
+              <span class="gen-spinner"></span>
+              <span id="polish-loading-text" data-i18n-key="stagent.webview.main.polishing"></span>
+            </div>
+            <textarea id="polish-result-edit" class="polish-result-edit" style="display:none" data-i18n-key="stagent.webview.main.polishEditPlaceholder" data-i18n-placeholder></textarea>
+            <div id="polish-inline-error" class="polish-inline-error"></div>
+          </div>
+        </div>
+        <div id="gen-status-panel" class="chat-row-assistant gen-status-panel" style="display:none" role="status" aria-live="polite">
+          <div class="chat-bubble-assistant">
+            <div class="chat-assistant-label" data-i18n-key="stagent.webview.main.genWorkflowLabel"></div>
+            <div class="gen-status-head">
+              <span class="gen-spinner" id="gen-status-spinner"></span>
+              <strong id="gen-status-title" data-i18n-key="stagent.webview.main.processing"></strong>
+            </div>
+            <div id="gen-status-detail" class="muted" style="font-size:0.85rem;line-height:1.45"></div>
+            <details id="gen-stream-details" style="margin-top:8px;font-size:0.78rem;">
+              <summary class="muted" style="cursor:pointer;" data-i18n-key="stagent.webview.main.showRawModelOutput"></summary>
+              <pre id="gen-stream" class="gen-stream-preview"></pre>
+            </details>
+          </div>
+        </div>
+      </div>
+      </div>
+      <div id="composer-dock" class="view-bottom-dock composer-dock">
+        <div id="input-composer">
+          <textarea id="user-input" data-i18n-key="stagent.webview.main.userInputPlaceholder" data-i18n-placeholder></textarea>
+        </div>
+        <div class="composer-footer">
+          <div class="composer-path">
+            <label for="task-workspace-path"><span data-i18n-key="stagent.webview.main.workspaceFolderLabel"></span> <span style="color:var(--vscode-errorForeground)">*</span></label>
+            <input type="text" id="task-workspace-path" data-i18n-key="stagent.webview.main.workspacePathPlaceholder" data-i18n-placeholder />
+            <button type="button" id="btn-pick-workspace" class="secondary" style="padding:6px 10px;font-size:0.82rem;" data-i18n-key="stagent.webview.main.browseFolder"></button>
+          </div>
+        </div>
+        <div id="input-actions" class="composer-actions">
+          <button type="button" id="btn-polish" class="secondary" data-i18n-key="stagent.webview.main.btnPolish"></button>
+          <button type="button" id="btn-gen" class="dock-primary" data-i18n-key="stagent.webview.main.btnGenWorkflow"></button>
+        </div>
+        <div id="polish-actions" class="composer-actions polish-actions" style="display:none">
+          <span id="polish-dock-hint" class="dock-hint" data-i18n-key="stagent.webview.main.polishDockHint"></span>
+          <button type="button" id="btn-polish-collapse" class="secondary" data-i18n-key="stagent.webview.main.editRequirement"></button>
+          <button type="button" id="btn-polish-apply" class="dock-primary" disabled data-i18n-key="stagent.webview.main.btnGenWorkflow"></button>
+        </div>
+        <div id="gen-actions" class="composer-actions gen-actions" style="display:none">
+          <span id="gen-dock-hint" class="dock-hint"></span>
+          <button type="button" id="btn-edit-message" class="secondary btn-edit-message" data-i18n-key="stagent.webview.main.editRequirement"></button>
+          <button type="button" id="btn-regenerate" class="dock-primary" data-i18n-key="stagent.webview.main.btnRegenerate"></button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="view-confirm" class="view">
+    <div class="view-scroll confirm-view-scroll">
+    <div id="confirm-block" class="confirm-block" style="display:none"></div>
+    <div id="confirm-repair-info" class="confirm-repair-info" style="display:none"></div>
+    <div id="confirm-footer" class="confirm-footer">
+      <div id="confirm-stats" class="confirm-stats"></div>
+    </div>
+    <div class="row confirm-row">
+      <div>
+        <strong data-i18n-key="stagent.webview.main.confirmStageLabel"></strong>
+        <ul id="timeline"></ul>
+      </div>
+      <div id="confirm-main">
+        <details class="confirm-section" id="section-plan-summary" hidden>
+          <summary data-i18n-key="stagent.webview.main.planSummary"></summary>
+          <div id="plan-summary" class="plan-panel-body plan-summary"></div>
+        </details>
+        <details class="confirm-section" id="section-plan-diff" hidden>
+          <summary data-i18n-key="stagent.webview.main.planDiff"></summary>
+          <div id="plan-diff" class="plan-panel-body plan-diff"></div>
+        </details>
+        <details class="confirm-section" id="section-plan-dag" hidden>
+          <summary data-i18n-key="stagent.webview.main.depsAndWaves"></summary>
+          <div id="plan-dag-graph" class="plan-panel-body plan-dag-graph"></div>
+        </details>
+        <details class="confirm-section" id="section-plan-artifacts" hidden>
+          <summary data-i18n-key="stagent.webview.main.artifactFiles"></summary>
+          <div id="plan-artifacts" class="plan-panel-body plan-artifacts"></div>
+        </details>
+        <details class="confirm-section confirm-section-primary" id="section-stage-cards" open>
+          <summary data-i18n-key="stagent.webview.main.stageList"></summary>
+          <div id="plan-stage-cards" class="plan-panel-body plan-stage-cards"></div>
+        </details>
+        <details class="confirm-section confirm-section-primary" id="section-detail" open>
+          <summary data-i18n-key="stagent.webview.main.stageDetail"></summary>
+          <div id="detail" class="plan-panel-body"></div>
+        </details>
+      </div>
+    </div>
+    <details class="confirm-section confirm-section-warn" id="section-warnings" hidden>
+      <summary data-i18n-key="stagent.webview.main.warningsSection"></summary>
+      <div id="wf-warn" class="plan-panel-body muted"></div>
+    </details>
+    </div>
+    <div id="confirm-actions" class="view-bottom-dock action-dock">
+      <span id="confirm-dock-hint" class="dock-hint"></span>
+      <button id="btn-back-input" type="button" class="secondary" data-i18n-key="stagent.webview.main.backToInput"></button>
+      <button id="btn-start" class="dock-primary" data-i18n-key="stagent.webview.main.startExecution"></button>
+    </div>
+  </section>
+
+  <section id="view-exec" class="view">
+    <div class="view-scroll exec-view-scroll">
+    <div class="row exec-row">
+      <div class="exec-timeline-col">
+        <strong data-i18n-key="stagent.webview.main.execProgress"></strong>
+        <ul id="timeline-exec"></ul>
+      </div>
+      <div id="exec-main">
+        <details class="confirm-section" id="exec-dag-panel" hidden>
+          <summary data-i18n-key="stagent.webview.main.dagProgress"></summary>
+          <div id="exec-dag-graph" class="plan-panel-body plan-dag-graph"></div>
+        </details>
+        <div class="exec-output-toolbar">
+          <div class="exec-output-head">
+            <div id="output-label" class="muted"></div>
+            <button type="button" id="btn-follow-live" class="secondary exec-follow-btn" style="display:none" data-i18n-key="stagent.webview.main.followLive" data-i18n-title-key="stagent.webview.main.followLiveTitle"></button>
+          </div>
+          <div class="exec-output-tools">
+            <button id="btn-copy-session" class="secondary exec-tool-btn" data-i18n-key="stagent.webview.main.copySessionLog" data-i18n-title-key="stagent.webview.main.copySessionLogTitle"></button>
+            <button id="btn-copy-debug" class="secondary exec-tool-btn" data-i18n-key="stagent.webview.main.copyDebugLog"></button>
+          </div>
+        </div>
+        <div id="output"></div>
+        <div id="downstream-reset-panel" style="display:none"></div>
+      </div>
+    </div>
+    <div id="llm-usage-footer" class="muted" style="display:none;font-size:0.8rem;padding:4px 8px"></div>
+    <div id="done-banner" style="display:none" class="banner" data-i18n-key="stagent.webview.main.workflowComplete"></div>
+    <div id="fail-banner" style="display:none" class="banner error"></div>
+    </div>
+    <div id="exec-error-dock" class="view-bottom-dock action-dock exec-error-dock" style="display:none"></div>
+    <div id="pause-bar" class="view-bottom-dock pause-bar-root" hidden></div>
+  </section>
+  <script nonce="{{NONCE}}">window.__stagentL10n={{L10N_JSON}};</script>
+  <script nonce="{{NONCE}}">
+{{SCRIPT}}
+  </script>
+</body>
+</html>

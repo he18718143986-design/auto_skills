@@ -1,0 +1,150 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--vscode-font-family);
+      font-size: var(--vscode-font-size);
+      color: var(--vscode-foreground);
+      background: var(--vscode-sideBar-background, var(--vscode-editor-background));
+      padding: 8px;
+    }
+    .section { margin-bottom: 12px; }
+    ul.profile-highlights {
+      margin: 6px 0 0;
+      padding-left: 18px;
+      font-size: 11px;
+      color: var(--vscode-descriptionForeground);
+      line-height: 1.4;
+    }
+    .section-title {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--vscode-sideBarTitle-foreground, var(--vscode-descriptionForeground));
+      margin-bottom: 6px;
+    }
+    select {
+      width: 100%;
+      padding: 4px 6px;
+      background: var(--vscode-dropdown-background);
+      color: var(--vscode-dropdown-foreground);
+      border: 1px solid var(--vscode-dropdown-border);
+      border-radius: 3px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    select:focus { outline: 1px solid var(--vscode-focusBorder); }
+    .stage-card {
+      background: var(--vscode-editor-background);
+      border: 1px solid var(--vscode-panel-border);
+      border-radius: 4px;
+      padding: 8px;
+    }
+    .stage-title {
+      font-size: 12px;
+      font-weight: 500;
+      margin-bottom: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .stage-sub {
+      font-size: 10px;
+      color: var(--vscode-descriptionForeground);
+      margin-bottom: 6px;
+    }
+    .progress-track {
+      height: 4px;
+      background: var(--vscode-panel-border);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: var(--vscode-progressBar-background, #0e70c0);
+      border-radius: 2px;
+      transition: width 0.4s;
+    }
+    .progress-caption {
+      font-size: 10px;
+      color: var(--vscode-descriptionForeground);
+      margin-top: 4px;
+    }
+    .no-stage {
+      font-size: 11px;
+      color: var(--vscode-descriptionForeground);
+      font-style: italic;
+    }
+    button {
+      width: 100%;
+      padding: 5px 8px;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+    .btn-primary {
+      background: var(--vscode-button-background);
+      color: var(--vscode-button-foreground);
+    }
+    .btn-primary:hover { background: var(--vscode-button-hoverBackground); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-secondary {
+      background: var(--vscode-button-secondaryBackground, transparent);
+      color: var(--vscode-button-secondaryForeground, var(--vscode-foreground));
+      border: 1px solid var(--vscode-panel-border);
+      margin-top: 6px;
+    }
+    .btn-secondary:hover { background: var(--vscode-toolbar-hoverBackground); }
+    .env-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 6px;
+      flex-wrap: wrap;
+      font-size: 11px;
+      padding: 3px 0;
+    }
+    .env-row-action {
+      cursor: pointer;
+      border-radius: 3px;
+      padding: 3px 4px;
+      margin: 0 -4px;
+    }
+    .env-row-action:hover,
+    .env-row-action:focus-visible {
+      background: var(--vscode-list-hoverBackground);
+      outline: 1px solid var(--vscode-focusBorder);
+      outline-offset: -1px;
+    }
+    .env-label {
+      color: var(--vscode-descriptionForeground);
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+    .env-badge {
+      font-size: 10px;
+      padding: 1px 6px;
+      border-radius: 10px;
+      font-weight: 500;
+      flex: 0 1 auto;
+      max-width: 58%;
+      text-align: right;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .env-badge.ok  { background: rgba(137,209,133,0.2); color: var(--vscode-charts-green, #89d185); }
+    .env-badge.err { background: rgba(241,76,76,0.2); color: var(--vscode-charts-red, #f14c4c); }
+    .env-badge.warn { background: rgba(204,167,0,0.2); color: var(--vscode-charts-yellow, #cca700); }
+    .env-detail {
+      font-size: 10px;
+      color: var(--vscode-descriptionForeground);
+      margin-top: 4px;
+      word-break: break-word;
+      white-space: pre-line;
+      line-height: 1.4;
+    }

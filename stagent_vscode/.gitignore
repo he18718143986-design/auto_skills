@@ -1,0 +1,24 @@
+node_modules/
+out/
+*.vsix
+.DS_Store
+
+# 本地工作流运行时状态（含本机路径与调试日志）
+**/.stagent/
+.wf-debug.log
+.wf-failures.jsonl
+
+# 旧原型副本（与根目录 src/ 重复）
+ai-workflow/
+
+# 本地任务工作区（含生成代码与调试产物，勿提交）
+task/
+
+# 环境与密钥
+.env
+.env.*
+
+# 测试覆盖率与临时日志
+coverage/
+.nyc_output/
+*.log

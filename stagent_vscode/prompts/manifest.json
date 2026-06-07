@@ -1,0 +1,89 @@
+{
+  "version": 1,
+  "fragments": [
+    {
+      "export": "DECISION_RECORD_STRICT_SUFFIX",
+      "file": "decision-record-strict-suffix.md",
+      "slot": "DECISION_RECORD_STRICT_SUFFIX",
+      "protected": true
+    },
+    {
+      "export": "RULE20_SYSTEM_PROMPT_TEXT",
+      "file": "rule20-system.md",
+      "slot": "RULE20_SYSTEM_PROMPT",
+      "protected": false
+    },
+    {
+      "export": "ENGINEERING_TEST_STRATEGY_BORROWING_TEXT",
+      "file": "engineering-test-strategy-borrowing.md"
+    },
+    {
+      "export": "PYTHON_CODE_RUNNER_CONSTRAINT_TEXT",
+      "file": "python-code-runner-constraint.md"
+    },
+    {
+      "export": "PROTOTYPE_MULTI_FILE_WRITE_TEXT",
+      "file": "prototype-multi-file-write.md"
+    },
+    {
+      "export": "ARTIFACT_INPUT_ALIGNMENT_TEXT",
+      "file": "artifact-input-alignment.md"
+    },
+    {
+      "export": "MAIN_ASSEMBLY_NAMING_TEXT",
+      "file": "main-assembly-naming.md"
+    },
+    {
+      "export": "TEST_INFRASTRUCTURE_BEFORE_TEST_RUN_TEXT",
+      "file": "test-infrastructure-before-test-run.md"
+    },
+    {
+      "export": "PROTOTYPE_EXCEL_FIXTURE_ALIGNMENT_TEXT",
+      "file": "prototype-excel-fixture-alignment.md"
+    },
+    {
+      "export": "VERTICAL_SLICE_CONSTRAINT_TEXT",
+      "file": "vertical-slice-constraint.md",
+      "slot": "VERTICAL_SLICE_CONSTRAINT",
+      "protected": false
+    },
+    {
+      "export": "SPEC_78_MULTI_MODULE_TEXT",
+      "file": "spec-78-multi-module.md"
+    },
+    {
+      "export": "LAYER_1_TO_5_TEXT",
+      "file": "layer-1-to-5.md"
+    },
+    {
+      "export": "REFACTOR_CONSTRAINT_TEXT",
+      "file": "task-type/refactor-constraint.md"
+    },
+    {
+      "export": "IMPROVE_ARCHITECTURE_CONSTRAINT_TEXT",
+      "file": "task-type/improve-architecture-constraint.md"
+    },
+    {
+      "export": "DEBUG_CONSTRAINT_TEXT",
+      "file": "task-type/debug-constraint.md"
+    },
+    {
+      "export": "PROTOTYPE_CONSTRAINT_TEXT",
+      "file": "task-type/prototype-constraint.md"
+    },
+    {
+      "export": "SPEC_75_ORIGINAL_TEXT",
+      "file": "spec-75-original.md",
+      "slot": "SPEC_75_ORIGINAL_TEXT",
+      "protected": true
+    },
+    {
+      "export": "GENERATOR_JSON_SCHEMA_BASE",
+      "file": "generator-json-schema-base.md"
+    },
+    {
+      "export": "TASK_TYPE_CLASSIFICATION_TEXT",
+      "file": "task-type-classification.md"
+    }
+  ]
+}
