@@ -40,7 +40,12 @@ function resolveSkillsRoot() {
 
 async function main() {
   const userTask = process.argv.slice(2).join(' ').trim() || '做一个任务看板，支持拖拽改状态，要有权限控制';
-  const apiKey = process.env.DEEPSEEK_API_KEY || process.env.LLM_API_KEY;
+  // 兼容多种密钥变量名（Cursor Secret 名为 `deepseek` 时直接命中，无需远程改名）
+  const apiKey =
+    process.env.DEEPSEEK_API_KEY ||
+    process.env.deepseek ||
+    process.env.DEEPSEEK ||
+    process.env.LLM_API_KEY;
   const baseUrl = process.env.DEEPSEEK_BASE_URL || 'https://api.deepseek.com/v1';
   const model = process.env.DEEPSEEK_MODEL || 'deepseek-chat';
   const skillsRoot = resolveSkillsRoot();
