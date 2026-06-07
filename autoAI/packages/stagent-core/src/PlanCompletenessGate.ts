@@ -1,4 +1,5 @@
 import type { Stage, WorkflowDefinition } from './WorkflowDefinition';
+import { isSkillNativeWorkflow } from './SkillToolKinds';
 
 /**
  * M27.1（新 P0）：计划完整性硬门。
@@ -69,6 +70,10 @@ export function hasMainAssemblyStage(wf: WorkflowDefinition): boolean {
  * - missing-main-assembly：≥3 代码实现（真·多模块管道）但无 main/入口装配。
  */
 export function lintPlanCompleteness(wf: WorkflowDefinition): PlanCompletenessIssue[] {
+  // S3：skill-native（纯规划/对齐）工作流无 impl/main/test，不适用计划完整性硬门。
+  if (isSkillNativeWorkflow(wf)) {
+    return [];
+  }
   const taskType = wf.meta?.taskType;
   if (taskType !== 'prototype' && taskType !== 'software') {
     return [];

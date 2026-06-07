@@ -3,6 +3,7 @@ import { findStageIdsUnreachableFromFirstStage, formatWorkflowDependencyCycleErr
 import { collectWorkflowArtifacts } from './WorkflowArtifactRegistry';
 import { detectPythonImportLintIssues } from './CodeRunnerImportLint';
 import { isHorizontalTddPlan } from './RedGreenGate';
+import { isSkillNativeWorkflow } from './SkillToolKinds';
 
 export type ViolationType =
   | 'missing-decision-stage'
@@ -170,6 +171,11 @@ function verifyPrototypeImplFileReadFollowup(workflow: WorkflowDefinition, warni
 export function verifyRule20(workflow: WorkflowDefinition): VerifyResult {
   const violations: VerifyIssue[] = [];
   const warnings: VerifyIssue[] = [];
+  // S3：skill-native（纯规划/对齐）工作流不受 impl 形状规则约束——Rule20 仅作后置 verifier，
+  // 对其放行（见 SKILLS-ENGINE-INTEGRATION.md §7）。
+  if (isSkillNativeWorkflow(workflow)) {
+    return { passed: true, violations, warnings };
+  }
   const isSoftware = workflow.meta?.taskType === 'software';
 
   const implStages = workflow.stages.filter((s) => /^stage_impl_/.test(s.id));

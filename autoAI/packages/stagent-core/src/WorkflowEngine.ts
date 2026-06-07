@@ -184,6 +184,8 @@ import {
   formatComplexityBlockForPrompt,
 } from './WorkflowComplexityEstimator';
 import { buildExperienceFewShotForGenerator } from './ExperienceGeneratorContext';
+import { SkillRegistry } from './SkillRegistry';
+import { assembleSkillWorkflow } from './SkillWorkflowAssembler';
 import type { LlmModel, LlmSendOptions, PlatformAdapter } from './platform/PlatformAdapter';
 import {
   resolveCodeRunnerTimeoutSeconds,
@@ -1570,9 +1572,15 @@ export class WorkflowEngine {
       // 解析/异常类失败自动修复重试：单次 LLM 输出无法提取/解析为 JSON 时，先就地修复，
       // 仍失败则整轮重新生成一次（最多 MAX_WORKFLOW_GEN_ATTEMPTS 次），全部失败才推送 workflowFailed。
       const MAX_WORKFLOW_GEN_ATTEMPTS = 2;
-      let wf: WorkflowDefinition | undefined;
+      // S2：opt-in skill-native 编排（默认关闭）。命中则直接产出 grill native 工作流，
+      // 跳过 LLM 生成循环；其余 normalize/validate/post/persist 与 LLM 路径完全共用。
+      let wf: WorkflowDefinition | undefined = this.tryAssembleSkillNativeWorkflow(
+        userInput,
+        taskType,
+        taskWorkspaceAbs,
+      );
       let lastParseError: Error | undefined;
-      for (let attempt = 1; attempt <= MAX_WORKFLOW_GEN_ATTEMPTS; attempt++) {
+      for (let attempt = 1; !wf && attempt <= MAX_WORKFLOW_GEN_ATTEMPTS; attempt++) {
         if (attempt > 1) {
           this.postGenerationProgress(
             'workflow',
@@ -1849,6 +1857,54 @@ export class WorkflowEngine {
       requireStructured: true,
       jsonMode: true,
     });
+  }
+
+  /**
+   * S2：opt-in 把「场景路由 + 原版 SKILL.md」编排为 skill-native 工作流（grill 为决策阶段）。
+   * - 默认关闭：仅当 `skillNative.enabled=true` 且配置了 `skillNative.skillsRoot` 时启用。
+   * - 失败 / 空 registry / 无阶段 → 返回 undefined，安全回退到 LLM 生成路径。
+   * 见 stagent_docs/SKILLS-ENGINE-INTEGRATION.md。
+   */
+  private tryAssembleSkillNativeWorkflow(
+    userInput: string,
+    taskType: string,
+    taskWorkspaceAbs: string,
+  ): WorkflowDefinition | undefined {
+    const cfg = this.platform.config;
+    if (!cfg.get<boolean>('skillNative.enabled', false)) {
+      return undefined;
+    }
+    const skillsRoot = (cfg.get<string>('skillNative.skillsRoot', '') ?? '').trim();
+    if (!skillsRoot) {
+      this.debugLog('workflow', 'skill_native_no_root', 0, {});
+      return undefined;
+    }
+    try {
+      const registry = new SkillRegistry({ skillsRoot });
+      const loaded = registry.load();
+      if (loaded === 0) {
+        this.debugLog('workflow', 'skill_native_empty_registry', 0, { skillsRoot });
+        return undefined;
+      }
+      const isGreenfield = this.scanExistingTopLevelFiles(taskWorkspaceAbs).length === 0;
+      const { workflow, route, skipped } = assembleSkillWorkflow(
+        { taskType, repo: { isGreenfield } },
+        registry,
+        { bundle: { userTask: userInput }, meta: { userInput, taskType } },
+      );
+      this.debugLog('workflow', 'skill_native_generation', 0, {
+        template: route.template,
+        stages: workflow.stages.length,
+        skipped,
+        loaded,
+      });
+      return workflow.stages.length > 0 ? workflow : undefined;
+    } catch (e) {
+      this.debugLog('workflow', 'skill_native_failed', 0, {
+        error: e instanceof Error ? e.message : String(e),
+      });
+      return undefined;
+    }
   }
 
   private normalizeWorkflow(wf: WorkflowDefinition, userInput: string, taskType: string): WorkflowDefinition {

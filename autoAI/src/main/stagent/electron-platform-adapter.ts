@@ -355,6 +355,9 @@ export interface StagentLlmConfig {
   'grill.adaptiveMode': boolean
   'glossary.enabled': boolean
   'architecture.depthScoring': boolean
+  // S3：skill-native 编排（调用原版 SKILL.md）。默认关闭。
+  'skillNative.enabled': boolean
+  'skillNative.skillsRoot': string
 }
 
 /** PlatformAdapter 的 Electron 聚合实现。 */
@@ -413,6 +416,8 @@ export class ElectronPlatformAdapter implements PlatformAdapter {
       'grill.adaptiveMode': this.config.get<boolean>('grill.adaptiveMode', false),
       'glossary.enabled': this.config.get<boolean>('glossary.enabled', true),
       'architecture.depthScoring': this.config.get<boolean>('architecture.depthScoring', false),
+      'skillNative.enabled': this.config.get<boolean>('skillNative.enabled', false),
+      'skillNative.skillsRoot': this.config.get<string>('skillNative.skillsRoot', ''),
     }
   }
 

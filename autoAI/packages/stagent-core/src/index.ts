@@ -31,3 +31,52 @@ export type {
 export type { PlanSummary, StageSourceEdge } from './WorkflowPlanSummary';
 export type { StageArtifactHint } from './ArtifactUiHints';
 export type { DeleteScope } from './WorkflowDeletePlan';
+
+/* ── S0：Skills × Engine 集成（场景化调用原版 SKILL.md）──────────────── */
+/*  见 stagent_docs/SKILLS-ENGINE-INTEGRATION.md。                       */
+export {
+  STAGE_TOOL_SKILL_INVOKE,
+  SKILL_STAGE_ID_PREFIX,
+  skillRefToSlug,
+  skillStageId,
+  isSkillStageId,
+  skillSlugFromStageId,
+} from './SkillToolKinds';
+export { SkillRegistry, hashSkillContent } from './SkillRegistry';
+export type { SkillSource, SkillFsPort, SkillRegistryOptions } from './SkillRegistry';
+export {
+  routeScenario,
+  SKILL_SETUP,
+  SKILL_GRILL_WITH_DOCS,
+  SKILL_GRILL_ME,
+  SKILL_PROTOTYPE,
+  SKILL_TO_PRD,
+  SKILL_TO_ISSUES,
+  SKILL_TDD,
+  SKILL_TRIAGE,
+  SKILL_DIAGNOSE,
+  SKILL_ZOOM_OUT,
+  SKILL_IMPROVE_ARCH,
+} from './ScenarioRouter';
+export type {
+  WorkflowTemplate,
+  EstimatedScope,
+  RepoSnapshot,
+  ScenarioInput,
+  ScenarioRoute,
+} from './ScenarioRouter';
+export {
+  assembleSkillSystemPrompt,
+  buildEscalationInstruction,
+} from './SkillPromptAssembler';
+export type { AutoAnswerMode, SkillContextBundle } from './SkillPromptAssembler';
+export { buildSkillStage, buildGrillStage } from './SkillStageFactory';
+export type { BuildSkillStageOptions } from './SkillStageFactory';
+export {
+  assembleSkillWorkflow,
+  buildStageForSkillRef,
+} from './SkillWorkflowAssembler';
+export type {
+  AssembleSkillWorkflowOptions,
+  AssembleSkillWorkflowResult,
+} from './SkillWorkflowAssembler';
