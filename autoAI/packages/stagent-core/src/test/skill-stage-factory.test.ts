@@ -18,13 +18,13 @@ test('buildSkillStage：编译为 llm-text 阶段，id 用 skill 约定', () => 
   assert.equal(st.pauseAfter, false);
 });
 
-test('buildGrillStage：决策阶段 + pauseAfter + exposeAssumptions（保留 HITL 纪律）', () => {
+test('buildGrillStage：决策阶段（HITL 经 approveDecision），不违反 I-5', () => {
   const st = buildGrillStage(skill('grill-with-docs'), { userTask: '做登录' });
   assert.equal(st.tool, 'llm-text');
   assert.equal(st.id, 'stage_skill_grill_with_docs');
   assert.equal(st.isDecisionStage, true);
-  assert.equal(st.pauseAfter, true);
-  assert.equal(st.exposeAssumptions, true);
+  // I-5：决策阶段不得设 exposeAssumptions
+  assert.notEqual(st.exposeAssumptions, true);
   assert.equal(st.outputs[0].key, 'grill_alignment');
   // SKILL.md 原文 + 用户任务都进入 systemPrompt
   const sys = (st.toolConfig as LlmTextConfig).systemPrompt;

@@ -72,7 +72,10 @@ export function buildSkillStage(
 /**
  * grill native 化：构造一个 grill skill 阶段。
  * - skill = grill-with-docs（默认，写 CONTEXT/ADR）或 grill-me（轻量）
- * - isDecisionStage + pauseAfter + exposeAssumptions：保留「一次一问 + 人工拍板」纪律
+ * - isDecisionStage=true：复用引擎的「决策阶段 → 暂停 → approveDecision」HITL 机制，
+ *   把 grill 的对齐结论作为 DecisionRecord 交用户拍板（保留人工把关）。
+ * - 注意不变式 I-5：决策阶段不得再设 exposeAssumptions；I-1：决策阶段必须 llm-text。
+ *   决策阶段本身即暂停等审批，无需额外 pauseAfter。
  */
 export function buildGrillStage(
   skill: SkillSource,
@@ -88,8 +91,7 @@ export function buildGrillStage(
   return buildSkillStage(skill, bundle, {
     title: opts.title ?? defaultTitle,
     isDecisionStage: true,
-    pauseAfter: true,
-    exposeAssumptions: true,
+    pauseAfter: false,
     outputKey: 'grill_alignment',
   });
 }

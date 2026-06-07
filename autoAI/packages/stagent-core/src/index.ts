@@ -72,3 +72,11 @@ export {
 export type { AutoAnswerMode, SkillContextBundle } from './SkillPromptAssembler';
 export { buildSkillStage, buildGrillStage } from './SkillStageFactory';
 export type { BuildSkillStageOptions } from './SkillStageFactory';
+export {
+  assembleSkillWorkflow,
+  buildStageForSkillRef,
+} from './SkillWorkflowAssembler';
+export type {
+  AssembleSkillWorkflowOptions,
+  AssembleSkillWorkflowResult,
+} from './SkillWorkflowAssembler';
