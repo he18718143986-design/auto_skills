@@ -1,0 +1,189 @@
+<svg width="100%" viewBox="0 0 1040 820" role="img" xmlns="http://www.w3.org/2000/svg">
+  <title>使用 mattpocock/skills 的 AI 软件开发流程</title>
+  <desc>从几句话需求与仓库状态出发，经 Path Router 选择 Express / 全量 / Bug 等路径，使用 mattpocock/skills 完成开发。详见 WORKFLOW.md</desc>
+
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <style>
+      .t-title { font: 600 15px system-ui, -apple-system, sans-serif; fill: #1f1e1d; }
+      .t-sub { font: 400 11px system-ui, -apple-system, sans-serif; fill: #5f5e5a; }
+      .t-label { font: 500 13px system-ui, -apple-system, sans-serif; }
+      .t-desc { font: 400 11px system-ui, -apple-system, sans-serif; }
+      .t-note { font: 400 11px system-ui, -apple-system, sans-serif; fill: #3d3d3a; }
+      .t-col-h { font: 600 12px system-ui, -apple-system, sans-serif; fill: #3d3d3a; }
+      .stroke-main { stroke: #73726c; stroke-width: 1.5; fill: none; }
+      .stroke-dash { stroke: #73726c; stroke-width: 1; fill: none; stroke-dasharray: 4 3; }
+    </style>
+  </defs>
+
+  <!-- Header -->
+  <text x="520" y="28" text-anchor="middle" class="t-title">mattpocock/skills · AI 软件开发流程</text>
+  <text x="520" y="48" text-anchor="middle" class="t-sub">路径由「需求特征 × 当前仓库状态」选定 · 非固定两条 · 详见 WORKFLOW.md §4 / §19</text>
+
+  <!-- Inputs -->
+  <rect x="340" y="62" width="160" height="34" rx="8" fill="#f5f4ed" stroke="#1f1e1d" stroke-opacity="0.25"/>
+  <text x="420" y="83" text-anchor="middle" class="t-sub">几句话需求</text>
+
+  <text x="520" y="83" text-anchor="middle" class="t-sub">+</text>
+
+  <rect x="540" y="62" width="160" height="34" rx="8" fill="#f5f4ed" stroke="#1f1e1d" stroke-opacity="0.25"/>
+  <text x="620" y="83" text-anchor="middle" class="t-sub">仓库 / CONTEXT / setup</text>
+
+  <line x1="520" y1="96" x2="520" y2="112" class="stroke-main" marker-end="url(#arrow)"/>
+
+  <!-- Path Router -->
+  <polygon points="520,114 640,154 520,194 400,154" fill="#f1efe8" stroke="#5f5e5a" stroke-width="0.75"/>
+  <text x="520" y="148" text-anchor="middle" class="t-label" fill="#444441">Path Router</text>
+  <text x="520" y="164" text-anchor="middle" class="t-desc" fill="#5f5e5a">选路 · 可升级 Express→全量</text>
+
+  <!-- Router to three columns -->
+  <line x1="460" y1="194" x2="180" y2="228" class="stroke-main" marker-end="url(#arrow)"/>
+  <line x1="520" y1="194" x2="520" y2="228" class="stroke-main" marker-end="url(#arrow)"/>
+  <line x1="580" y1="194" x2="860" y2="228" class="stroke-main" marker-end="url(#arrow)"/>
+
+  <!-- Column headers -->
+  <text x="180" y="222" text-anchor="middle" class="t-col-h">P3 Express</text>
+  <text x="520" y="222" text-anchor="middle" class="t-col-h">P1 Greenfield / P2 Brownfield 全量</text>
+  <text x="860" y="222" text-anchor="middle" class="t-col-h">P4 Bug / Debug</text>
+
+  <!-- ========== LEFT: Express ========== -->
+  <g>
+    <rect x="70" y="236" width="220" height="44" rx="8" fill="#f1efe8" stroke="#5f5e5a" stroke-width="0.5"/>
+    <text x="180" y="254" text-anchor="middle" class="t-label" fill="#444441">setup（核对）</text>
+    <text x="180" y="270" text-anchor="middle" class="t-desc" fill="#5f5e5a">单 slice · 行为清晰</text>
+    <line x1="180" y1="280" x2="180" y2="296" class="stroke-main" marker-end="url(#arrow)"/>
+
+    <rect x="70" y="298" width="220" height="44" rx="8" fill="#e1f5ee" stroke="#0f6e56" stroke-width="0.5"/>
+    <text x="180" y="316" text-anchor="middle" class="t-label" fill="#085041">/grill-me</text>
+    <text x="180" y="332" text-anchor="middle" class="t-desc" fill="#0f6e56">小改对齐 · 不写 CONTEXT</text>
+    <line x1="180" y1="342" x2="180" y2="358" class="stroke-main" marker-end="url(#arrow)"/>
+
+    <rect x="70" y="360" width="220" height="56" rx="8" fill="#faece7" stroke="#993c1d" stroke-width="0.5"/>
+    <text x="180" y="380" text-anchor="middle" class="t-label" fill="#712b13">/tdd</text>
+    <text x="180" y="396" text-anchor="middle" class="t-desc" fill="#993c1d">RED → GREEN → REFACTOR</text>
+    <text x="180" y="408" text-anchor="middle" class="t-desc" fill="#993c1d">跳过 to-prd / to-issues</text>
+
+    <text x="180" y="438" text-anchor="middle" class="t-note">发现跨模块 → 升级全量</text>
+  </g>
+
+  <!-- ========== CENTER: Full path ========== -->
+  <g>
+    <rect x="360" y="236" width="320" height="44" rx="8" fill="#f1efe8" stroke="#5f5e5a" stroke-width="0.5"/>
+    <text x="520" y="254" text-anchor="middle" class="t-label" fill="#444441">/setup-matt-pocock-skills</text>
+    <text x="520" y="270" text-anchor="middle" class="t-desc" fill="#5f5e5a">Issue 追踪 · triage 标签 · docs/agents</text>
+    <text x="690" y="258" class="t-note">← 每 repo 一次</text>
+    <line x1="520" y1="280" x2="520" y2="296" class="stroke-main" marker-end="url(#arrow)"/>
+
+    <rect x="360" y="298" width="320" height="58" rx="8" fill="#e1f5ee" stroke="#0f6e56" stroke-width="0.5"/>
+    <text x="520" y="318" text-anchor="middle" class="t-label" fill="#085041">/grill-with-docs</text>
+    <text x="520" y="334" text-anchor="middle" class="t-desc" fill="#0f6e56">逐一追问 · CONTEXT.md · ADR</text>
+    <text x="520" y="348" text-anchor="middle" class="t-desc" fill="#0f6e56">Brownfield：对照现有代码与 ADR</text>
+
+    <!-- prototype optional -->
+    <rect x="700" y="304" width="118" height="36" rx="8" fill="#e6f1fb" stroke="#185fa5" stroke-width="0.5"/>
+    <text x="759" y="320" text-anchor="middle" class="t-label" fill="#0c447c">/prototype</text>
+    <text x="759" y="332" text-anchor="middle" class="t-desc" fill="#185fa5">可选</text>
+    <line x1="700" y1="322" x2="682" y2="322" class="stroke-dash" marker-end="url(#arrow)"/>
+
+    <line x1="520" y1="356" x2="520" y2="372" class="stroke-main" marker-end="url(#arrow)"/>
+
+    <rect x="360" y="374" width="320" height="44" rx="8" fill="#eeedfe" stroke="#534ab7" stroke-width="0.5"/>
+    <text x="520" y="392" text-anchor="middle" class="t-label" fill="#3c3489">/to-prd</text>
+    <text x="520" y="408" text-anchor="middle" class="t-desc" fill="#534ab7">合成 PRD issue · 不再 interview</text>
+    <line x1="520" y1="418" x2="520" y2="434" class="stroke-main" marker-end="url(#arrow)"/>
+
+    <rect x="360" y="436" width="320" height="44" rx="8" fill="#faeeda" stroke="#854f0b" stroke-width="0.5"/>
+    <text x="520" y="454" text-anchor="middle" class="t-label" fill="#633806">/to-issues</text>
+    <text x="520" y="470" text-anchor="middle" class="t-desc" fill="#854f0b">vertical slice · AFK/HITL · 依赖 DAG</text>
+    <line x1="520" y1="480" x2="520" y2="496" class="stroke-main" marker-end="url(#arrow)"/>
+
+    <!-- zoom-out gate brownfield -->
+    <rect x="700" y="442" width="118" height="44" rx="8" fill="#e6f1fb" stroke="#185fa5" stroke-width="0.75"/>
+    <text x="759" y="460" text-anchor="middle" class="t-label" fill="#0c447c">/zoom-out</text>
+    <text x="759" y="476" text-anchor="middle" class="t-desc" fill="#185fa5">Brownfield 门禁</text>
+    <line x1="700" y1="464" x2="682" y2="508" class="stroke-dash" marker-end="url(#arrow)"/>
+
+    <rect x="360" y="498" width="320" height="72" rx="8" fill="#faece7" stroke="#993c1d" stroke-width="0.5"/>
+    <text x="520" y="518" text-anchor="middle" class="t-label" fill="#712b13">/tdd — 逐 Issue</text>
+    <text x="520" y="534" text-anchor="middle" class="t-desc" fill="#993c1d">RED → GREEN → REFACTOR</text>
+    <text x="520" y="550" text-anchor="middle" class="t-desc" fill="#993c1d">vertical slice · 测行为不测实现</text>
+    <path d="M680 534 C730 534 730 460 680 460" class="stroke-dash" marker-end="url(#arrow)"/>
+    <text x="734" y="488" class="t-note">每个 Issue</text>
+    <text x="734" y="502" class="t-note">重复</text>
+
+    <line x1="520" y1="570" x2="520" y2="586" class="stroke-main" marker-end="url(#arrow)"/>
+
+    <rect x="360" y="588" width="320" height="58" rx="8" fill="#eaf3de" stroke="#3b6d11" stroke-width="0.5"/>
+    <text x="520" y="608" text-anchor="middle" class="t-label" fill="#27500a">/improve-codebase-architecture</text>
+    <text x="520" y="624" text-anchor="middle" class="t-desc" fill="#3b6d11">HTML 架构报告 · deepening</text>
+    <text x="520" y="638" text-anchor="middle" class="t-desc" fill="#3b6d11">定期 · 或 diagnose 无 seam 后</text>
+    <text x="690" y="618" class="t-note">← P5</text>
+  </g>
+
+  <!-- ========== RIGHT: Bug path ========== -->
+  <g>
+    <rect x="750" y="236" width="220" height="44" rx="8" fill="#faeeda" stroke="#854f0b" stroke-width="0.5"/>
+    <text x="860" y="254" text-anchor="middle" class="t-label" fill="#633806">/triage</text>
+    <text x="860" y="270" text-anchor="middle" class="t-desc" fill="#854f0b">Issue 状态机 · 可选入口</text>
+    <line x1="860" y1="280" x2="860" y2="296" class="stroke-main" marker-end="url(#arrow)"/>
+
+    <rect x="750" y="298" width="220" height="72" rx="8" fill="#e6f1fb" stroke="#185fa5" stroke-width="0.5"/>
+    <text x="860" y="318" text-anchor="middle" class="t-label" fill="#0c447c">/diagnose</text>
+    <text x="860" y="334" text-anchor="middle" class="t-desc" fill="#185fa5">反馈环 → 复现 → 假设</text>
+    <text x="860" y="348" text-anchor="middle" class="t-desc" fill="#185fa5">→ 修复 + 回归测试</text>
+    <text x="860" y="362" text-anchor="middle" class="t-desc" fill="#185fa5">→ 清理 + 复盘</text>
+    <line x1="860" y1="370" x2="860" y2="386" class="stroke-main" marker-end="url(#arrow)"/>
+
+    <rect x="750" y="388" width="220" height="44" rx="8" fill="#e1f5ee" stroke="#0f6e56" stroke-width="0.5"/>
+    <text x="860" y="406" text-anchor="middle" class="t-label" fill="#085041">/grill-me</text>
+    <text x="860" y="422" text-anchor="middle" class="t-desc" fill="#0f6e56">按需：边界不清时</text>
+    <line x1="860" y1="432" x2="860" y2="448" class="stroke-dash" marker-end="url(#arrow)"/>
+
+    <rect x="750" y="450" width="220" height="56" rx="8" fill="#faece7" stroke="#993c1d" stroke-width="0.5"/>
+    <text x="860" y="470" text-anchor="middle" class="t-label" fill="#712b13">/tdd（回归测试）</text>
+    <text x="860" y="486" text-anchor="middle" class="t-desc" fill="#993c1d">correct seam 上锁行为</text>
+    <line x1="860" y1="506" x2="860" y2="588" class="stroke-dash" marker-end="url(#arrow)"/>
+
+    <rect x="750" y="590" width="220" height="44" rx="8" fill="#eaf3de" stroke="#3b6d11" stroke-width="0.5"/>
+    <text x="860" y="608" text-anchor="middle" class="t-label" fill="#27500a">/improve-arch</text>
+    <text x="860" y="624" text-anchor="middle" class="t-desc" fill="#3b6d11">无 test seam 时</text>
+  </g>
+
+  <!-- Cross-cutting bar -->
+  <rect x="40" y="668" width="960" height="72" rx="10" fill="none" stroke="#73726c" stroke-width="1" stroke-dasharray="6 4"/>
+  <text x="520" y="688" text-anchor="middle" class="t-col-h">横切 · 任意路径按需（Phase 3–6）</text>
+
+  <rect x="60" y="698" width="130" height="32" rx="6" fill="#faeeda" stroke="#854f0b" stroke-width="0.5"/>
+  <text x="125" y="718" text-anchor="middle" class="t-label" fill="#633806">/triage</text>
+
+  <rect x="210" y="698" width="130" height="32" rx="6" fill="#f1efe8" stroke="#5f5e5a" stroke-width="0.5"/>
+  <text x="275" y="718" text-anchor="middle" class="t-label" fill="#444441">/handoff</text>
+
+  <rect x="360" y="698" width="130" height="32" rx="6" fill="#f1efe8" stroke="#5f5e5a" stroke-width="0.5"/>
+  <text x="425" y="718" text-anchor="middle" class="t-label" fill="#444441">/caveman</text>
+
+  <rect x="510" y="698" width="130" height="32" rx="6" fill="#e6f1fb" stroke="#185fa5" stroke-width="0.5"/>
+  <text x="575" y="718" text-anchor="middle" class="t-label" fill="#0c447c">/zoom-out</text>
+
+  <rect x="660" y="698" width="130" height="32" rx="6" fill="#e6f1fb" stroke="#185fa5" stroke-width="0.5"/>
+  <text x="725" y="718" text-anchor="middle" class="t-label" fill="#0c447c">/diagnose</text>
+
+  <text x="820" y="718" class="t-note">主路径约 3–8 个 skill</text>
+  <text x="820" y="732" class="t-note">plugin.json 共 18 个 · §19</text>
+
+  <!-- Legend -->
+  <rect x="40" y="758" width="14" height="14" rx="3" fill="#e1f5ee" stroke="#0f6e56"/>
+  <text x="62" y="770" class="t-note">对齐 / grill</text>
+  <rect x="150" y="758" width="14" height="14" rx="3" fill="#eeedfe" stroke="#534ab7"/>
+  <text x="172" y="770" class="t-note">计划 PRD/issues</text>
+  <rect x="280" y="758" width="14" height="14" rx="3" fill="#faece7" stroke="#993c1d"/>
+  <text x="302" y="770" class="t-note">实现 TDD</text>
+  <rect x="390" y="758" width="14" height="14" rx="3" fill="#e6f1fb" stroke="#185fa5"/>
+  <text x="412" y="770" class="t-note">按需 / 门禁</text>
+  <rect x="510" y="758" width="14" height="14" rx="3" fill="#eaf3de" stroke="#3b6d11"/>
+  <text x="532" y="770" class="t-note">架构 P5</text>
+  <text x="640" y="770" class="t-note">虚线 = 可选或按需 · 实线 = 主链</text>
+
+</svg>
