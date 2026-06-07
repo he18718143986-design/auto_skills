@@ -10,11 +10,20 @@ function skill(content: string, ref = 'grill-with-docs'): SkillSource {
   return { ref, skillMdPath: `/x/${ref}/SKILL.md`, content, version: 'abc123', subFiles: {} };
 }
 
-test('SKILL.md 原文逐字置顶（保真）', () => {
+test('SKILL.md 原文逐字置顶（非单轮模式，保真）', () => {
   const body = '# grill-with-docs\nAsk one question at a time. Stress-test the plan.';
   const out = assembleSkillSystemPrompt(skill(body));
   assert.ok(out.startsWith(body.trim()));
   assert.ok(out.includes('Ask one question at a time'));
+});
+
+test('单轮模式：顶部运行模式横幅置于 SKILL.md 之前，SKILL.md 仍逐字保留', () => {
+  const body = '# grill-with-docs\nExplore the codebase first, then ask.';
+  const out = assembleSkillSystemPrompt(skill(body), { singleShotGrill: true });
+  assert.ok(out.startsWith('# 运行模式：单轮 grill'));
+  assert.ok(out.indexOf('运行模式') < out.indexOf('grill-with-docs'));
+  // SKILL.md 内容仍逐字存在（保真）
+  assert.ok(out.includes('Explore the codebase first, then ask.'));
 });
 
 test('Context Bundle 各节按提供情况注入', () => {

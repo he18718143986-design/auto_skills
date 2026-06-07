@@ -96,6 +96,19 @@ export function assembleSkillSystemPrompt(
   const mode: AutoAnswerMode = bundle.autoAnswerMode ?? 'off';
   const parts: string[] = [];
 
+  // 0) 单轮 grill：顶部运行模式横幅（优先级高于下方 skill 内容），与末尾详细契约形成夹心，
+  //    防止模型只遵守 SKILL.md 的「多轮 / 先探索代码」而在单次调用里空转。
+  if (bundle.singleShotGrill) {
+    parts.push(
+      [
+        '# 运行模式：单轮 grill（本运行模式优先级高于下方 skill 内容）',
+        '你将在**这一轮**内只问**一个**最关键的问题并给出推荐答案。',
+        '本轮**没有任何工具**：禁止输出 read_file/grep/list_dir 等工具或函数调用。',
+        '下方 <skill> 仅作**方法论参考**；凡与本运行模式冲突处（要求多轮、要求先探索代码/文档），**一律以本运行模式为准**。',
+      ].join('\n'),
+    );
+  }
+
   // 1) SKILL.md 原文（single source of truth；逐字注入，消灭转写保真损失）
   parts.push(skill.content.trim());
 
