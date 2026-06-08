@@ -14,6 +14,7 @@ import { WorkflowEngineLifecycle } from '../engine-facades/WorkflowEngineLifecyc
 import { readWorkspaceFolderPath } from '../adapters/vscodeWorkspacePaths';
 import { expandUserHomePath, resolveExistingDirectoryPath } from '../WorkflowPathResolver';
 import {
+  CHARTER_FEEDBACK_LAST_ASKED_KEY,
   FEEDBACK_LAST_ASKED_KEY,
   PREFERRED_LM_STATE_KEY,
 } from '../instance/StagentGlobalStateKeys';
@@ -92,6 +93,10 @@ export function createWorkflowEngineParts(
     getFeedbackLastAsked: () => context.globalState.get<string>(FEEDBACK_LAST_ASKED_KEY),
     setFeedbackLastAsked: async (iso) => {
       await context.globalState.update(FEEDBACK_LAST_ASKED_KEY, iso);
+    },
+    getCharterFeedbackLastAsked: () => context.globalState.get<string>(CHARTER_FEEDBACK_LAST_ASKED_KEY),
+    setCharterFeedbackLastAsked: async (iso) => {
+      await context.globalState.update(CHARTER_FEEDBACK_LAST_ASKED_KEY, iso);
     },
   });
 

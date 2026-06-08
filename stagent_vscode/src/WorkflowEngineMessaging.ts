@@ -29,8 +29,9 @@ import {
   readEngineMemoryMaxExperienceEntries,
 } from './WorkflowEngineSettingsReaders';
 import { DEBUG_EVENT_STAGE_ERROR } from './DebugLogEvents';
+import { maybePromptCharterFeedbackAsync } from './charter/maybePromptCharterFeedback';
 
-export { FEEDBACK_LAST_ASKED_KEY } from './instance/StagentGlobalStateKeys';
+export { CHARTER_FEEDBACK_LAST_ASKED_KEY, FEEDBACK_LAST_ASKED_KEY } from './instance/StagentGlobalStateKeys';
 export { MS_PER_DAY } from './TimeConstants';
 
 export interface MessagingHost {
@@ -182,10 +183,17 @@ export function emitStageArtifactHints(
   voidWebviewPostMessage(panel, msg, warn);
 }
 
+export interface SessionPromptDeps {
+  getLastAsked: () => string | undefined;
+  setLastAsked: (iso: string) => Promise<void>;
+  getCharterFeedbackLastAsked: () => string | undefined;
+  setCharterFeedbackLastAsked: (iso: string) => Promise<void>;
+}
+
 export function applyPostMessageSideEffects(
   host: MessagingHost,
   msg: BackendMessage,
-  feedback: { getLastAsked: () => string | undefined; setLastAsked: (iso: string) => Promise<void> },
+  feedback: SessionPromptDeps,
 ): void {
   if (msg.type === 'stageError') {
     try {
@@ -236,6 +244,12 @@ export function applyPostMessageSideEffects(
     host.flushMetrics?.('completed');
     void maybePromptFeedbackAsync(host, feedback.getLastAsked, feedback.setLastAsked).catch((e) => {
       host.warn(`feedback_prompt_async_failed: ${e instanceof Error ? e.message : String(e)}`);
+    });
+    void maybePromptCharterFeedbackAsync(host, {
+      getLastAsked: feedback.getCharterFeedbackLastAsked,
+      setLastAsked: feedback.setCharterFeedbackLastAsked,
+    }).catch((e) => {
+      host.warn(`charter_feedback_prompt_async_failed: ${e instanceof Error ? e.message : String(e)}`);
     });
   }
 }

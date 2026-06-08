@@ -21,6 +21,8 @@ function mockUi(posted: unknown[]): WorkflowUiBridge {
     }),
     getFeedbackLastAsked: () => undefined,
     setFeedbackLastAsked: async () => {},
+    getCharterFeedbackLastAsked: () => undefined,
+    setCharterFeedbackLastAsked: async () => {},
   });
 }
 

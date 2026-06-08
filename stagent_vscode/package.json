@@ -363,6 +363,47 @@
           "order": 61,
           "markdownDescription": "决策阶段且含 questionBefore 时，对契约节点或高复杂度任务自动启用 adaptive grill（一次一问 + code-explore）。设为 false 回退批量追问表单。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
         },
+        "stagent.charter.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "为 true 时从工作区加载 docs/agents/charter.md（或 charter.path），将 avoid/constraint 规则全量注入每个 llm-text 阶段的 systemPrompt。",
+          "order": 62,
+          "markdownDescription": "为 true 时从工作区加载 Charter markdown，将 avoid/constraint 规则全量注入 llm-text systemPrompt（与 DecisionRecord 注入块并存）。无文件时不注入。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+        },
+        "stagent.charter.autoAnswerMode": {
+          "type": "string",
+          "enum": [
+            "off",
+            "suggest",
+            "auto-with-escalation"
+          ],
+          "default": "off",
+          "description": "Charter 自动应答：off=仅背景参考；suggest=代答须人确认（charter_inferred 强制暂停）；auto-with-escalation=自动答+升级闸门。",
+          "order": 63,
+          "markdownDescription": "Charter 自动应答模式（对齐 WORKFLOW §5.5.3）。suggest 下 charter_direct/inferred 均须人工 approveDecision。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+        },
+        "stagent.charter.feedbackEnabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "工作流完成后，若有可回写的普适决策，提示用户确认写入 Charter（B-R2γ 反馈环）。",
+          "order": 64,
+          "markdownDescription": "工作流 `workflowCompleted` 后，从人工/升级决策收集候选并提示回写 `charter.path`；用户多选确认后追加规则并 bump `charterVersion`。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+        },
+        "stagent.charter.feedbackCooldownDays": {
+          "type": "number",
+          "default": 0,
+          "minimum": 0,
+          "description": "Charter 反馈提示冷却天数；0=每次有候选即提示。",
+          "order": 64.5,
+          "markdownDescription": "Charter 反馈环提示冷却（天）。`0` 表示不冷却；与 `feedback.cooldownDays`（产品体验问卷）独立。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+        },
+        "stagent.charter.path": {
+          "type": "string",
+          "default": "docs/agents/charter.md",
+          "description": "决策主旨（Charter）markdown 相对工作区根的路径。",
+          "order": 64,
+          "markdownDescription": "决策主旨（Charter）持久化路径（Layer 5）。默认 docs/agents/charter.md。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+        },
         "stagent.glossary.enabled": {
           "type": "boolean",
           "default": true,

@@ -23,6 +23,8 @@ function mockUi(): WorkflowUiBridge {
     }),
     getFeedbackLastAsked: () => undefined,
     setFeedbackLastAsked: async () => {},
+    getCharterFeedbackLastAsked: () => undefined,
+    setCharterFeedbackLastAsked: async () => {},
   });
 }
 

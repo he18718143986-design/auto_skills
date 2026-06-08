@@ -1,4 +1,5 @@
 import type { Artifact } from '../ArtifactTypes';
+import type { DecisionProvenance } from '../charter/CharterTypes';
 import type { WorkflowDefinition } from './WorkflowMetaTypes';
 
 // ─── ErrorType ─────────────────────────────────────────────────
@@ -66,6 +67,8 @@ export interface StageRuntime {
   questionBeforeAnswers?: Record<string, string>;
   questionAnswers?: Record<string, string>;
   approvedDecisionRecord?: string;
+  /** B-R2：决策答案来源（human / charter_direct / charter_inferred / escalated）。 */
+  decisionProvenance?: DecisionProvenance;
   startedAt?: string;
   completedAt?: string;
   /** 最近一次 stageError 摘要（重启恢复时可重放）。 */

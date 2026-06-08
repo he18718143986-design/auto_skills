@@ -43,6 +43,13 @@ export {
   type PlanStructuralRepairMode,
 } from './readers/gates';
 export {
+  readCharterEnabled,
+  readCharterAutoAnswerMode,
+  readCharterRelativePath,
+  readCharterFeedbackEnabled,
+  readCharterFeedbackCooldownDays,
+} from './readers/charter';
+export {
   readMemoryExperienceStoreEnabled,
   readMemoryMaxExperienceEntries,
   readCodebaseContextEnabled,

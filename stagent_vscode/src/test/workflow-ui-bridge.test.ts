@@ -39,6 +39,8 @@ describe('WorkflowUiBridge integration', () => {
       messagingHost: () => host,
       getFeedbackLastAsked: () => undefined,
       setFeedbackLastAsked: async () => {},
+      getCharterFeedbackLastAsked: () => undefined,
+      setCharterFeedbackLastAsked: async () => {},
     });
     const panel = {
       webview: {
@@ -66,6 +68,8 @@ describe('WorkflowUiBridge integration', () => {
       messagingHost: () => mockMessagingHost(),
       getFeedbackLastAsked: () => undefined,
       setFeedbackLastAsked: async () => {},
+      getCharterFeedbackLastAsked: () => undefined,
+      setCharterFeedbackLastAsked: async () => {},
     });
     const panel = {
       webview: {
@@ -103,6 +107,8 @@ describe('WorkflowUiBridge integration', () => {
       messagingHost: () => mockMessagingHost(),
       getFeedbackLastAsked: () => undefined,
       setFeedbackLastAsked: async () => {},
+      getCharterFeedbackLastAsked: () => undefined,
+      setCharterFeedbackLastAsked: async () => {},
     });
     const panel = {
       webview: {
@@ -139,6 +145,8 @@ describe('WorkflowUiBridge integration', () => {
       messagingHost: () => mockMessagingHost(),
       getFeedbackLastAsked: () => undefined,
       setFeedbackLastAsked: async () => {},
+      getCharterFeedbackLastAsked: () => undefined,
+      setCharterFeedbackLastAsked: async () => {},
     });
     const panel = {
       webview: { postMessage: (msg: BackendMessage) => posted.push(msg) },
@@ -160,6 +168,8 @@ describe('WorkflowUiBridge integration', () => {
       messagingHost: () => host,
       getFeedbackLastAsked: () => undefined,
       setFeedbackLastAsked: async () => {},
+      getCharterFeedbackLastAsked: () => undefined,
+      setCharterFeedbackLastAsked: async () => {},
     });
     const panel = {
       webview: { postMessage: (msg: BackendMessage) => posted.push(msg) },
@@ -180,6 +190,8 @@ describe('WorkflowUiBridge integration', () => {
       messagingHost: () => mockMessagingHost(),
       getFeedbackLastAsked: () => undefined,
       setFeedbackLastAsked: async () => {},
+      getCharterFeedbackLastAsked: () => undefined,
+      setCharterFeedbackLastAsked: async () => {},
     });
     const panel = {
       webview: { postMessage: (msg: BackendMessage) => posted.push(msg) },
@@ -203,6 +215,8 @@ describe('WorkflowUiBridge integration', () => {
       messagingHost: () => host,
       getFeedbackLastAsked: () => undefined,
       setFeedbackLastAsked: async () => {},
+      getCharterFeedbackLastAsked: () => undefined,
+      setCharterFeedbackLastAsked: async () => {},
     });
     const panel = {
       webview: {
@@ -221,6 +235,8 @@ describe('WorkflowUiBridge integration', () => {
       messagingHost: () => host,
       getFeedbackLastAsked: () => undefined,
       setFeedbackLastAsked: async () => {},
+      getCharterFeedbackLastAsked: () => undefined,
+      setCharterFeedbackLastAsked: async () => {},
     });
     const panel = { webview: { postMessage: () => {} } } as never;
     bridge.bindPanel(panel);
