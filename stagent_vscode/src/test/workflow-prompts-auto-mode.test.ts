@@ -43,6 +43,13 @@ test('auto and prototype prompts require python venv + python3 -m pip for Python
     assert.ok(prompt.includes('python3 -m venv .venv'), prompt.slice(0, 80));
     assert.ok(prompt.includes('.venv/bin/python -m pip install'), prompt);
     assert.ok(prompt.includes('FORBIDDEN: `pip install -r requirements.txt && python script.py`'), prompt);
+    assert.ok(prompt.includes('stage_venv_create'), prompt);
+    assert.ok(prompt.includes('stage_venv_pip_install'), prompt);
+    assert.ok(prompt.includes('stage_venv_import_check'), prompt);
+    assert.ok(
+      prompt.includes('do NOT chain venv+pip+import in one command when requirements.txt exists'),
+      prompt,
+    );
   }
 });
 

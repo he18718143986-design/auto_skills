@@ -10,6 +10,10 @@ test('confirm page includes artifact list and stage cards containers', () => {
   assert.match(html, /id="confirm-stats"/);
   assert.match(html, /id="workflow-steps"/);
   assert.match(html, /id="section-plan-summary"/);
+  assert.match(html, /id="section-decision-board"/);
+  assert.match(html, /id="decision-board-list"/);
+  assert.match(html, /id="section-task-type-classification"/);
+  assert.match(html, /id="task-type-select"/);
 });
 
 test('workflowGenerated renders artifact panel and stage cards', () => {
@@ -65,6 +69,40 @@ test('workflowGenerated renders artifact panel and stage cards', () => {
 
   const detail = rt.document.getElementById('detail')!;
   assert.ok(detail.textContent?.includes('审核提示：核对模块边界'));
+});
+
+test('workflowGenerated renders task type classification panel (B-R1)', () => {
+  const rt = setupWebviewScriptRuntime(true);
+  const workflow = {
+    id: 'wf_classify',
+    version: '2.0',
+    meta: {
+      title: 't',
+      taskType: 'software',
+      userInput: 'u',
+      createdAt: new Date().toISOString(),
+      isGreenfield: false,
+    },
+    stages: [{ id: 'stage_zoom_out', title: 'zoom', tool: 'file-read', toolConfig: { type: 'file-read', filePath: 'x' }, input: { sources: [], mergeStrategy: 'concat' }, outputs: [], pauseAfter: false }],
+  };
+  rt.send({
+    type: 'workflowGenerated',
+    workflow,
+    taskTypeClassification: {
+      uiTaskType: 'auto',
+      modelTaskType: 'software',
+      effectiveTaskType: 'software',
+      isGreenfield: false,
+      hasZoomOutStage: true,
+      rationaleLines: ['模型根据需求描述与工作区代码库扫描，判别为「software」。'],
+    },
+  });
+  const section = rt.document.getElementById('section-task-type-classification')!;
+  assert.equal(section.hidden, false);
+  const rationale = rt.document.getElementById('task-type-rationale')!;
+  assert.ok(rationale.innerHTML.includes('software'));
+  const effective = rt.document.getElementById('task-type-effective')!;
+  assert.ok(effective.textContent?.includes('software'));
 });
 
 test('confirm page includes block banner and back button', () => {

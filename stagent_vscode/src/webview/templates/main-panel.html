@@ -99,6 +99,27 @@
         <ul id="timeline"></ul>
       </div>
       <div id="confirm-main">
+        <details class="confirm-section confirm-section-primary" id="section-task-type-classification" open hidden>
+          <summary data-i18n-key="stagent.webview.main.taskTypeClassification"></summary>
+          <div class="plan-panel-body task-type-classification-body">
+            <div id="task-type-rationale" class="task-type-rationale muted"></div>
+            <div class="task-type-controls">
+              <label class="task-type-field">
+                <span data-i18n-key="stagent.webview.confirm.taskTypeSelectLabel"></span>
+                <select id="task-type-select"></select>
+              </label>
+              <label class="task-type-field task-type-greenfield">
+                <input type="checkbox" id="task-type-greenfield" />
+                <span data-i18n-key="stagent.webview.confirm.greenfieldLabel"></span>
+              </label>
+              <label class="task-type-field task-type-lock">
+                <input type="checkbox" id="task-type-lock" />
+                <span data-i18n-key="stagent.webview.confirm.taskTypeLockLabel"></span>
+              </label>
+            </div>
+            <div id="task-type-effective" class="task-type-effective muted"></div>
+          </div>
+        </details>
         <details class="confirm-section" id="section-plan-summary" hidden>
           <summary data-i18n-key="stagent.webview.main.planSummary"></summary>
           <div id="plan-summary" class="plan-panel-body plan-summary"></div>
@@ -114,6 +135,14 @@
         <details class="confirm-section" id="section-plan-artifacts" hidden>
           <summary data-i18n-key="stagent.webview.main.artifactFiles"></summary>
           <div id="plan-artifacts" class="plan-panel-body plan-artifacts"></div>
+        </details>
+        <details class="confirm-section confirm-section-primary" id="section-decision-board" hidden>
+          <summary data-i18n-key="stagent.webview.main.decisionBoard"></summary>
+          <div class="plan-panel-body decision-board-body">
+            <div id="decision-board-summary" class="decision-board-summary"></div>
+            <div id="decision-board-hint" class="decision-board-hint muted"></div>
+            <div id="decision-board-list" class="decision-board-list"></div>
+          </div>
         </details>
         <details class="confirm-section confirm-section-primary" id="section-stage-cards" open>
           <summary data-i18n-key="stagent.webview.main.stageList"></summary>

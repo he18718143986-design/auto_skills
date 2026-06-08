@@ -4,6 +4,7 @@ import type { Question } from './StageTypes';
 import type { WorkflowDefinition, WorkflowGlobalConfig, WorkflowMeta } from './WorkflowMetaTypes';
 import type { ErrorType, StageStatus, WorkflowStatus } from './RuntimeTypes';
 import type { GenerationOperationId } from '../generation/GenerationOperationIds';
+import type { TaskTypeClassificationInfo } from '../TaskTypeResolution';
 
 /** M40.0：生成期结构修补摘要（确认页展示，非运行期保证） */
 export interface StructuralRepairActionSummary {
@@ -49,6 +50,8 @@ type BackendMessageInner =
       settingsProfile?: string;
       /** 相对 default 的门禁差异摘要（确认页）。 */
       profileGateDiff?: string[];
+      /** B-R1：场景判别摘要（taskType / isGreenfield 依据，确认页可改）。 */
+      taskTypeClassification?: TaskTypeClassificationInfo;
     }
   | {
       type: 'stageStatusUpdate';
@@ -189,7 +192,12 @@ export type FrontendMessage =
   | { type: 'clarifyStart'; userInput: string; taskType?: string; taskWorkspacePath: string }
   /** 将草稿润色为规范「用户任务」短文；成功时推送 userTaskPolished */
   | { type: 'polishUserTask'; draft: string; taskType?: string; taskWorkspacePath?: string }
-  | { type: 'startExecution'; workflow?: WorkflowDefinition; sessionId?: string; instanceKey?: string }
+  | {
+      type: 'startExecution';
+      workflow?: WorkflowDefinition;
+      sessionId?: string;
+      instanceKey?: string;
+    }
   | { type: 'approve'; stageId: string }
   | { type: 'approveDecision'; stageId: string; decisionRecord: string; sessionId?: string; instanceKey?: string }
   | { type: 'answerQuestionsBefore'; stageId: string; answers: Record<string, string> }

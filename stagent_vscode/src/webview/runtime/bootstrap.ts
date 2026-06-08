@@ -4,6 +4,7 @@ import { confirmStore } from './stores';
 import { getOutboundSessionId } from './session';
 import { registerInputView, syncInputActionsVisibility } from './view-input';
 import { registerConfirmView } from './view-confirm';
+import { registerTaskTypeClassificationControls } from './confirm-renderers/TaskTypeClassificationRenderer';
 import { registerExecView, renderExecTimeline, resetExecUi } from './view-exec';
 import { registerMessageHandler } from './messages';
 import {
@@ -53,6 +54,7 @@ export function bootstrapMainWebview(): void {
   syncWorkflowSteps('input');
   registerInputView();
   registerConfirmView();
+  registerTaskTypeClassificationControls();
   registerExecView();
   registerMessageHandler();
   syncInputActionsVisibility();

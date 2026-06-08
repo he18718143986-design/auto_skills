@@ -4,7 +4,12 @@ import { orchestratePostParseValidation } from './WorkflowGenerationOrchestrator
 import { HOST_INPUT_PAGE_BUSY_TITLES as INPUT_PAGE_BUSY_TITLES } from './WebviewInputGenerationUiHost';
 import { buildProfileGateDiff } from './StagentProfileDiff';
 import { readSettingsProfileId } from './StagentSettings';
-import { getStagentConfiguration } from './settings/getStagentConfiguration';
+import {
+  buildTaskTypeClassificationInfo,
+  resolveGeneratedTaskType,
+  workflowHasZoomOutStage,
+  type KnownTaskType,
+} from './TaskTypeResolution';
 import { withSessionFields } from './InstanceSession';
 import type { GenerationContext } from './WorkflowGenerationContext';
 import {
@@ -18,8 +23,7 @@ function profileFieldsForWorkflowGenerated(): {
   settingsProfile: string;
   profileGateDiff: string[];
 } {
-  const cfg = getStagentConfiguration();
-  const profileId = readSettingsProfileId(cfg);
+  const profileId = readSettingsProfileId();
   return {
     settingsProfile: profileId,
     profileGateDiff: buildProfileGateDiff(profileId),
@@ -72,6 +76,15 @@ export async function finalizeAndEmitWorkflow(
     return;
   }
 
+  const effectiveKnown = resolveGeneratedTaskType(modelTaskType, taskType) as KnownTaskType;
+  const taskTypeClassification = buildTaskTypeClassificationInfo({
+    uiTaskType: taskType,
+    modelTaskType,
+    effectiveType: effectiveKnown,
+    isGreenfield: validation.workflow.meta?.isGreenfield,
+    hasZoomOutStage: workflowHasZoomOutStage(validation.workflow.stages),
+  });
+
   emitSuccessfulWorkflowGenerated(
     host,
     panel,
@@ -80,5 +93,6 @@ export async function finalizeAndEmitWorkflow(
     experienceReferencesUsed,
     profileFieldsForWorkflowGenerated(),
     withSessionFields,
+    { taskTypeClassification },
   );
 }

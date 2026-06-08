@@ -10,6 +10,12 @@ export const confirmStore: ConfirmState = {
   settingsProfile: null,
   profileGateDiff: [],
   experienceReferencesUsed: 0,
+  decisionBoard: null,
+  decisionMode: 'inline-pause',
+  decisionResolutions: {},
+  planBlocked: false,
+  taskTypeClassification: null,
+  taskTypeLocked: false,
 };
 
 export function resetConfirmStore(): void {
@@ -22,4 +28,10 @@ export function resetConfirmStore(): void {
   confirmStore.settingsProfile = null;
   confirmStore.profileGateDiff = [];
   confirmStore.experienceReferencesUsed = 0;
+  confirmStore.decisionBoard = null;
+  confirmStore.decisionMode = 'inline-pause';
+  confirmStore.decisionResolutions = {};
+  confirmStore.planBlocked = false;
+  confirmStore.taskTypeClassification = null;
+  confirmStore.taskTypeLocked = false;
 }

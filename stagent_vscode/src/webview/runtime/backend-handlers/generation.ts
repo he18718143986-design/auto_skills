@@ -13,6 +13,10 @@ import { renderConfirmBlock } from '../confirm-renderers/ConfirmBlockRenderer';
 import { renderRepairInfo } from '../confirm-renderers/RepairInfoRenderer';
 import { renderWorkflowWarnings } from '../confirm-renderers/WorkflowWarningsRenderer';
 import { renderPlanSummaryAndDiff } from '../confirm-renderers/PlanSummaryRenderer';
+import {
+  applyTaskTypeClassificationFromMessage,
+  renderTaskTypeClassification,
+} from '../confirm-renderers/TaskTypeClassificationRenderer';
 import { applySessionFromBackend } from '../session';
 import {
   clearInputPageBusy,
@@ -50,8 +54,10 @@ function handleWorkflowGenerated(msg: Extract<BackendMessage, { type: 'workflowG
   confirmStore.experienceReferencesUsed =
     typeof msg.experienceReferencesUsed === 'number' ? msg.experienceReferencesUsed : 0;
   confirmStore.selectedStageId = confirmStore.workflowDef?.stages?.[0]?.id ?? null;
+  applyTaskTypeClassificationFromMessage(msg);
 
   renderConfirmBlock(msg);
+  renderTaskTypeClassification();
   renderRepairInfo(msg);
   renderWorkflowWarnings(msg);
   renderPlanSummaryAndDiff(msg);

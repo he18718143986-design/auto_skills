@@ -115,6 +115,14 @@
     "en": "Start execution",
     "zh": "开始执行"
   },
+  "stagent.webview.main.approveAllAndStart": {
+    "en": "Approve all and start",
+    "zh": "批准全部并开始执行"
+  },
+  "stagent.webview.main.decisionBoard": {
+    "en": "Decision board (pre-execution)",
+    "zh": "决策板（执行前）"
+  },
   "stagent.webview.main.execProgress": {
     "en": "Progress",
     "zh": "进度"
@@ -319,6 +327,38 @@
     "en": "Task type (meta.taskType): {0}",
     "zh": "任务类型（meta.taskType）：{0}"
   },
+  "stagent.webview.main.taskTypeClassification": {
+    "en": "Scene classification (taskType)",
+    "zh": "场景判别（taskType）"
+  },
+  "stagent.webview.confirm.taskTypeSelectLabel": {
+    "en": "Effective task type",
+    "zh": "生效任务类型"
+  },
+  "stagent.webview.confirm.greenfieldLabel": {
+    "en": "Greenfield project (isGreenfield)",
+    "zh": "绿场项目（isGreenfield）"
+  },
+  "stagent.webview.confirm.taskTypeLockLabel": {
+    "en": "Lock classification (no further edits)",
+    "zh": "锁定判别（不再修改）"
+  },
+  "stagent.webview.confirm.taskTypeEffective": {
+    "en": "Will run as {0} · {1}",
+    "zh": "将按「{0}」执行 · {1}"
+  },
+  "stagent.webview.confirm.taskTypeModelHint": {
+    "en": "model suggested {0}",
+    "zh": "模型建议 {0}"
+  },
+  "stagent.webview.confirm.greenfieldYes": {
+    "en": "greenfield",
+    "zh": "绿场"
+  },
+  "stagent.webview.confirm.greenfieldNo": {
+    "en": "brownfield",
+    "zh": "棕场"
+  },
   "stagent.webview.confirm.profileHeader": {
     "en": "—— Settings profile ——",
     "zh": "—— 设置 Profile ——"
@@ -330,6 +370,54 @@
   "stagent.webview.confirm.profileGateDiff": {
     "en": "Gate diff vs default:",
     "zh": "相对 default 的门禁："
+  },
+  "stagent.webview.confirm.decisionBoardSummary": {
+    "en": "Total {0} · auto {1} · needs review {2} · pending {3}",
+    "zh": "共 {0} 项 · 自动 {1} · 需拍板 {2} · 待处理 {3}"
+  },
+  "stagent.webview.confirm.decisionBoardGateHint": {
+    "en": "Resolve all pending items ({2} left) before starting.",
+    "zh": "须处理完全部待拍板项（剩余 {2}）后方可开始。"
+  },
+  "stagent.webview.confirm.decisionConfirmItem": {
+    "en": "Confirm this item",
+    "zh": "确认此项"
+  },
+  "stagent.webview.confirm.decisionNoProposal": {
+    "en": "(no proposal)",
+    "zh": "（无拟答）"
+  },
+  "stagent.webview.confirm.decisionKind.auto": {
+    "en": "Auto-decided",
+    "zh": "已自动决定"
+  },
+  "stagent.webview.confirm.decisionKind.conflict": {
+    "en": "Charter conflict · review",
+    "zh": "主旨冲突 · 需拍板"
+  },
+  "stagent.webview.confirm.decisionKind.uncovered": {
+    "en": "Uncovered · review",
+    "zh": "主旨未覆盖 · 需拍板"
+  },
+  "stagent.webview.confirm.decisionKind.lowconf": {
+    "en": "Low confidence · confirm",
+    "zh": "低置信 · 请确认"
+  },
+  "stagent.webview.confirm.decisionProvenance.charter_direct": {
+    "en": "charter direct",
+    "zh": "主旨直接"
+  },
+  "stagent.webview.confirm.decisionProvenance.charter_inferred": {
+    "en": "charter inferred",
+    "zh": "主旨推导"
+  },
+  "stagent.webview.confirm.decisionProvenance.escalated": {
+    "en": "escalated",
+    "zh": "升级人工"
+  },
+  "stagent.webview.confirm.decisionProvenance.human": {
+    "en": "human",
+    "zh": "人工"
   },
   "stagent.webview.confirm.experienceRefsDetail": {
     "en": "Referenced past experience: {0} item(s) (userInput text excluded)",

@@ -19,6 +19,10 @@ body { font-family: var(--vscode-font-family, system-ui, sans-serif); padding: 8
 .confirm-section-warn > summary { color: var(--vscode-inputValidation-warningForeground); }
 .confirm-section-primary > summary { color: var(--vscode-foreground); }
 .plan-panel-body { padding: 4px 10px 10px; font-size: 0.85rem; }
+.task-type-rationale-list { margin: 0 0 8px 1.1rem; padding: 0; }
+.task-type-controls { display: flex; flex-wrap: wrap; gap: 12px 16px; align-items: center; margin: 8px 0; }
+.task-type-field { display: flex; align-items: center; gap: 6px; font-size: 0.85rem; }
+.task-type-effective { margin-top: 4px; font-size: 0.8rem; }
 .plan-panel-body:empty { display: none; padding: 0; }
 textarea { width: 100%; min-height: 120px; box-sizing: border-box; padding: 8px; background: var(--vscode-input-background); color: var(--vscode-input-foreground); border: 1px solid var(--vscode-input-border); }
 button { padding: 8px 14px; margin-right: 8px; cursor: pointer; background: var(--vscode-button-background); color: var(--vscode-button-foreground); border: none; border-radius: 2px; }
@@ -188,6 +192,24 @@ button:disabled { opacity: 0.55; cursor: not-allowed; }
 .plan-stage-card .tag.decision { color: var(--vscode-charts-orange); }
 .plan-stage-card .artifact-line { font-family: var(--vscode-editor-font-family); font-size: 0.76rem; margin-top: 6px; opacity: 0.88; }
 .plan-stage-card .card-aitip { font-size: 0.78rem; margin-top: 6px; opacity: 0.9; line-height: 1.4; }
+.decision-board-summary { font-size: 0.82rem; font-weight: 600; margin-bottom: 6px; }
+.decision-board-hint { font-size: 0.78rem; margin-bottom: 8px; }
+.decision-board-list { display: flex; flex-direction: column; gap: 10px; }
+.decision-board-item { padding: 10px 12px; border: 1px solid var(--vscode-widget-border); border-radius: 6px; background: var(--vscode-editor-background); }
+.decision-board-item.resolved { border-left: 3px solid var(--vscode-testing-iconPassed); }
+.decision-board-item:not(.resolved) { border-left: 3px solid var(--vscode-inputValidation-warningBorder); }
+.decision-board-item-head { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: baseline; margin-bottom: 6px; }
+.decision-board-title { font-weight: 600; font-size: 0.86rem; }
+.decision-board-stage-id { font-size: 0.72rem; opacity: 0.8; }
+.decision-board-badges { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; }
+.decision-kind-badge, .decision-provenance-badge { font-size: 0.72rem; padding: 2px 7px; border-radius: 4px; background: var(--vscode-badge-background); color: var(--vscode-badge-foreground); }
+.decision-kind-auto { background: rgba(40, 167, 69, 0.22); color: var(--vscode-testing-iconPassed); }
+.decision-kind-conflict, .decision-kind-lowconf { background: rgba(232, 160, 0, 0.22); color: #e8a000; }
+.decision-kind-uncovered { background: rgba(0, 122, 204, 0.18); color: var(--vscode-textLink-foreground); }
+.decision-board-reasoning { font-size: 0.78rem; margin-bottom: 6px; line-height: 1.4; }
+.decision-board-proposal { font-size: 0.82rem; white-space: pre-wrap; line-height: 1.45; }
+.decision-board-edit { min-height: 72px; font-size: 0.82rem; margin: 6px 0; }
+.decision-board-confirm-btn { margin-top: 4px; padding: 4px 10px; font-size: 0.78rem; }
 .plan-phase-header { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.7; margin: 6px 0 2px; }
 .action-dock { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; }
 .action-dock > button { margin-right: 0; }

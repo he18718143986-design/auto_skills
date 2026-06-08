@@ -6,6 +6,7 @@ import {
   type GenerationRunnerHost,
 } from './WorkflowGenerationRunner';
 import { ERROR_TYPE_INVARIANT_VIOLATION } from './WorkflowStageErrorHelpers';
+import type { TaskTypeClassificationInfo } from './TaskTypeResolution';
 
 export function routeBlockedValidationOutcome(
   host: GenerationRunnerHost,
@@ -64,6 +65,7 @@ export function emitSuccessfulWorkflowGenerated(
   experienceReferencesUsed: number,
   profileFields: { settingsProfile: string; profileGateDiff: string[] },
   withSessionFields: (draftKey: string) => Record<string, unknown>,
+  extraFields?: { taskTypeClassification?: TaskTypeClassificationInfo },
 ): void {
   const draftKey = host.finalizeDraftDefinition(finalWf);
 
@@ -80,5 +82,8 @@ export function emitSuccessfulWorkflowGenerated(
       ? { structuralRepairs: validation.structuralRepairs }
       : {}),
     ...(draftKey ? withSessionFields(draftKey) : {}),
+    ...(extraFields?.taskTypeClassification
+      ? { taskTypeClassification: extraFields.taskTypeClassification }
+      : {}),
   });
 }

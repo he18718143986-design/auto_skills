@@ -472,7 +472,7 @@ function shouldPauseAfterStage(stage, runtime, confidence, policy, ctx) {
 
 | # | 缺口 | 影响 | 对策 |
 |---|------|------|------|
-| G1 | 场景判别可解释性弱 | 用户不知为何判成某 taskType | 确认页展示判别理由 + 可一键改 taskType/isGreenfield |
+| G1 | 场景判别可解释性弱 | 用户不知为何判成某 taskType | **B-R1 已落地**：确认页「场景判别」区展示 rationale + 可改 taskType/isGreenfield + 可锁定 |
 | G2 | 主旨「代答决策」未形成显式 Charter 引擎 | 决策代答靠提示而非结构化规则 | **大部分落地（B-R2α/β/γ + R2.5）**：`charter/*` 解析/加载/回写、`buildCharterConstraintsBlock` 注入、Grill 代答 + provenance、**决策前置 UI**（`decisionMode=frontloaded`）、**session 结束 Charter 反馈环**（`charter.feedbackEnabled`）；待补：覆盖率度量、自动回写（B-R4） |
 | G3 | 非专业人员术语门槛 | grill/slice/TDD 不友好 | 复用 A 路线 §6 Translation Layer 词典 |
 | G4 | 里程碑「可感知验收」缺失 | 用户难判对错 | 决策/完成节点给可点演示 + 截图（对齐 A 路线 M11） |
@@ -487,8 +487,8 @@ function shouldPauseAfterStage(stage, runtime, confidence, policy, ctx) {
 
 | 阶段 | 范围 | 退出标准 |
 |------|------|----------|
-| **B-R0 固化引擎** | 稳定生成→校验→执行→HITL→恢复主链；补单测；**修复 G5–G8（RCA R1–R4）** | 在 GUI 启动的 VS Code 中一条 software（monorepo server/+mobile/）端到端跑通且**不出现 R1–R4**，测试为真 RED→GREEN（非空壳） |
-| **B-R1 判别透明化** | 确认页展示 taskType/isGreenfield 判别理由，可改可锁 | 用户可纠正误判（G1） |
+| **B-R0 固化引擎** | 稳定生成→校验→执行→HITL→恢复主链；补单测；**修复 G5–G8（RCA R1–R4）**；Python venv **三阶段拆分**（create / pip / import，重依赖 pip timeout≥600） | 在 GUI 启动的 VS Code 中一条 software（monorepo server/+mobile/）端到端跑通且**不出现 R1–R4**，测试为真 RED→GREEN（非空壳） |
+| **B-R1 判别透明化** | 确认页展示 taskType/isGreenfield 判别理由，可改可锁 | 用户可纠正误判（G1）— **已实现** |
 | **B-R2 主旨/Charter** | 主旨结构化 + 决策代答命中/冲突判定 + provenance | 决策阶段按主旨代答，冲突才升级（G2） |
 | **B-R2.5 决策前置** | `decisionMode='frontloaded'` + 决策板 + ApproveDecisionGate 扩展（见 §11） | 可预见决策执行前一次过，执行中仅运行时升级打断 |
 | **B-R3 友好层** | Translation 词典 + 决策卡白话 + 里程碑演示 | 半专业用户全程「看流水线点拍板」（G3/G4） |

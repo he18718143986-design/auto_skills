@@ -2,9 +2,11 @@ import { test } from 'node:test';
 import * as assert from 'node:assert/strict';
 import {
   AUTO_TASK_TYPE,
+  buildTaskTypeClassificationInfo,
   buildTaskTypeOverrideWarning,
   isAutoTaskType,
   resolveGeneratedTaskType,
+  workflowHasZoomOutStage,
 } from '../TaskTypeResolution';
 import { validateAndPrepareGeneratedWorkflow } from '../WorkflowEngineHelpers';
 import type { WorkflowDefinition } from '../WorkflowDefinition';
@@ -25,6 +27,36 @@ test('resolveGeneratedTaskType prefers UI override over model meta', () => {
 test('resolveGeneratedTaskType falls back to other when meta invalid in auto mode', () => {
   assert.equal(resolveGeneratedTaskType('invalid-type', 'auto'), 'other');
   assert.equal(resolveGeneratedTaskType(undefined, 'auto'), 'other');
+});
+
+test('buildTaskTypeClassificationInfo explains auto model classification', () => {
+  const info = buildTaskTypeClassificationInfo({
+    uiTaskType: 'auto',
+    modelTaskType: 'software',
+    effectiveType: 'software',
+    isGreenfield: true,
+    hasZoomOutStage: false,
+  });
+  assert.equal(info.effectiveTaskType, 'software');
+  assert.ok(info.rationaleLines.some((l) => l.includes('software')));
+  assert.ok(info.rationaleLines.some((l) => l.includes('绿场') || l.includes('greenfield')));
+});
+
+test('buildTaskTypeClassificationInfo notes UI override and zoom-out', () => {
+  const info = buildTaskTypeClassificationInfo({
+    uiTaskType: 'prototype',
+    modelTaskType: 'software',
+    effectiveType: 'prototype',
+    isGreenfield: false,
+    hasZoomOutStage: true,
+  });
+  assert.ok(info.rationaleLines.some((l) => l.includes('prototype')));
+  assert.ok(info.rationaleLines.some((l) => l.includes('stage_zoom_out')));
+});
+
+test('workflowHasZoomOutStage detects brownfield gate stage', () => {
+  assert.equal(workflowHasZoomOutStage([{ id: 'stage_a' }, { id: 'stage_zoom_out' }]), true);
+  assert.equal(workflowHasZoomOutStage([{ id: 'stage_a' }]), false);
 });
 
 test('buildTaskTypeOverrideWarning when UI overrides model suggestion', () => {

@@ -498,6 +498,13 @@ export function setupWebviewScriptRuntime(confirmResult: boolean) {
     'confirm-stats',
     'confirm-main',
     'confirm-dock-hint',
+    'section-task-type-classification',
+    'task-type-rationale',
+    'task-type-effective',
+    'section-decision-board',
+    'decision-board-summary',
+    'decision-board-hint',
+    'decision-board-list',
     'confirm-actions',
     'input-view-scroll',
     'timeline-exec',
@@ -517,6 +524,13 @@ export function setupWebviewScriptRuntime(confirmResult: boolean) {
   document.register(new MiniElement('button'), 'btn-start');
   document.register(new MiniElement('button'), 'btn-back-input');
   document.register(new MiniElement('button'), 'btn-regenerate');
+  document.register(new MiniElement('select'), 'task-type-select');
+  const greenfieldCb = new MiniElement('input');
+  greenfieldCb.type = 'checkbox';
+  document.register(greenfieldCb, 'task-type-greenfield');
+  const lockCb = new MiniElement('input');
+  lockCb.type = 'checkbox';
+  document.register(lockCb, 'task-type-lock');
 
   for (const [id, step] of [
     ['step-nav-input', 'input'],

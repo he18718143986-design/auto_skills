@@ -1,4 +1,5 @@
 import type { WorkflowDefinition } from '../../../WorkflowDefinition';
+import type { TaskTypeClassificationInfo } from '../../../TaskTypeResolution';
 import type { ExecStageStatus } from '../../shared/stageStatusPolicy';
 
 export interface StageMaps {
@@ -28,6 +29,30 @@ export interface InputState {
   polishOriginalDraft: string;
 }
 
+export interface DecisionBoardItemView {
+  stageId: string;
+  stageTitle: string;
+  kind: string;
+  provenance: string;
+  matchScore: number;
+  conflictScore: number;
+  ruleRefs: number[];
+  proposal?: string;
+  reasoning?: string;
+  requiresUser: boolean;
+}
+
+export interface DecisionBoardView {
+  items: DecisionBoardItemView[];
+  summary: { total: number; auto: number; needsReview: number };
+}
+
+export interface DecisionResolutionState {
+  decisionRecord: string;
+  provenance: string;
+  resolved: boolean;
+}
+
 export interface ConfirmState {
   workflowDef: WorkflowDefinition | null;
   planSummary: unknown;
@@ -38,6 +63,15 @@ export interface ConfirmState {
   settingsProfile: string | null;
   profileGateDiff: string[];
   experienceReferencesUsed: number;
+  decisionBoard: DecisionBoardView | null;
+  decisionMode: 'inline-pause' | 'frontloaded';
+  decisionResolutions: Record<string, DecisionResolutionState>;
+  /** 计划硬阻断（confirm-block）；决策闸门须与此合并。 */
+  planBlocked: boolean;
+  /** B-R1：场景判别摘要（确认页展示依据）。 */
+  taskTypeClassification: TaskTypeClassificationInfo | null;
+  /** B-R1：锁定后不可再改 taskType / isGreenfield。 */
+  taskTypeLocked: boolean;
 }
 
 export interface ExecTimelineFoldState {
