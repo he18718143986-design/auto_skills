@@ -209,6 +209,7 @@ test('polish complete: dock shows 生成工作流 and starts clarify on click', 
   const rt = setupWebviewScriptRuntime(true);
   rt.document.getElementById('user-input')!.value = '口语草稿';
   rt.send({ type: 'taskWorkspacePathPicked', path: '/tmp/ws' });
+  rt.document.getElementById('btn-toggle-polish-tools')!.onclick?.();
   rt.document.getElementById('btn-polish')!.onclick?.();
   rt.send({ type: 'userTaskPolished', text: '规范任务', polishedAt: new Date().toISOString() });
 

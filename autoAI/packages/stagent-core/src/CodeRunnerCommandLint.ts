@@ -19,6 +19,8 @@ import * as path from 'path';
 import type { CodeRunnerConfig, WorkflowDefinition } from './WorkflowDefinition';
 import { collectWorkflowArtifacts } from './WorkflowArtifactRegistry';
 import { detectPythonImportLintIssues } from './CodeRunnerImportLint';
+import { isCodeRunnerTool } from './workflow/StageToolKinds';
+import { readDangerousCommandLintMode } from './settings/SettingsReaders';
 
 export interface CodeRunnerCommandIssue {
   code: string;
@@ -207,6 +209,37 @@ export function detectCodeRunnerCommandIssues(command: string): CodeRunnerComman
   return issues;
 }
 
+/** 危险 shell 模式（D7）；强度由 stagent.execution.dangerousCommandLint 控制。 */
+export function detectDangerousShellCommandIssues(command: string): CodeRunnerCommandIssue[] {
+  const issues: CodeRunnerCommandIssue[] = [];
+  if (typeof command !== 'string' || command.length === 0) {
+    return issues;
+  }
+  if (/\brm\s+-rf\s+\/\s*/.test(command) || /\brm\s+-rf\s+~\s*/.test(command)) {
+    issues.push({
+      code: 'dangerous-rm-rf-root',
+      message: 'command 含 `rm -rf /` 或 `rm -rf ~` 等根目录删除，已阻断。',
+    });
+  }
+  if (/\bcurl\b[^\n|]*\|\s*(ba)?sh\b/i.test(command) || /\bwget\b[^\n|]*\|\s*(ba)?sh\b/i.test(command)) {
+    issues.push({
+      code: 'dangerous-curl-pipe-shell',
+      message: 'command 含 curl/wget 管道到 shell，已阻断。',
+    });
+  }
+  if (/:\(\)\s*\{\s*:\|:&\s*\}\s*;:/.test(command)) {
+    issues.push({
+      code: 'dangerous-fork-bomb',
+      message: 'command 含 fork bomb 模式，已阻断。',
+    });
+  }
+  return issues;
+}
+
+export function isDangerousCommandIssue(issue: CodeRunnerCommandIssue): boolean {
+  return issue.code.startsWith('dangerous-');
+}
+
 /** 依赖 stages 线性顺序与 meta.taskWorkspacePath（与生成期校验一致；DAG 模式下若阶段实际顺序与数组不一致可能漏报/误报）。 */
 function detectCodeRunnerWorkflowLintIssues(
   command: string,
@@ -234,6 +267,9 @@ export function collectAllCodeRunnerLintIssues(
   stageIndex: number,
 ): CodeRunnerCommandIssue[] {
   const issues = [...detectCodeRunnerCommandIssues(command), ...detectCodeRunnerWorkflowLintIssues(command, wf, stageIndex)];
+  if (readDangerousCommandLintMode() !== 'off') {
+    issues.push(...detectDangerousShellCommandIssues(command));
+  }
   const stage = wf.stages?.[stageIndex];
   if (stage && /^stage_test_run_/.test(stage.id) && stage.tool === 'code-runner') {
     const registry = collectWorkflowArtifacts(wf);
@@ -244,4 +280,23 @@ export function collectAllCodeRunnerLintIssues(
 
 export function formatCodeRunnerCommandIssue(stageId: string, issue: CodeRunnerCommandIssue): string {
   return `工具配置错误：阶段 ${stageId} (code-runner) [${issue.code}] ${issue.message}`;
+}
+
+/** 生成期 warn 模式：将危险命令写入 workflowGenerated.warnings。 */
+export function collectDangerousCommandWarningsForWorkflow(wf: WorkflowDefinition): string[] {
+  if (readDangerousCommandLintMode() !== 'warn') {
+    return [];
+  }
+  const lines: string[] = [];
+  for (const stage of wf.stages ?? []) {
+    if (!isCodeRunnerTool(stage.tool)) {
+      continue;
+    }
+    const cfg = stage.toolConfig as { command?: string };
+    const cmd = String(cfg.command ?? '');
+    for (const issue of detectDangerousShellCommandIssues(cmd)) {
+      lines.push(`dangerous-cmd:${issue.code}:${stage.id}`);
+    }
+  }
+  return lines;
 }

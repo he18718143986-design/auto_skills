@@ -1,4 +1,4 @@
-import type * as vscode from 'vscode';
+import type * as vscode from '../platform/HostTypes';
 import { describeApproveDecisionRejection } from '../ApproveDecisionGate';
 import { markDecisionApproved } from '../WorkflowStateTransitions';
 import { emitStageDoneAdvancePersist } from '../WorkflowEngineContinuation';
@@ -8,6 +8,13 @@ import {
   ensureDecisionRecordOutput,
   scheduleDecisionApprovePersistence,
 } from './DecisionApprovePersistence';
+import {
+  COMMITMENT_SNAPSHOT_OUTPUT_KEY,
+  extractCommitmentSnapshot,
+  type DecisionArtifactsV1,
+  isDecisionArtifactsV1,
+} from '../commitment';
+import { DECISION_ARTIFACTS_OUTPUT_KEY } from '../WorkflowOutputKeys';
 import type { HitlCoordinatorHost } from './HitlCoordinatorHost';
 import { findHitlStage } from './resolveHitlStage';
 
@@ -59,6 +66,24 @@ export async function handleApproveDecision(
     String(rt.outputs[primaryOutputKey(stage)] ?? ''),
     new Date().toISOString(),
   );
+
+  if (host.isContractCommitmentsEnabled()) {
+    const rawArtifacts = rt.outputs[DECISION_ARTIFACTS_OUTPUT_KEY];
+    const decisionArtifacts = isDecisionArtifactsV1(rawArtifacts)
+      ? (rawArtifacts as DecisionArtifactsV1)
+      : null;
+    const snapshot = extractCommitmentSnapshot({
+      stageId,
+      decisionRecord,
+      workflow: instance.definition,
+      decisionArtifacts,
+    });
+    rt.outputs[COMMITMENT_SNAPSHOT_OUTPUT_KEY] = snapshot;
+    host.debugLog(stageId, 'commitment_snapshot', 0, {
+      count: snapshot.commitments.length,
+      warnings: snapshot.parserWarnings.length,
+    });
+  }
 
   scheduleDecisionApprovePersistence(host, stage, rt, decisionRecord);
   ensureDecisionRecordOutput(host, rt, stageId, decisionRecord);

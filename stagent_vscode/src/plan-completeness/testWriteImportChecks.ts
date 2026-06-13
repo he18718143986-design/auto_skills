@@ -7,9 +7,11 @@ import { isLlmTextTool } from '../workflow/StageToolKinds';
 import { writeOutputToFileOf } from './planCompletenessStageAccess';
 import type { Stage, WorkflowDefinition } from '../WorkflowDefinition';
 import type { PlanCompletenessIssue } from './planCompletenessTypes';
+import { isExternalPythonModuleRoot } from '../python-contract/pythonExternalModules';
 
 const QUOTED_RELATIVE_PATH = /['"`]((\.\.?\/)[^'"`\s]+)['"`]/g;
 const BACKTICK_RELATIVE_PATH = /`((\.\.?\/)[^`]+)`/g;
+const PY_FROM_IMPORT = /from\s+([a-zA-Z_][\w.]*)\s+import\s+([^\n'`"]+)/g;
 
 function textOfStage(stage: Stage): string {
   const prompt = (stage.toolConfig as { systemPrompt?: string }).systemPrompt ?? '';
@@ -31,6 +33,20 @@ export function extractRelativePathRefsFromPrompt(text: string): string[] {
     }
   }
   return [...specs];
+}
+
+/** 从 test_write prompt 提取 Python 绝对 module import（from foo import Bar）。 */
+export function extractPythonModuleImportsFromPrompt(text: string): string[] {
+  const mods = new Set<string>();
+  PY_FROM_IMPORT.lastIndex = 0;
+  let m: RegExpExecArray | null;
+  while ((m = PY_FROM_IMPORT.exec(text)) !== null) {
+    const mod = m[1]?.trim();
+    if (mod && !mod.startsWith('.')) {
+      mods.add(mod.split('.')[0]!);
+    }
+  }
+  return [...mods];
 }
 
 function isServerIntegrationTestWrite(stage: Stage): boolean {
@@ -77,6 +93,26 @@ export function lintTestWriteImportPathsInPlan(wf: WorkflowDefinition): PlanComp
       issues.push({
         type: 'test-write-import-not-in-plan',
         message: planCompletenessMsg('test-write-import-not-in-plan', testOut, imp, stage.id),
+      });
+    }
+    for (const mod of extractPythonModuleImportsFromPrompt(text)) {
+      if (isExternalPythonModuleRoot(mod)) {
+        continue;
+      }
+      const covered = registry.paths.some(
+        (p) => p.replace(/\\/g, '/') === `${mod}.py` || p.endsWith(`/${mod}.py`),
+      );
+      if (covered) {
+        continue;
+      }
+      const key = `${stage.id}:py:${mod}`;
+      if (seen.has(key)) {
+        continue;
+      }
+      seen.add(key);
+      issues.push({
+        type: 'test-write-import-not-in-plan',
+        message: planCompletenessMsg('test-write-import-not-in-plan', testOut, mod, stage.id),
       });
     }
 

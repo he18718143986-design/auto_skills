@@ -62,3 +62,38 @@ test('retry count at policy limit forces pause', () => {
   const decision = evaluateHITL(st, rt, confidence(0.9), DEFAULT_HITL_POLICY);
   assert.equal(decision.action, 'pause');
 });
+
+test('charter_inferred pauses in suggest mode on decision stage', () => {
+  const st = stage({ id: 'stage_decide_x', isDecisionStage: true });
+  const rt: StageRuntime = {
+    ...runtime(),
+    stageId: st.id,
+    decisionProvenance: 'charter_inferred',
+  };
+  const policy = { ...DEFAULT_HITL_POLICY, charterAutoAnswerMode: 'suggest' as const };
+  const conf = confidence(0.9);
+  assert.equal(evaluateHITL(st, rt, conf, policy).action, 'pause');
+  assert.equal(shouldPauseAfterStage(st, rt, conf, policy), true);
+});
+
+test('charter_direct auto-advances in auto-with-escalation on decision stage', () => {
+  const st = stage({ id: 'stage_decide_x', isDecisionStage: true });
+  const rt: StageRuntime = {
+    ...runtime(),
+    stageId: st.id,
+    decisionProvenance: 'charter_direct',
+  };
+  const policy = { ...DEFAULT_HITL_POLICY, charterAutoAnswerMode: 'auto-with-escalation' as const };
+  assert.equal(shouldPauseAfterStage(st, rt, confidence(0.9), policy), false);
+});
+
+test('escalated provenance still pauses in auto-with-escalation', () => {
+  const st = stage({ id: 'stage_decide_x', isDecisionStage: true });
+  const rt: StageRuntime = {
+    ...runtime(),
+    stageId: st.id,
+    decisionProvenance: 'escalated',
+  };
+  const policy = { ...DEFAULT_HITL_POLICY, charterAutoAnswerMode: 'auto-with-escalation' as const };
+  assert.equal(shouldPauseAfterStage(st, rt, confidence(0.9), policy), true);
+});

@@ -1,7 +1,7 @@
 import type { Stage, StageRuntime, WorkflowDefinition, WorkflowInstance } from './WorkflowDefinition';
 
 /** 调度用：stage-output 的 stageId ∪ dependsOn（去重）。 */
-function collectStageDependencyIds(stage: Stage): string[] {
+export function getStageDependencyIds(stage: Stage): string[] {
   const refs = (stage.input?.sources ?? [])
     .filter((s) => s.type === 'stage-output' && typeof s.stageId === 'string')
     .map((s) => s.stageId as string);
@@ -10,7 +10,7 @@ function collectStageDependencyIds(stage: Stage): string[] {
 }
 
 function isStageDependencyReady(stages: Stage[], runtimes: StageRuntime[], stageIndex: number): boolean {
-  const deps = collectStageDependencyIds(stages[stageIndex]);
+  const deps = getStageDependencyIds(stages[stageIndex]);
   return deps.every((depId) => {
     const depIdx = stages.findIndex((s) => s.id === depId);
     if (depIdx < 0) {
@@ -102,7 +102,7 @@ export function formatWorkflowDependencyCycleError(stages: Stage[]): string | nu
   }
   for (const s of stages) {
     const sid = s.id;
-    for (const d of collectStageDependencyIds(s)) {
+    for (const d of getStageDependencyIds(s)) {
       if (!idSet.has(d) || d === sid) {
         continue;
       }
@@ -141,7 +141,7 @@ export function collectTransitiveConsumerStageIds(definition: WorkflowDefinition
       if (s.id === n) {
         continue;
       }
-      const deps = collectStageDependencyIds(s);
+      const deps = getStageDependencyIds(s);
       if (deps.includes(n) && !out.has(s.id)) {
         out.add(s.id);
         queue.push(s.id);
@@ -166,7 +166,7 @@ export function findStageIdsUnreachableFromFirstStage(stages: Stage[]): string[]
     adj.set(id, []);
   }
   for (const s of stages) {
-    for (const d of collectStageDependencyIds(s)) {
+    for (const d of getStageDependencyIds(s)) {
       if (!idSet.has(d)) {
         continue;
       }
@@ -261,4 +261,29 @@ export function describeDagRecoveryCursor(instance: WorkflowInstance): {
     readyIndices,
     pausedIndices,
   };
+}
+
+/**
+ * 从 targetStageId 出发，沿「我依赖谁」反向闭包，收集所有传递性上游阶段 id（不含目标自身）。
+ */
+export function collectTransitiveDependencyStageIds(
+  definition: WorkflowDefinition,
+  targetStageId: string,
+): string[] {
+  const out = new Set<string>();
+  const queue = [targetStageId];
+  while (queue.length) {
+    const n = queue.shift()!;
+    const stage = definition.stages.find((s) => s.id === n);
+    if (!stage) {
+      continue;
+    }
+    for (const depId of getStageDependencyIds(stage)) {
+      if (depId !== targetStageId && !out.has(depId)) {
+        out.add(depId);
+        queue.push(depId);
+      }
+    }
+  }
+  return Array.from(out);
 }

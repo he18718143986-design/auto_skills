@@ -13,6 +13,10 @@ import {
 import { DEBUG_EVENT_PARSE_FAILED_RETRY } from './DebugLogEvents';
 import { WORKFLOW_LEVEL_STAGE_ID } from './workflow/WorkflowLevelIds';
 import { GENERATION_OPERATION_WORKFLOW } from './generation/GenerationOperationIds';
+import { assessGeneratedPlanStructure } from './generation/assessGeneratedPlanStructure';
+import { workflowGenLlmInvokeOpts } from './core/LlmInvokeOpts';
+import { getStagentConfiguration } from './settings/getStagentConfiguration';
+import { readLlmMaxOutputTokens } from './settings/readers/llm';
 
 // Token budget management
 const DEFAULT_TOKEN_BUDGET = 40000; // Default token limit per generation
@@ -81,9 +85,28 @@ export async function runLlmParseRetryLoop(
       );
     }
 
-    const raw = await host.invokeLlmRaw(systemPrompt, userPayload, panel, TRACE_STAGE_WORKFLOW_GEN);
+    const genMaxTokens = readLlmMaxOutputTokens(getStagentConfiguration());
+    const raw = await host.invokeLlmRaw(
+      systemPrompt,
+      userPayload,
+      panel,
+      TRACE_STAGE_WORKFLOW_GEN,
+      workflowGenLlmInvokeOpts(genMaxTokens),
+    );
     tokensBurned += estimateTokens(raw);
     parseAttempts++;
+
+    if (!raw.trim()) {
+      lastParseError = new Error('workflow-gen 模型返回空响应');
+      host.debugLog(WORKFLOW_LEVEL_STAGE_ID, DEBUG_EVENT_PARSE_FAILED_RETRY, 0, {
+        attempt,
+        maxAttempts,
+        error: 'empty_llm_response',
+        tokensBurned,
+        maxBudget: maxTokenBudget,
+      });
+      continue;
+    }
 
     host.postGenerationProgress(
       panel,
@@ -98,6 +121,31 @@ export async function runLlmParseRetryLoop(
       wf = await host.parseWorkflowJson(raw, panel, (aux) => {
         tokensBurned += estimateTokens(aux);
       });
+      if (!(wf.stages?.length ?? 0)) {
+        lastParseError = new Error('workflow-gen JSON 解析成功但 stages 为空');
+        host.debugLog(WORKFLOW_LEVEL_STAGE_ID, DEBUG_EVENT_PARSE_FAILED_RETRY, 0, {
+          attempt,
+          maxAttempts,
+          error: 'empty_stages_after_parse',
+          tokensBurned,
+          maxBudget: maxTokenBudget,
+        });
+        continue;
+      }
+      const structural = assessGeneratedPlanStructure(wf, taskType);
+      if (structural) {
+        lastParseError = new Error(`workflow-gen 计划结构不完整：${structural.reason}`);
+        host.debugLog(WORKFLOW_LEVEL_STAGE_ID, DEBUG_EVENT_PARSE_FAILED_RETRY, 0, {
+          attempt,
+          maxAttempts,
+          error: structural.issue,
+          detail: structural.reason.slice(0, LOG_PREVIEW_SHORT),
+          stageCount: wf.stages?.length ?? 0,
+          tokensBurned,
+          maxBudget: maxTokenBudget,
+        });
+        continue;
+      }
       host.debugLog(WORKFLOW_LEVEL_STAGE_ID, 'parse_success', 0, {
         attempt,
         totalTokensBurned: tokensBurned,

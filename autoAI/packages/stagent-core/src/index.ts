@@ -31,6 +31,9 @@ export type {
 export type { PlanSummary, StageSourceEdge } from './WorkflowPlanSummary';
 export type { StageArtifactHint } from './ArtifactUiHints';
 export type { DeleteScope } from './WorkflowDeletePlan';
+export type { QualityReportPayload } from './quality-report/QualityReportTypes';
+export type { TaskTypeClassificationInfo } from './TaskTypeResolution';
+export type { WorkflowTemplate as PathRouterWorkflowTemplate } from './path-router/WorkflowTemplateTypes';
 
 /* ── S0：Skills × Engine 集成（场景化调用原版 SKILL.md）──────────────── */
 /*  见 stagent_docs/SKILLS-ENGINE-INTEGRATION.md。                       */
@@ -80,3 +83,5 @@ export type {
   AssembleSkillWorkflowOptions,
   AssembleSkillWorkflowResult,
 } from './SkillWorkflowAssembler';
+
+export { buildDecisionLintRetryUserComment } from './DecisionRecordVerify';

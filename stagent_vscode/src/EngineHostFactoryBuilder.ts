@@ -79,7 +79,8 @@ export class EngineHostFactoryBuilder {
       normalizeWorkflow: (wf, userInput, taskType) =>
         h.generation.normalizeWorkflow(wf, userInput, taskType),
       isGenerationSuperseded: (myGen) => h.generation.isGenerationSuperseded(myGen),
-      polishCacheKey: (draft, taskType) => h.generation.polishCacheKey(draft, taskType),
+      polishCacheKey: (draft, taskType, polishTier) =>
+        h.generation.polishCacheKey(draft, taskType, polishTier),
       rememberPolishCache: (cacheKey, text, polishedAt) =>
         h.generation.rememberPolishCache(cacheKey, text, polishedAt),
       markStageArtifactsApproved: (stageId) => d.markStageArtifactsApproved(stageId),

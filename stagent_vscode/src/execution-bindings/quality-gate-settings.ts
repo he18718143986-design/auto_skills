@@ -6,10 +6,14 @@ import {
   readPauseContractNodesEnabled,
   readRedGreenGateMode,
   readSdkPathContractLintMode,
+  readPythonExportContractLintMode,
+  readPythonPypiSymbolLintMode,
   readStaticAnalysisEnabled,
   readTestRunFailurePlaybookEnabled,
   readTestRunPreflightEnabled,
   readTestRunAutoNpmInstallEnabled,
+  readCharterAutoAnswerMode,
+  readHitlDecisionMode,
 } from '../StagentSettings';
 
 export const qualityGateSettingsReaders = {
@@ -18,10 +22,14 @@ export const qualityGateSettingsReaders = {
   readTestRunPreflightEnabled,
   readTestRunAutoNpmInstallEnabled,
   readSdkPathContractLintMode,
+  readPythonExportContractLintMode,
+  readPythonPypiSymbolLintMode,
   readStaticAnalysisEnabled,
   readConfidencePauseThreshold,
   readContractNodePauseThreshold,
   readPauseContractNodesEnabled,
   readArchitectureDepthScoringEnabled,
   readTestRunFailurePlaybookEnabled,
+  readCharterAutoAnswerMode,
+  readHitlDecisionMode,
 };

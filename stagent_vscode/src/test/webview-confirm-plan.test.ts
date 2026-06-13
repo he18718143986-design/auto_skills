@@ -10,6 +10,10 @@ test('confirm page includes artifact list and stage cards containers', () => {
   assert.match(html, /id="confirm-stats"/);
   assert.match(html, /id="workflow-steps"/);
   assert.match(html, /id="section-plan-summary"/);
+  assert.match(html, /id="section-decision-board"/);
+  assert.match(html, /id="decision-board-list"/);
+  assert.match(html, /id="section-task-type-classification"/);
+  assert.match(html, /id="task-type-select"/);
 });
 
 test('workflowGenerated renders artifact panel and stage cards', () => {
@@ -67,6 +71,40 @@ test('workflowGenerated renders artifact panel and stage cards', () => {
   assert.ok(detail.textContent?.includes('审核提示：核对模块边界'));
 });
 
+test('workflowGenerated renders task type classification panel (B-R1)', () => {
+  const rt = setupWebviewScriptRuntime(true);
+  const workflow = {
+    id: 'wf_classify',
+    version: '2.0',
+    meta: {
+      title: 't',
+      taskType: 'software',
+      userInput: 'u',
+      createdAt: new Date().toISOString(),
+      isGreenfield: false,
+    },
+    stages: [{ id: 'stage_zoom_out', title: 'zoom', tool: 'file-read', toolConfig: { type: 'file-read', filePath: 'x' }, input: { sources: [], mergeStrategy: 'concat' }, outputs: [], pauseAfter: false }],
+  };
+  rt.send({
+    type: 'workflowGenerated',
+    workflow,
+    taskTypeClassification: {
+      uiTaskType: 'auto',
+      modelTaskType: 'software',
+      effectiveTaskType: 'software',
+      isGreenfield: false,
+      hasZoomOutStage: true,
+      rationaleLines: ['模型根据需求描述与工作区代码库扫描，判别为「software」。'],
+    },
+  });
+  const section = rt.document.getElementById('section-task-type-classification')!;
+  assert.equal(section.hidden, false);
+  const rationale = rt.document.getElementById('task-type-rationale')!;
+  assert.ok(rationale.innerHTML.includes('software'));
+  const effective = rt.document.getElementById('task-type-effective')!;
+  assert.ok(effective.textContent?.includes('software'));
+});
+
 test('confirm page includes block banner and back button', () => {
   const html = buildWorkflowWebviewHtml({ cspSource: 'vscode-test' } as never);
   assert.match(html, /id="confirm-block"/);
@@ -109,4 +147,66 @@ test('blocked workflowGenerated renders read-only confirm: disables start, shows
   rt.send({ type: 'workflowGenerated', workflow, warnings: [] });
   assert.equal(rt.document.getElementById('btn-start')!.disabled, false);
   assert.equal(rt.document.getElementById('confirm-block')!.style.display, 'none');
+});
+
+test('workflowGenerated renders decision board with provenance badges', () => {
+  const rt = setupWebviewScriptRuntime(true);
+  const workflow = {
+    id: 'wf_decisions',
+    version: '2.0',
+    meta: { title: 't', taskType: 'prototype', userInput: 'u', createdAt: new Date().toISOString() },
+    stages: [
+      {
+        id: 'stage_decide_x',
+        title: '架构决策',
+        tool: 'llm-text',
+        isDecisionStage: true,
+        toolConfig: { type: 'llm-text', systemPrompt: 'x' },
+        input: { sources: [], mergeStrategy: 'concat' },
+        outputs: [{ key: 'decisionRecord', format: 'markdown' }],
+      },
+    ],
+  };
+  rt.send({
+    type: 'workflowGenerated',
+    workflow,
+    warnings: [],
+    decisionMode: 'frontloaded',
+    decisionBoard: {
+      items: [
+        {
+          stageId: 'stage_decide_x',
+          stageTitle: '架构决策',
+          kind: 'auto',
+          provenance: 'charter_direct',
+          matchScore: 0.9,
+          conflictScore: 0,
+          ruleRefs: [2],
+          proposal: '倾向：headless',
+          requiresUser: false,
+        },
+        {
+          stageId: 'stage_decide_y',
+          stageTitle: 'CDN 选择',
+          kind: 'uncovered',
+          provenance: 'escalated',
+          matchScore: 0.1,
+          conflictScore: 0,
+          ruleRefs: [],
+          proposal: '',
+          requiresUser: true,
+        },
+      ],
+      summary: { total: 2, auto: 1, needsReview: 1 },
+    },
+  });
+
+  const section = rt.document.getElementById('section-decision-board')!;
+  assert.equal(section.hidden, false);
+  const list = rt.document.getElementById('decision-board-list')!;
+  assert.ok(list.innerHTML.includes('decision-kind-auto'));
+  assert.ok(list.innerHTML.includes('charter_direct'));
+  assert.equal(rt.document.getElementById('btn-start')!.disabled, true);
+  const startBtn = rt.document.getElementById('btn-start') as { textContent?: string | null };
+  assert.ok(startBtn.textContent?.includes('批准'));
 });

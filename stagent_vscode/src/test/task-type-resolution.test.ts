@@ -2,9 +2,11 @@ import { test } from 'node:test';
 import * as assert from 'node:assert/strict';
 import {
   AUTO_TASK_TYPE,
+  buildTaskTypeClassificationInfo,
   buildTaskTypeOverrideWarning,
   isAutoTaskType,
   resolveGeneratedTaskType,
+  workflowHasZoomOutStage,
 } from '../TaskTypeResolution';
 import { validateAndPrepareGeneratedWorkflow } from '../WorkflowEngineHelpers';
 import type { WorkflowDefinition } from '../WorkflowDefinition';
@@ -25,6 +27,42 @@ test('resolveGeneratedTaskType prefers UI override over model meta', () => {
 test('resolveGeneratedTaskType falls back to other when meta invalid in auto mode', () => {
   assert.equal(resolveGeneratedTaskType('invalid-type', 'auto'), 'other');
   assert.equal(resolveGeneratedTaskType(undefined, 'auto'), 'other');
+});
+
+test('buildTaskTypeClassificationInfo explains auto model classification', () => {
+  const info = buildTaskTypeClassificationInfo({
+    uiTaskType: 'auto',
+    modelTaskType: 'software',
+    effectiveType: 'software',
+    isGreenfield: true,
+    hasZoomOutStage: false,
+    workflowTemplate: 'express',
+    pathRouterRationaleLines: ['Path Router 建议路径：快速通道（Express）（express）。'],
+  });
+  assert.equal(info.effectiveTaskType, 'software');
+  assert.equal(info.effectiveTaskTypePlain, '完整软件交付');
+  assert.equal(info.workflowTemplate, 'express');
+  assert.equal(info.workflowTemplatePlain, '快速通道（Express）');
+  assert.ok(info.rationaleLines.some((l) => l.includes('完整软件交付')));
+  assert.ok(info.rationaleLines.some((l) => l.includes('全新项目')));
+  assert.ok(info.rationaleLines.some((l) => l.includes('Express')));
+});
+
+test('buildTaskTypeClassificationInfo notes UI override and zoom-out', () => {
+  const info = buildTaskTypeClassificationInfo({
+    uiTaskType: 'prototype',
+    modelTaskType: 'software',
+    effectiveType: 'prototype',
+    isGreenfield: false,
+    hasZoomOutStage: true,
+  });
+  assert.ok(info.rationaleLines.some((l) => l.includes('快速验证原型')));
+  assert.ok(info.rationaleLines.some((l) => l.includes('工作区全景扫描')));
+});
+
+test('workflowHasZoomOutStage detects brownfield gate stage', () => {
+  assert.equal(workflowHasZoomOutStage([{ id: 'stage_a' }, { id: 'stage_zoom_out' }]), true);
+  assert.equal(workflowHasZoomOutStage([{ id: 'stage_a' }]), false);
 });
 
 test('buildTaskTypeOverrideWarning when UI overrides model suggestion', () => {

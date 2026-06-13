@@ -5,6 +5,18 @@ import { HOST_INPUT_PAGE_BUSY_TITLES as INPUT_PAGE_BUSY_TITLES } from './Webview
 import { buildProfileGateDiff } from './StagentProfileDiff';
 import { readSettingsProfileId } from './StagentSettings';
 import { getStagentConfiguration } from './settings/getStagentConfiguration';
+import { readHitlDecisionMode } from './StagentSettings';
+import { expressTemplateStageWarnings } from './path-router/PathRouter';
+import { isWorkflowTemplate } from './path-router/WorkflowTemplateTypes';
+import { formatWorkflowGeneratedWarningsForDisplay } from './Rule20WarningDisplay';
+import {
+  buildTaskTypeClassificationInfo,
+  resolveGeneratedTaskType,
+  workflowHasZoomOutStage,
+  type KnownTaskType,
+} from './TaskTypeResolution';
+import { collectFrontloadDecisionBoard } from './decision-frontload/collectDecisionBoard';
+import type { HITLDecisionMode } from './AdaptiveHITLPolicy';
 import { withSessionFields } from './InstanceSession';
 import type { GenerationContext } from './WorkflowGenerationContext';
 import {
@@ -72,13 +84,46 @@ export async function finalizeAndEmitWorkflow(
     return;
   }
 
+  const decisionBoard = collectFrontloadDecisionBoard(validation.workflow, taskWorkspaceAbs);
+  const decisionMode = readHitlDecisionMode(getStagentConfiguration()) as HITLDecisionMode;
+  const effectiveKnown = resolveGeneratedTaskType(modelTaskType, taskType) as KnownTaskType;
+  const metaTemplate = validation.workflow.meta?.workflowTemplate;
+  const workflowTemplate = isWorkflowTemplate(metaTemplate) ? metaTemplate : ctx.pathRouter.workflowTemplate;
+  const expressWarnings = expressTemplateStageWarnings(workflowTemplate, validation.workflow.stages?.length ?? 0);
+  const taskTypeClassification = buildTaskTypeClassificationInfo({
+    uiTaskType: taskType,
+    modelTaskType,
+    effectiveType: effectiveKnown,
+    isGreenfield: validation.workflow.meta?.isGreenfield,
+    hasZoomOutStage: workflowHasZoomOutStage(validation.workflow.stages),
+    workflowTemplate,
+    suggestedWorkflowTemplate: ctx.pathRouter.workflowTemplate,
+    pathRouterRationaleLines: ctx.pathRouter.rationaleLines,
+  });
+
+  const mergedWarnings =
+    expressWarnings.length > 0 ? [...validation.warnings, ...expressWarnings] : validation.warnings;
+  const validationWithExpressWarnings =
+    expressWarnings.length > 0
+      ? {
+          ...validation,
+          warnings: mergedWarnings,
+          warningsDisplay: formatWorkflowGeneratedWarningsForDisplay(mergedWarnings),
+        }
+      : validation;
+
   emitSuccessfulWorkflowGenerated(
     host,
     panel,
     validation.workflow,
-    validation,
+    validationWithExpressWarnings,
     experienceReferencesUsed,
     profileFieldsForWorkflowGenerated(),
     withSessionFields,
+    {
+      ...(decisionBoard ? { decisionBoard } : {}),
+      decisionMode,
+      taskTypeClassification,
+    },
   );
 }

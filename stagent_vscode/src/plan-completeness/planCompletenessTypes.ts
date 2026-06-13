@@ -1,5 +1,6 @@
 export type PlanCompletenessViolationType =
   | 'missing-verification-stage'
+  | 'missing-test-run-pair'
   | 'missing-main-assembly'
   | 'missing-test-infrastructure'
   | 'test-infra-path-mismatch'
@@ -9,7 +10,14 @@ export type PlanCompletenessViolationType =
   | 'upstream-fix-no-impl'
   | 'upstream-fix-stack-routing'
   | 'test-write-import-not-in-plan'
-  | 'test-write-import-undeclared';
+  | 'test-write-import-undeclared'
+  | 'missing-python-venv-chain'
+  | 'missing-python-test-layout'
+  | 'missing-python-verify-imports'
+  | 'python-test-import-symbol-missing'
+  | 'template-stage-cap-exceeded'
+  | 'artifact-graph-unresolved-key'
+  | 'thin-llm-system-prompt';
 
 export interface PlanCompletenessIssue {
   type: PlanCompletenessViolationType;

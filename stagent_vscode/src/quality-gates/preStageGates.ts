@@ -1,11 +1,15 @@
 /**
  * pre-stage 阶段内置 QualityGate（从 BuiltinQualityGates.ts 抽出，1.3）。
  */
+import * as path from 'path';
 import type { QualityGate } from '../QualityGate';
 import { isDebugTaskType } from '../workflow/TaskType';
 import { isLlmTextTool } from '../workflow/StageToolKinds';
 import { evaluateDebugFeedbackLoopGate } from '../DebugFeedbackLoopGate';
 import { applyRedGreenFsmResult, evaluateImplRedConfirmResult, planImplRedFsm } from '../RedGreenFsm';
+import { detectCrossSliceBleeding } from '../RedGreenCrossSlice';
+import { interpretRedFromExitCode } from '../RedGreenGate';
+import { gateMsg } from '../l10n/gateMsg';
 import { lintTestRunPreflightOnDisk } from '../TestRunPreflight';
 import {
   buildAutoNpmInstallConfig,
@@ -13,14 +17,26 @@ import {
   shouldAutoNpmInstallBeforeTestRun,
 } from '../TestRunAutoDepsInstall';
 import {
+  buildVenvCreateRunnerConfig,
+  buildVenvPipRunnerConfig,
+  requirementsTxtOnDisk,
+  venvPythonExists,
+} from '../python-bootstrap/autoVenvBootstrap';
+import {
   GATE_ID_DEBUG_FEEDBACK_LOOP,
+  GATE_ID_PYTHON_VENV_BOOTSTRAP,
   GATE_ID_RED_GREEN_PRE_IMPL,
+  GATE_ID_PYTHON_EXPORT_CONTRACT,
+  GATE_ID_PYTHON_PYPI_SYMBOL,
+  GATE_ID_REQUIREMENTS_TXT_PREFLIGHT,
   GATE_ID_SDK_PATH_CONTRACT_HARD,
   GATE_ID_TEST_RUN_CONTRACT_LINT,
   GATE_ID_TEST_RUN_DEPS_INSTALL,
   GATE_ID_TEST_RUN_PREFLIGHT,
 } from '../QualityGateIds';
+import { preflightRequirementsTxtForPipInstall, stageInstallsRequirementsTxt } from '../RequirementsTxtPreflight';
 import { block, isImplStage, isTestRunStage, warn } from './gateHelpers';
+import { IMPL_WRITE_SCOPE_GATE } from './implWriteScopeGate';
 
 export const BUILTIN_PRE_STAGE_GATES: QualityGate[] = [
   {
@@ -73,15 +89,36 @@ export const BUILTIN_PRE_STAGE_GATES: QualityGate[] = [
         return null;
       }
       const instanceKey = ctx.instanceKey ?? instance.definition.id;
+      const bleeding = detectCrossSliceBleeding({
+        workflow: instance.definition,
+        stageRuntimes: instance.stageRuntimes,
+        implStage: stage,
+      });
       let evaluation;
+      let crossSlicePass = false;
       try {
         const res = await host.runCodeRunner(pairedCfg, instanceKey, plan.pairedStage.id);
-        evaluation = evaluateImplRedConfirmResult({ mode, exitCode: res.exitCode, threw: false });
+        if (!interpretRedFromExitCode(res.exitCode) && bleeding.bleeding) {
+          crossSlicePass = true;
+          evaluation = {
+            outcome: 'pass' as const,
+            reason: gateMsg('redGreen.crossSliceAlreadyGreen', bleeding.priorImplStageId ?? ''),
+          };
+        } else {
+          evaluation = evaluateImplRedConfirmResult({ mode, exitCode: res.exitCode, threw: false });
+        }
       } catch {
         evaluation = evaluateImplRedConfirmResult({ mode, exitCode: 1, threw: true });
       }
       applyRedGreenFsmResult(runtime, stage.id, evaluation);
       if (evaluation.outcome === 'pass') {
+        if (crossSlicePass) {
+          return {
+            gateId: GATE_ID_RED_GREEN_PRE_IMPL,
+            severity: 'warn',
+            messages: [evaluation.reason],
+          };
+        }
         return null;
       }
       return {
@@ -89,6 +126,69 @@ export const BUILTIN_PRE_STAGE_GATES: QualityGate[] = [
         severity: evaluation.outcome === 'block' ? 'block' : 'warn',
         messages: [evaluation.reason],
       };
+    },
+  },
+  IMPL_WRITE_SCOPE_GATE,
+  {
+    id: GATE_ID_PYTHON_VENV_BOOTSTRAP,
+    label: 'Python venv 自动创建（import_check / .venv 命令前）',
+    phase: 'pre-stage',
+    priority: 15,
+    when: 'always',
+    enabled: (ctx) => {
+      const stage = ctx.stage;
+      if (!stage || stage.tool !== 'code-runner') {
+        return false;
+      }
+      const cmd = (stage.toolConfig as { command?: string }).command ?? '';
+      return stage.id === 'stage_venv_import_check' || /\.venv\/bin\/python/.test(cmd);
+    },
+    async evaluate(ctx) {
+      const host = ctx.executionHost;
+      const stage = ctx.stage!;
+      const instanceKey = ctx.instanceKey;
+      if (!host || !instanceKey) {
+        return null;
+      }
+      const wr = host.getWorkspaceRootAbsolute();
+      if (!wr) {
+        return null;
+      }
+      const cfg = stage.toolConfig;
+      if (cfg.type !== 'code-runner') {
+        return null;
+      }
+      const cwd = host.resolveCodeRunnerCwd(cfg, instanceKey);
+      const relCwd = path.relative(wr, cwd) || '.';
+      if (venvPythonExists(cwd)) {
+        return null;
+      }
+      const createCfg = buildVenvCreateRunnerConfig(relCwd);
+      let createRes;
+      try {
+        createRes = await host.runCodeRunner(createCfg, instanceKey, `${stage.id}:auto-venv-create`);
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : String(e);
+        return block(GATE_ID_PYTHON_VENV_BOOTSTRAP, [`自动创建 .venv 失败：${msg}`]);
+      }
+      if (createRes.exitCode !== 0) {
+        return block(GATE_ID_PYTHON_VENV_BOOTSTRAP, [
+          `自动创建 .venv 失败（exitCode=${createRes.exitCode}）`,
+        ]);
+      }
+      const useReq = requirementsTxtOnDisk(wr, relCwd);
+      const pipCfg = buildVenvPipRunnerConfig(relCwd, useReq);
+      let pipRes;
+      try {
+        pipRes = await host.runCodeRunner(pipCfg, instanceKey, `${stage.id}:auto-venv-pip`);
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : String(e);
+        return block(GATE_ID_PYTHON_VENV_BOOTSTRAP, [`venv pip install 失败：${msg}`]);
+      }
+      if (pipRes.exitCode !== 0) {
+        return block(GATE_ID_PYTHON_VENV_BOOTSTRAP, [`venv pip install 失败（exitCode=${pipRes.exitCode}）`]);
+      }
+      return null;
     },
   },
   {
@@ -214,6 +314,58 @@ export const BUILTIN_PRE_STAGE_GATES: QualityGate[] = [
     },
   },
   {
+    id: GATE_ID_PYTHON_EXPORT_CONTRACT,
+    label: 'Python test/impl 导出契约（hard）',
+    phase: 'pre-stage',
+    priority: 45,
+    when: 'before-test-run',
+    dependsOn: [GATE_ID_TEST_RUN_PREFLIGHT],
+    enabled: (ctx) =>
+      isTestRunStage(ctx.stage) &&
+      (ctx.executionHost?.readPythonExportContractLintMode() ?? 'warn') === 'hard',
+    async evaluate(ctx) {
+      const host = ctx.executionHost;
+      if (!host) {
+        return null;
+      }
+      const issue = await host.runPythonExportContractHardGate();
+      if (!issue) {
+        return null;
+      }
+      return block(
+        GATE_ID_PYTHON_EXPORT_CONTRACT,
+        [`python-export-contract（${issue.code}）：${issue.message}`],
+        { issue },
+      );
+    },
+  },
+  {
+    id: GATE_ID_PYTHON_PYPI_SYMBOL,
+    label: 'Python 第三方 API 幻觉符号（hard）',
+    phase: 'pre-stage',
+    priority: 46,
+    when: 'before-test-run',
+    dependsOn: [GATE_ID_TEST_RUN_PREFLIGHT],
+    enabled: (ctx) =>
+      isTestRunStage(ctx.stage) &&
+      (ctx.executionHost?.readPythonPypiSymbolLintMode() ?? 'warn') === 'hard',
+    async evaluate(ctx) {
+      const host = ctx.executionHost;
+      if (!host) {
+        return null;
+      }
+      const issue = await host.runPythonPypiSymbolHardGate();
+      if (!issue) {
+        return null;
+      }
+      return block(
+        GATE_ID_PYTHON_PYPI_SYMBOL,
+        [`python-pypi-symbol（${issue.code}）：${issue.message}`],
+        { issue },
+      );
+    },
+  },
+  {
     id: GATE_ID_TEST_RUN_CONTRACT_LINT,
     label: 'test_run 前跨文件契约 lint（warning）',
     phase: 'pre-stage',
@@ -227,6 +379,32 @@ export const BUILTIN_PRE_STAGE_GATES: QualityGate[] = [
       }
       const messages = await host.runWorkspaceContractLint();
       return messages.length ? warn(GATE_ID_TEST_RUN_CONTRACT_LINT, messages) : null;
+    },
+  },
+  {
+    id: GATE_ID_REQUIREMENTS_TXT_PREFLIGHT,
+    label: 'requirements.txt PyPI 版本 preflight',
+    phase: 'pre-stage',
+    priority: 15,
+    when: 'always',
+    enabled: (ctx) => !!ctx.stage && stageInstallsRequirementsTxt(ctx.stage),
+    async evaluate(ctx) {
+      const host = ctx.executionHost;
+      const stage = ctx.stage!;
+      const instanceKey = ctx.instanceKey;
+      if (!host || !instanceKey) {
+        return null;
+      }
+      const cfg = stage.toolConfig;
+      if (cfg.type !== 'code-runner') {
+        return null;
+      }
+      const cwd = host.resolveCodeRunnerCwd(cfg, instanceKey);
+      const result = preflightRequirementsTxtForPipInstall(cwd);
+      if (!result.blocked) {
+        return null;
+      }
+      return block(GATE_ID_REQUIREMENTS_TXT_PREFLIGHT, result.messages);
     },
   },
 ];

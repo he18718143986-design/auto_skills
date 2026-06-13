@@ -1,4 +1,15 @@
-import type { Stage, StageRuntime, WorkflowDefinition, WorkflowInstance } from './WorkflowDefinition';
+import type {
+  Stage,
+  StageRuntime,
+  StageStatus,
+  WorkflowDefinition,
+  WorkflowInstance,
+  WorkflowStatus,
+} from './WorkflowDefinition';
+import {
+  appendDecisionProvenanceToRecord,
+  formatDecisionProvenanceSection,
+} from './charter/formatDecisionProvenanceSection';
 import { collectTransitiveConsumerStageIds } from './WorkflowDag';
 import { resetOutputsForNonDecisionRetry } from './RetryOutputPolicy';
 
@@ -14,7 +25,16 @@ export function markDecisionApproved(
   primaryOutputValue: string,
   nowIso: string,
 ): string {
-  const record = decisionRecord.trim() || primaryOutputValue;
+  const base = decisionRecord.trim() || primaryOutputValue;
+  const provenance = runtime.decisionProvenance ?? 'human';
+  const record = appendDecisionProvenanceToRecord(
+    base,
+    formatDecisionProvenanceSection({
+      stageId: stage.id,
+      provenance,
+      perQuestion: runtime.charterQuestionProvenance,
+    }),
+  );
   runtime.outputs.decisionRecord = record;
   runtime.approvedDecisionRecord = record;
   runtime.status = 'done';
@@ -99,5 +119,61 @@ export function collectDecisionRetryResets(
 export function applyRetryForDecisionCurrent(runtime: StageRuntime): void {
   runtime.approvedDecisionRecord = undefined;
   runtime.outputs.decisionRecord = undefined;
+  runtime.outputs.decisionArtifacts = undefined;
+  runtime.outputs.commitmentSnapshot = undefined;
+  runtime.outputs._decisionArtifactsWarnings = undefined;
   runtime.status = 'retrying';
+}
+
+const LEGAL_STAGE_TRANSITIONS = new Map<StageStatus, ReadonlySet<StageStatus>>([
+  ['pending', new Set<StageStatus>(['running', 'waiting-questions', 'skipped', 'done'])],
+  ['running', new Set<StageStatus>(['paused', 'done', 'waiting-questions', 'error', 'pending'])],
+  ['waiting-questions', new Set<StageStatus>(['pending', 'running'])],
+  ['paused', new Set<StageStatus>(['done', 'retrying', 'pending', 'running'])],
+  ['retrying', new Set<StageStatus>(['running', 'pending', 'error', 'paused'])],
+  ['done', new Set<StageStatus>(['pending', 'retrying', 'paused', 'running'])],
+  ['error', new Set<StageStatus>(['pending', 'running', 'retrying'])],
+  ['skipped', new Set<StageStatus>(['pending'])],
+]);
+
+const LEGAL_INSTANCE_TRANSITIONS = new Map<WorkflowStatus, ReadonlySet<WorkflowStatus>>([
+  ['idle', new Set<WorkflowStatus>(['running'])],
+  ['running', new Set<WorkflowStatus>(['paused', 'completed', 'failed', 'idle'])],
+  ['paused', new Set<WorkflowStatus>(['running', 'failed', 'idle'])],
+  ['completed', new Set<WorkflowStatus>(['running', 'failed', 'idle'])],
+  ['failed', new Set<WorkflowStatus>(['running', 'idle'])],
+]);
+
+function isLegalStageTransition(from: StageStatus, to: StageStatus): boolean {
+  if (from === to) {
+    return true;
+  }
+  return LEGAL_STAGE_TRANSITIONS.get(from)?.has(to) ?? false;
+}
+
+function isLegalInstanceTransition(from: WorkflowStatus, to: WorkflowStatus): boolean {
+  if (from === to) {
+    return true;
+  }
+  return LEGAL_INSTANCE_TRANSITIONS.get(from)?.has(to) ?? false;
+}
+
+export function guardedStageTransition(runtime: StageRuntime, to: StageStatus, _reason: string): void {
+  runtime.status = to;
+  if (to === 'done' || to === 'skipped') {
+    delete runtime.lastError;
+    delete runtime.lastFailureSnapshot;
+  }
+}
+
+export function guardedInstanceTransition(instance: WorkflowInstance, to: WorkflowStatus, _reason: string): void {
+  instance.status = to;
+}
+
+export function isAllowedStageTransition(from: StageStatus, to: StageStatus): boolean {
+  return isLegalStageTransition(from, to);
+}
+
+export function isAllowedInstanceTransition(from: WorkflowStatus, to: WorkflowStatus): boolean {
+  return isLegalInstanceTransition(from, to);
 }

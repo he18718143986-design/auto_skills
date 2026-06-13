@@ -1,3 +1,6 @@
+import type { QualityScore } from './OutputQualityScorer';
+import { CONFIDENCE_LEVEL_MEDIUM_MIN } from './ConfidenceBands';
+
 /**
  * M25：深模块评分（借鉴 skills `improve-codebase-architecture` / Ousterhout「深模块」）。
  *
@@ -91,4 +94,35 @@ export function formatModuleDepthWarning(filePath: string, result: ModuleDepthRe
     return undefined;
   }
   return `architecture:shallow-module:${filePath} 接口面相对实现过大（深度比 ${result.ratio.toFixed(1)}），疑似薄包装，建议合并或下沉复杂度`;
+}
+
+/** M34：`stagent.architecture.depthScoring` 开启时，对 impl 产出降 quality.overall。 */
+export function applyModuleDepthPenaltyToQualityScore(
+  quality: QualityScore,
+  pythonSource: string,
+): QualityScore {
+  const result = analyzePythonModuleDepth(pythonSource);
+  const penalty = moduleDepthPenalty(result);
+  if (penalty <= 0) {
+    return quality;
+  }
+  const overall = Math.max(0, Math.round((quality.overall - penalty) * 1000) / 1000);
+  let recommendation = quality.recommendation;
+  if (overall < CONFIDENCE_LEVEL_MEDIUM_MIN && recommendation === 'approve') {
+    recommendation = 'review';
+  } else if (overall < 0.5 && recommendation !== 'retry') {
+    recommendation = 'review';
+  }
+  const shallowMsg = formatModuleDepthWarning('impl-output', result);
+  return {
+    ...quality,
+    overall,
+    recommendation,
+    issues: shallowMsg
+      ? [
+          ...quality.issues,
+          { severity: 'warning' as const, code: 'architecture:shallow-module', message: shallowMsg },
+        ]
+      : quality.issues,
+  };
 }

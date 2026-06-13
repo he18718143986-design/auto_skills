@@ -1,33 +1,39 @@
 /**
  * M41：工作流生成流水线 — generateWorkflow 主体（LLM 获取/解析 + 校验结果分发）。
  */
-import type * as vscode from 'vscode';
+import type { WebviewPanel, ExtensionContext, WorkspaceConfiguration } from './platform/HostTypes';
 import type { WorkflowDefinition } from './WorkflowDefinition';
 import { isRenderableWorkflowForConfirm } from './WorkflowEngineHelpers';
-import { buildStageSourceSummary } from './WorkflowPlanSummary';
+import { buildPlanSummary, buildStageSourceSummary } from './WorkflowPlanSummary';
 import {
   structuralRepairWarningLines,
   type StructuralRepairAction,
 } from './WorkflowStructuralRepair';
 import { buildProfileGateDiff } from './StagentProfileDiff';
-import { readSettingsProfileId } from './StagentSettings';
+import { readSettingsProfileId } from './settings/SettingsReaders';
 import { getStagentConfiguration } from './settings/getStagentConfiguration';
 import { withSessionFields } from './InstanceSession';
 import type { GenerationGateSettings } from './WorkflowGenerationOrchestrator';
 import type { GenerationOperationId } from './generation/GenerationOperationIds';
 import { buildGenerationContext } from './WorkflowGenerationContext';
-import { invokeWorkflowGenerationLlmWithMeta } from './WorkflowGenerationLlmLoop';
+import { runLlmParseRetryLoop } from './LlmParseRetryLoop';
+import { applyGenerationMetadata, buildLlmLoopResult } from './ApplyGenerationMetadata';
 import { finalizeAndEmitWorkflow } from './WorkflowGenerationFinalize';
-import { ERROR_TYPE_LLM_INVALID_OUTPUT } from './WorkflowStageErrorHelpers';
+import { routeBlockedValidationOutcome } from './ValidationResultRouter';
+import { formatRule20ViolationsBlockReason, shouldBlockGenerateOnRule20Violations } from './GeneratedWorkflowGate';
+import { verifyRule20 } from './Rule20Verify';
+import { ERROR_TYPE_LLM_INVALID_OUTPUT } from './errors/stageErrorBuilders';
+import { WORKFLOW_LEVEL_STAGE_ID } from './workflow/WorkflowLevelIds';
+import type { LlmInvokeOpts } from './core/LlmInvokeOpts';
 
 export const POLISH_META_DRAFT_MAX = 12_000;
 export const MAX_WORKFLOW_GEN_ATTEMPTS = 2;
 
 export interface GenerationRunnerHost {
-  bindPanel(panel: vscode.WebviewPanel): void;
-  postMessage(panel: vscode.WebviewPanel, msg: import('./WorkflowDefinition').BackendMessage): void;
+  bindPanel(panel: WebviewPanel): void;
+  postMessage(panel: WebviewPanel, msg: import('./WorkflowDefinition').BackendMessage): void;
   postGenerationProgress(
-    panel: vscode.WebviewPanel,
+    panel: WebviewPanel,
     operation: GenerationOperationId,
     phase: 'preparing' | 'llm' | 'parsing' | 'validating',
     message: string,
@@ -49,12 +55,13 @@ export interface GenerationRunnerHost {
   invokeLlmRaw(
     systemPrompt: string,
     userContent: string,
-    panel: vscode.WebviewPanel,
+    panel: WebviewPanel,
     traceStageId: string,
+    opts?: LlmInvokeOpts,
   ): Promise<string>;
   parseWorkflowJson(
     raw: string,
-    panel: vscode.WebviewPanel,
+    panel: WebviewPanel,
     onAuxLlmOutput?: (text: string) => void,
   ): Promise<WorkflowDefinition>;
   normalizeWorkflow(wf: WorkflowDefinition, userInput: string, taskType: string): WorkflowDefinition;
@@ -78,7 +85,7 @@ function profileFieldsForWorkflowGenerated(): {
 
 export function postBlockedConfirmIfRenderable(
   host: GenerationRunnerHost,
-  panel: vscode.WebviewPanel,
+  panel: WebviewPanel,
   wf: WorkflowDefinition,
   blockReasons: string[],
   structuralRepairs?: StructuralRepairAction[],
@@ -95,7 +102,7 @@ export function postBlockedConfirmIfRenderable(
     blockReasons,
     warnings: repairs.length > 0 ? structuralRepairWarningLines(repairs) : [],
     warningsDisplay: [],
-    planSummary: undefined,
+    planSummary: buildPlanSummary(wf),
     stageSourceSummary: buildStageSourceSummary(wf),
     ...profileFieldsForWorkflowGenerated(),
     ...(repairs.length > 0 ? { structuralRepairs: repairs } : {}),
@@ -108,7 +115,7 @@ export interface RunWorkflowGenerationParams {
   myGen: number;
   userInput: string;
   taskType: string;
-  panel: vscode.WebviewPanel;
+  panel: WebviewPanel;
   taskWorkspacePathRaw: string;
   polishContext?: { originalDraft: string; polishedAt: string };
   clarifyAnswers?: Record<string, string>;
@@ -134,11 +141,20 @@ export async function runWorkflowGeneration(
   }
 
   try {
-    const { workflow, effectiveType, modelTaskType } = await invokeWorkflowGenerationLlmWithMeta(
-      host,
-      ctx,
-      params,
-    );
+    const parsed = await runLlmParseRetryLoop(host, ctx, params);
+    if (host.isRuntimeRule20VerifyEnabled()) {
+      const verifyResult = verifyRule20(parsed);
+      if (shouldBlockGenerateOnRule20Violations(verifyResult, true)) {
+        routeBlockedValidationOutcome(host, panel, {
+          kind: 'rule20-blocked',
+          workflow: parsed,
+          blockReasons: [formatRule20ViolationsBlockReason(verifyResult.violations)],
+        });
+        return;
+      }
+    }
+    const workflow = applyGenerationMetadata(host, ctx, params, parsed);
+    const { effectiveType, modelTaskType } = buildLlmLoopResult(workflow, params);
     await finalizeAndEmitWorkflow(host, ctx, params, workflow, effectiveType, modelTaskType);
   } catch (e) {
     if (host.isGenerationSuperseded(myGen)) {
@@ -149,6 +165,10 @@ export async function runWorkflowGeneration(
       return;
     }
     const msg = e instanceof Error ? e.message : String(e);
+    host.debugLog(WORKFLOW_LEVEL_STAGE_ID, 'gen_failed', 0, {
+      reason: msg.slice(0, 500),
+      errorType: ERROR_TYPE_LLM_INVALID_OUTPUT,
+    });
     host.postMessage(panel, {
       type: 'workflowFailed',
       reason: msg,

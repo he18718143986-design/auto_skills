@@ -65,9 +65,16 @@ export type ExecutionQualityHost = {
     instanceKey: string,
     stageId: string,
     panel?: vscode.WebviewPanel,
+    opts?: { deterministic?: boolean },
   ): Promise<{ exitCode: number; stdout: string; stderr: string }>;
   runWorkspaceContractLint(): Promise<string[]>;
   runSdkPathContractHardGate(): Promise<SdkPathContractIssue | null>;
+  runPythonExportContractHardGate(): Promise<
+    import('../python-contract/PythonExportContractLint').PythonExportContractIssue | null
+  >;
+  runPythonPypiSymbolHardGate(): Promise<
+    import('../python-contract/PythonPypiSymbolLint').PythonPypiSymbolIssue | null
+  >;
 };
 
 /** 执行绑定层所需的引擎窄接口（由 WorkflowEngine / StageExecutionHost 在运行时满足）。 */

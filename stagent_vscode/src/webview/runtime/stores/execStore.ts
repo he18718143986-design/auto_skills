@@ -26,6 +26,10 @@ export const execStore: ExecState = {
   llmUsageTotalTokens: 0,
   timelineFold: emptyTimelineFold(),
   stageMaps: emptyStageMaps(),
+  engineActivityFeed: [],
+  stageExecSemantic: {},
+  selfHealActive: false,
+  qualityReport: null,
 };
 
 /** @deprecated 使用 execStore.stageMaps */
@@ -54,4 +58,8 @@ export function resetExecStore(): void {
   execStore.dagWaveIndex = null;
   execStore.llmUsageTotalTokens = 0;
   execStore.timelineFold = emptyTimelineFold();
+  execStore.engineActivityFeed = [];
+  execStore.stageExecSemantic = {};
+  execStore.selfHealActive = false;
+  execStore.qualityReport = null;
 }

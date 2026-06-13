@@ -12,6 +12,7 @@ import { handleGenerationStreamChunk } from './generation';
 import type { BackendMessageHandler } from './types';
 import { patchStageStatus, tryAdvanceBackendSeq } from '../stageStatusStore';
 import type { ExecStageStatus } from '../../shared/stageStatusPolicy';
+import { setStageExecSemantic } from '../view-exec-cockpit';
 import { scheduleUiRefresh, type UiRefreshContext, type UiRefreshTarget } from '../uiRefreshScheduler';
 
 const maps = execStore.stageMaps;
@@ -23,6 +24,12 @@ function handleStageStatusUpdate(msg: Extract<BackendMessage, { type: 'stageStat
     msg.seq,
   );
   maps.retryDisabledByStage[msg.stageId] = effectiveStatus === 'paused' ? !!msg.retryDisabled : false;
+  if ('execSemantic' in msg) {
+    setStageExecSemantic(msg.stageId, msg.execSemantic ?? null);
+  }
+  if (effectiveStatus === 'done' && execStore.stageExecSemantic[msg.stageId] === 'self-healing') {
+    setStageExecSemantic(msg.stageId, null);
+  }
   if (
     effectiveStatus === 'running' ||
     effectiveStatus === 'retrying' ||
@@ -45,7 +52,7 @@ function handleStageStatusUpdate(msg: Extract<BackendMessage, { type: 'stageStat
     execStore.currentBeforeQuestionStageId = null;
     delete maps.beforeQuestionsByStage[msg.stageId];
   }
-  const targets: UiRefreshTarget[] = ['pauseBar', 'outputVisibility', 'timeline'];
+  const targets: UiRefreshTarget[] = ['pauseBar', 'outputVisibility', 'timeline', 'cockpit'];
   const refreshContext: UiRefreshContext = {};
   if (effectiveStatus === 'running' && shouldLiveUpdateExecOutput(msg.stageId)) {
     targets.push('outputPanel');

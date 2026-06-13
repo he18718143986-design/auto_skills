@@ -50,6 +50,7 @@ describe('WorkflowHitlCoordinator integration', () => {
       ensureInstanceBound: () => true,
       rejectApproveDecision: () => {},
       isDecisionContentLintVscodeDefault: () => true,
+      isContractCommitmentsEnabled: () => false,
       getMaxManualStageRetries: () => 3,
       getWorkspaceRootAbsolute: () => undefined,
       debugLog: () => {},

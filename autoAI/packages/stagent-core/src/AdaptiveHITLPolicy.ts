@@ -1,10 +1,16 @@
+import { mustPauseForCharterProvenance } from './charter/CharterAnswerRouter';
+import type { CharterAutoAnswerMode } from './charter/CharterTypes';
 import type { Stage, StageRuntime } from './WorkflowDefinition';
 import type { ConfidenceResult } from './ConfidenceScorer';
+import { hitlMsg } from './l10n/hitlMsg';
+import { HITL_CONFIDENCE_REASONS_MAX } from './UiListLimits';
 import { DEFAULT_CONFIDENCE_PAUSE_THRESHOLD } from './StagentSettingsDefaults';
 import {
   DEFAULT_CONTRACT_NODE_PAUSE_THRESHOLD,
   shouldEscalateContractNodePause,
 } from './HITLContractNodePolicy';
+
+export type HITLDecisionMode = 'inline-pause' | 'frontloaded';
 
 export type HITLDecision =
   | { action: 'auto-advance' }
@@ -20,6 +26,10 @@ export interface HITLPolicy {
   contractNodePauseThreshold: number;
   /** M21.4 总开关；false 退回纯 confidencePauseThreshold 行为 */
   pauseContractNodesBelowThreshold: boolean;
+  /** B-R2：Charter 自动应答模式；影响 charter_inferred 是否强制暂停 */
+  charterAutoAnswerMode: CharterAutoAnswerMode;
+  /** B-R2：inline-pause=执行中逐决策暂停；frontloaded=确认页前置批准后放行 */
+  decisionMode: HITLDecisionMode;
 }
 
 export const DEFAULT_HITL_POLICY: HITLPolicy = {
@@ -29,7 +39,17 @@ export const DEFAULT_HITL_POLICY: HITLPolicy = {
   pauseOnNoHistoricalData: false,
   contractNodePauseThreshold: DEFAULT_CONTRACT_NODE_PAUSE_THRESHOLD,
   pauseContractNodesBelowThreshold: true,
+  charterAutoAnswerMode: 'off',
+  decisionMode: 'inline-pause',
 };
+
+function isFrontloadApprovedDecision(runtime: StageRuntime, policy: HITLPolicy): boolean {
+  return (
+    policy.decisionMode === 'frontloaded' &&
+    !!runtime.approvedDecisionRecord &&
+    runtime.decisionSource === 'frontload'
+  );
+}
 
 export function buildHITLPolicy(partial?: Partial<HITLPolicy>): HITLPolicy {
   return { ...DEFAULT_HITL_POLICY, ...partial };
@@ -49,23 +69,56 @@ export function evaluateHITL(
     return { action: 'pause', reason: 'stage.pauseAfter=true', priority: 'low' };
   }
   if (stage.isDecisionStage && policy.alwaysPauseDecisionStages) {
-    return { action: 'pause', reason: '决策阶段必须人工 approveDecision', priority: 'high' };
+    if (isFrontloadApprovedDecision(runtime, policy)) {
+      return { action: 'auto-advance' };
+    }
+    if (mustPauseForCharterProvenance(runtime.decisionProvenance, policy.charterAutoAnswerMode)) {
+      return {
+        action: 'pause',
+        reason: hitlMsg('reason.charterProvenanceReview', runtime.decisionProvenance ?? 'unknown'),
+        priority: 'high',
+      };
+    }
+    if (
+      policy.charterAutoAnswerMode === 'auto-with-escalation' &&
+      runtime.decisionProvenance &&
+      runtime.decisionProvenance !== 'human' &&
+      runtime.decisionProvenance !== 'escalated'
+    ) {
+      return { action: 'auto-advance' };
+    }
+    return {
+      action: 'pause',
+      reason: hitlMsg('reason.decisionStageRequired'),
+      priority: 'high',
+    };
   }
   if (runtime.retryCount >= policy.maxAutoRetriesBeforePause) {
     return {
       action: 'pause',
-      reason: `手动重试 ${runtime.retryCount} 次，达到策略上限 ${policy.maxAutoRetriesBeforePause}`,
+      reason: hitlMsg(
+        'reason.retryLimitReached',
+        runtime.retryCount,
+        policy.maxAutoRetriesBeforePause,
+      ),
       priority: 'high',
     };
   }
   if (confidence.score < policy.confidencePauseThreshold) {
     const suggestion =
       confidence.reasons.length > 0
-        ? `建议复核：${confidence.reasons.slice(0, 2).join('；')}`
-        : '建议复核阶段输出后再继续';
+        ? hitlMsg(
+            'suggestion.reviewWithReasons',
+            confidence.reasons.slice(0, HITL_CONFIDENCE_REASONS_MAX).join('；'),
+          )
+        : hitlMsg('suggestion.reviewOutput');
     return {
       action: 'pause-with-suggestion',
-      reason: `置信度 ${confidence.score} 低于阈值 ${policy.confidencePauseThreshold}`,
+      reason: hitlMsg(
+        'reason.confidenceBelowThreshold',
+        confidence.score,
+        policy.confidencePauseThreshold,
+      ),
       suggestion,
     };
   }
@@ -90,6 +143,20 @@ export function shouldPauseAfterStage(
     return true;
   }
   if (stage.isDecisionStage && policy.alwaysPauseDecisionStages) {
+    if (isFrontloadApprovedDecision(runtime, policy)) {
+      return false;
+    }
+    if (mustPauseForCharterProvenance(runtime.decisionProvenance, policy.charterAutoAnswerMode)) {
+      return true;
+    }
+    if (
+      policy.charterAutoAnswerMode === 'auto-with-escalation' &&
+      runtime.decisionProvenance &&
+      runtime.decisionProvenance !== 'human' &&
+      runtime.decisionProvenance !== 'escalated'
+    ) {
+      return false;
+    }
     return true;
   }
   if (!confidence) {

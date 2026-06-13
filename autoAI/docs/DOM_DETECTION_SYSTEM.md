@@ -1,8 +1,20 @@
 # DOM 探测系统技术设计文档（变更评审稿）
 
+> ❗ **重要声明（2026-06-11 审计补充）：本文档不描述当前 autoAI 代码库。**
+> 文中引用的 `src/selectorResolver.ts`、`src/chatAutomation.ts`、`src/workbench.ts`、`src/providerPresets.ts`、`data/selector-cache.json`、健康监控、Video/Image 探测路径等**均不存在于本仓库**，系另一项目（视频生产流水线）的设计稿迁入。
+> autoAI 实际的 DOM 探测实现请以代码为准：
+>
+> - 选择器探测：`src/main/detector.ts`（`detectSelectors` / `detectAndSave`）
+> - 选择器持久化与优先级链：`src/main/site-store.ts`（preset=5 / 用户校准=10 / detector=3，存于 `userData/sites.json`）
+> - 内置预设：`src/main/presets.ts`
+> - 回复检测：`src/main/response-watcher.ts`
+> - 规格契约：`docs/SPEC.md` §四（数据结构与选择器链）
+>
+> 本文档的**设计思想**（多策略选择器链、SPA 计数回退、用户校准不被自动探测覆盖、探测失败不阻塞主流程）与 autoAI 实现一致，可作设计参考；但文中的文件路径、API 名、"已上线"状态表述**不可作为本仓库事实源**。
+
 > 文档版本：2026-04-11
 > 适用范围：网页 DOM 自动化探测链路（Chat / Video / Image 三条路径）
-> 文档性质：技术设计 + 变更评审 + 实施总结
+> 文档性质：技术设计 + 变更评审 + 实施总结（外域设计稿，见上方声明）
 
 ---
 

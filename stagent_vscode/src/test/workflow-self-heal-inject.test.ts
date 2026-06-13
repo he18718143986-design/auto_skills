@@ -50,6 +50,23 @@ test('injectSelfHealStages: inserts verify_imports between test_write and test_r
   assert.equal(auditSelfHealGaps(workflow).some((g) => g.includes('紧跟 test_write')), false);
 });
 
+test('injectSelfHealStages: fix_if_failed skips when test_run exitCode is zero', () => {
+  const wf: WorkflowDefinition = {
+    id: 'wf',
+    version: '2.0',
+    meta: { title: 't', taskType: 'software', userInput: 'u', createdAt: new Date().toISOString() },
+    stages: [
+      llmImpl('stage_impl_market_connector'),
+      codeRunner('stage_test_run_market_connector', 'cd server && npm test -- market_connector'),
+    ],
+  };
+  const { workflow } = injectSelfHealStages(wf);
+  const fix = workflow.stages.find((s) => s.id === 'stage_fix_if_failed_market_connector');
+  assert.ok(fix?.skipIf);
+  assert.equal(fix!.skipIf!.type, 'exitCodeZero');
+  assert.equal(fix!.skipIf!.stageId, 'stage_test_run_market_connector');
+});
+
 test('injectSelfHealStages: moves test_write after impl when misordered', () => {
   const wf: WorkflowDefinition = {
     id: 'wf',

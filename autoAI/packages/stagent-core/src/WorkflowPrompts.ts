@@ -9,6 +9,7 @@ import {
   UNIAPP_MINIMAL_PROJECT_TEMPLATE_TEXT,
 } from './workflow-templates/uniapp-minimal-template';
 import { isAutoTaskType } from './TaskTypeResolution';
+import { DECISION_ARTIFACTS_PROMPT_SUFFIX } from './commitment/parseDecisionArtifacts';
 
 export {
   webUserIntentHint,
@@ -355,6 +356,8 @@ export function ensureDecisionPromptStrict(base: string): string {
   const cleaned = base
     .split(DECISION_RECORD_STRICT_SUFFIX)
     .join('')
+    .split(DECISION_ARTIFACTS_PROMPT_SUFFIX)
+    .join('')
     .split(SPEC_75_ORIGINAL_TEXT)
     .join('')
     .trim();
@@ -365,7 +368,7 @@ export function ensureDecisionPromptStrict(base: string): string {
       : `${cleaned}\n\n请先完成“决策清单（DecisionRecord）”，再进入实现。`;
 
   // Rule 20-F：每个决策阶段都必须追加 SPEC §7.5 原文（强制、不得省略）。
-  return `${withDecisionLead}\n${DECISION_RECORD_STRICT_SUFFIX}\n${SPEC_75_ORIGINAL_TEXT}`;
+  return `${withDecisionLead}\n${DECISION_RECORD_STRICT_SUFFIX}\n${DECISION_ARTIFACTS_PROMPT_SUFFIX}\n${SPEC_75_ORIGINAL_TEXT}`;
 }
 
 export interface WorkflowGeneratorContext {
@@ -375,6 +378,8 @@ export interface WorkflowGeneratorContext {
   codebaseContext?: string;
   /** M17.6：经验库 few-shot（灰度；不得注入决策阶段合同块） */
   experienceFewShot?: string;
+  /** M34：已有 ADR 索引块 */
+  adrContext?: string;
   /** M18.1：PromptVersionManager 槽位覆盖（缺省回退 WorkflowPrompts 硬编码） */
   promptSlots?: Partial<Record<ManagedPromptSlotName, string>>;
 }

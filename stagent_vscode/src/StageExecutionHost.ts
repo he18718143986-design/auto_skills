@@ -102,6 +102,8 @@ export function createStageExecutionHost(deps: StageExecutionHostDeps): Workflow
       codeRunner.runCodeRunner(cfg, instanceKey, stageId, panel),
     runWorkspaceContractLint: () => lintDelegate.runWorkspaceContractLint(),
     runSdkPathContractHardGate: () => lintDelegate.runSdkPathContractHardGate(),
+    runPythonExportContractHardGate: () => lintDelegate.runPythonExportContractHardGate(),
+    runPythonPypiSymbolHardGate: () => lintDelegate.runPythonPypiSymbolHardGate(),
     get instance(): WorkflowInstance | undefined {
       return deps.getInstance();
     },

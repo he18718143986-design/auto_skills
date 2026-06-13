@@ -7,11 +7,15 @@ import {
   extractFencedCodeBlockForPath,
   truncateAtOrphanFenceLine,
 } from './markdown/MarkdownFenceUtils';
+import { normalizeRequirementsTxtContent } from './RequirementsTxtNormalize';
+import { stripForbiddenPypiImports } from './PypiSymbolHints';
 import {
   isWorkspaceTsconfigBasename,
   WORKSPACE_PACKAGE_JSON,
   WORKSPACE_PACKAGE_LOCK_JSON,
 } from './workspace/WorkspaceRootFilenames';
+
+const REQUIREMENTS_TXT_BASENAME = 'requirements.txt';
 
 /** 首行形如 `src/foo.ts` / `README.md`（模型常加的“文件名标题”），与真实路径 basename 一致或可接受时剥掉 */
 function stripLeadingFilenameEchoLine(s: string, relPath: string): string {
@@ -58,18 +62,29 @@ export function normalizeLlmOutputForWritePath(
     relPath.toLowerCase().endsWith('.json');
 
   if (!looksJson) {
+    if (base === REQUIREMENTS_TXT_BASENAME) {
+      const { content } = normalizeRequirementsTxtContent(stripped);
+      return { ok: true, content };
+    }
     // 非 markdown 代码文件：清理「中文说明 + ```lang + 代码 + ``` + 表格」或「代码 + 孤立 ``` + 表格」两种混排。
     const ext = path.extname(relPath).toLowerCase();
     const isMarkdown = ext === '.md' || ext === '.markdown';
     if (!isMarkdown) {
+      let body = stripped;
       const inner = extractFencedCodeBlockForPath(relPath, stripped);
       if (inner !== null) {
-        return { ok: true, content: inner };
+        body = inner;
+      } else {
+        const truncated = truncateAtOrphanFenceLine(stripped);
+        if (truncated !== stripped) {
+          body = truncated;
+        }
       }
-      const truncated = truncateAtOrphanFenceLine(stripped);
-      if (truncated !== stripped) {
-        return { ok: true, content: truncated };
+      if (ext === '.py') {
+        const { content: pyContent } = stripForbiddenPypiImports(body);
+        return { ok: true, content: pyContent };
       }
+      return { ok: true, content: body };
     }
     return { ok: true, content: stripped };
   }

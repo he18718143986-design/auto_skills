@@ -59,6 +59,7 @@ test('DAG mode runs ready stages by dependency order', async () => {
     evaluateSkipCondition: () => false,
     postMessage: () => {},
     scheduleSave: () => {},
+    warn: () => {},
     debugLog: () => {},
     primaryOutputKey: (s) => s.outputs[0].key,
     ensureTaskDir: () => {},
@@ -67,7 +68,7 @@ test('DAG mode runs ready stages by dependency order', async () => {
       executed.push(stageId);
       return `ok:${stageId}`;
     },
-    applyPatchInstructions: () => {},
+    applyPatchInstructions: async () => {},
     resolveTaskFilePath: (_i, p) => p,
     resolveOutputPath: (_i, p) => p,
     runCodeRunner: async () => ({ exitCode: 0, stdout: '', stderr: '' }),
@@ -93,6 +94,7 @@ test('Linear mode keeps array order when DAG disabled', async () => {
     evaluateSkipCondition: () => false,
     postMessage: () => {},
     scheduleSave: () => {},
+    warn: () => {},
     debugLog: () => {},
     primaryOutputKey: (s) => s.outputs[0].key,
     ensureTaskDir: () => {},
@@ -101,7 +103,7 @@ test('Linear mode keeps array order when DAG disabled', async () => {
       executed.push(stageId);
       return `ok:${stageId}`;
     },
-    applyPatchInstructions: () => {},
+    applyPatchInstructions: async () => {},
     resolveTaskFilePath: (_i, p) => p,
     resolveOutputPath: (_i, p) => p,
     runCodeRunner: async () => ({ exitCode: 0, stdout: '', stderr: '' }),
@@ -131,6 +133,7 @@ test('DAG diamond: D runs after B and C', async () => {
     evaluateSkipCondition: () => false,
     postMessage: () => {},
     scheduleSave: () => {},
+    warn: () => {},
     debugLog: () => {},
     primaryOutputKey: (s) => s.outputs[0].key,
     ensureTaskDir: () => {},
@@ -139,7 +142,7 @@ test('DAG diamond: D runs after B and C', async () => {
       executed.push(stageId);
       return `ok:${stageId}`;
     },
-    applyPatchInstructions: () => {},
+    applyPatchInstructions: async () => {},
     resolveTaskFilePath: (_i, p) => p,
     resolveOutputPath: (_i, p) => p,
     runCodeRunner: async () => ({ exitCode: 0, stdout: '', stderr: '' }),
@@ -172,6 +175,7 @@ test('DAG pauseAfter: stops at paused stage and preserves order', async () => {
     evaluateSkipCondition: () => false,
     postMessage: () => {},
     scheduleSave: () => {},
+    warn: () => {},
     debugLog: () => {},
     primaryOutputKey: (s) => s.outputs[0].key,
     ensureTaskDir: () => {},
@@ -180,7 +184,7 @@ test('DAG pauseAfter: stops at paused stage and preserves order', async () => {
       executed.push(stageId);
       return `ok:${stageId}`;
     },
-    applyPatchInstructions: () => {},
+    applyPatchInstructions: async () => {},
     resolveTaskFilePath: (_i, p) => p,
     resolveOutputPath: (_i, p) => p,
     runCodeRunner: async () => ({ exitCode: 0, stdout: '', stderr: '' }),
@@ -214,6 +218,7 @@ test('DAG parallel: B and C overlap when dagMaxParallelism >= 2', async () => {
     evaluateSkipCondition: () => false,
     postMessage: () => {},
     scheduleSave: () => {},
+    warn: () => {},
     debugLog: () => {},
     primaryOutputKey: (s) => s.outputs[0].key,
     ensureTaskDir: () => {},
@@ -225,7 +230,7 @@ test('DAG parallel: B and C overlap when dagMaxParallelism >= 2', async () => {
       events.push({ stageId, kind: 'end', t: ++clock });
       return `ok:${stageId}`;
     },
-    applyPatchInstructions: () => {},
+    applyPatchInstructions: async () => {},
     resolveTaskFilePath: (_i, p) => p,
     resolveOutputPath: (_i, p) => p,
     runCodeRunner: async () => ({ exitCode: 0, stdout: '', stderr: '' }),
@@ -261,6 +266,7 @@ test('DAG dagMaxParallelism=1 keeps sequential wave order', async () => {
     evaluateSkipCondition: () => false,
     postMessage: () => {},
     scheduleSave: () => {},
+    warn: () => {},
     debugLog: () => {},
     primaryOutputKey: (s) => s.outputs[0].key,
     ensureTaskDir: () => {},
@@ -269,7 +275,7 @@ test('DAG dagMaxParallelism=1 keeps sequential wave order', async () => {
       executed.push(stageId);
       return `ok:${stageId}`;
     },
-    applyPatchInstructions: () => {},
+    applyPatchInstructions: async () => {},
     resolveTaskFilePath: (_i, p) => p,
     resolveOutputPath: (_i, p) => p,
     runCodeRunner: async () => ({ exitCode: 0, stdout: '', stderr: '' }),

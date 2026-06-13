@@ -9,8 +9,10 @@ import {
   pickZoomOutFilePath,
   resolveExistingDirectoryPath,
   resolveInitialTaskDir,
+  pinTaskWorkspacePathAbsolute,
   resolveWorkspaceRootAbsolute,
   safeJoinUnderWorkspaceRoot,
+  workspaceRootFromTaskDir,
 } from '../WorkflowPathResolver';
 import type { WorkflowDefinition } from '../WorkflowDefinition';
 
@@ -63,6 +65,23 @@ test('resolveWorkspaceRootAbsolute resolves ~ and returns undefined when empty',
   assert.equal(resolveWorkspaceRootAbsolute(undefined), undefined);
   assert.equal(resolveWorkspaceRootAbsolute('   '), undefined);
   assert.equal(resolveWorkspaceRootAbsolute('/a/b'), path.resolve('/a/b'));
+});
+
+test('workspaceRootFromTaskDir derives workspace from instance taskDir', () => {
+  const ws = '/Users/me/proj';
+  const taskDir = path.join(ws, '.stagent', 'instances', 'uuid-1');
+  assert.equal(workspaceRootFromTaskDir(taskDir), ws);
+  assert.equal(workspaceRootFromTaskDir('/tmp/not-stagent'), undefined);
+});
+
+test('pinTaskWorkspacePathAbsolute anchors relative path to taskDir workspace', () => {
+  const ws = fs.mkdtempSync(path.join(os.tmpdir(), 'pin-ws-'));
+  const child = path.join(ws, 'child');
+  fs.mkdirSync(child, { recursive: true });
+  const taskDir = path.join(ws, '.stagent', 'instances', 'id-1');
+  fs.mkdirSync(taskDir, { recursive: true });
+  assert.equal(pinTaskWorkspacePathAbsolute('child', taskDir), path.resolve(child));
+  assert.equal(pinTaskWorkspacePathAbsolute('../missing', taskDir), path.resolve(ws, '../missing'));
 });
 
 test('safeJoinUnderWorkspaceRoot blocks .. escape and joins valid', () => {

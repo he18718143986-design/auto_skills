@@ -6,6 +6,10 @@ export interface SandboxOptions {
   networkAllowed: boolean;
   writeablePathGlobs?: string[];
   env?: Record<string, string>;
+  requireEnforced?: boolean;
+  onStdoutChunk?: (text: string) => void;
+  onStderrChunk?: (text: string) => void;
+  onDegraded?: (message: string) => void;
 }
 
 export interface SandboxResult {
@@ -78,10 +82,14 @@ export async function runInSandbox(
     }, timeoutMs);
 
     child.stdout.on('data', (buf: Buffer) => {
-      stdout += buf.toString();
+      const text = buf.toString();
+      stdout += text;
+      options.onStdoutChunk?.(text);
     });
     child.stderr.on('data', (buf: Buffer) => {
-      stderr += buf.toString();
+      const text = buf.toString();
+      stderr += text;
+      options.onStderrChunk?.(text);
     });
     child.on('error', (err) => {
       clearTimeout(timer);

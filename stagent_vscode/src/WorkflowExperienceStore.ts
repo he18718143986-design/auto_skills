@@ -1,6 +1,8 @@
 import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
+import type { CharterCoverageMetrics } from './charter/CharterCoverageMetrics';
+import { computeCharterCoverageMetrics } from './charter/CharterCoverageMetrics';
 import type { ErrorType, StageStatus, WorkflowInstance } from './WorkflowDefinition';
 import { CONFIDENCE_OUTPUT_KEY } from './WorkflowOutputKeys';
 import {
@@ -48,6 +50,8 @@ export interface WorkflowExperience {
   /** 失败时摘要（不含 userInput 原文） */
   failureStageId?: string;
   failureErrorType?: ErrorType;
+  /** B-R4：Charter 代答覆盖率快照 */
+  charterCoverage?: CharterCoverageMetrics;
 }
 
 /** M17 FailurePatternAnalyzer 使用的轻量结构；M15.3 仅做基础聚合 */
@@ -156,6 +160,7 @@ export function buildWorkflowExperience(
     promptVersions: {},
     failureStageId: options.failureStageId,
     failureErrorType: options.failureErrorType,
+    charterCoverage: computeCharterCoverageMetrics(instance),
   };
 }
 

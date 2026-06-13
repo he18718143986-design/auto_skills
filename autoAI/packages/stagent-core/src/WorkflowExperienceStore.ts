@@ -35,6 +35,7 @@ export interface WorkflowExperience {
   /** 失败时摘要（不含 userInput 原文） */
   failureStageId?: string;
   failureErrorType?: ErrorType;
+  charterCoverage?: Record<string, unknown>;
 }
 
 /** M17 FailurePatternAnalyzer 使用的轻量结构；M15.3 仅做基础聚合 */

@@ -12,11 +12,19 @@ export function normalizeArtifactRelativePath(filePath: string): string {
   return filePath.replace(/\\/g, '/').replace(/^\.\//, '').trim();
 }
 
-/** `reader.py` → `reader`；`pkg/mod.py` → `mod`（仅顶层 import 校验） */
+/** `reader.py` → `reader`；`pkg/mod.py` → `mod`；`indicators/__init__.py` → `indicators` */
 export function relativePathToPythonTopModule(relPath: string): string | undefined {
   const norm = normalizeArtifactRelativePath(relPath);
   if (!norm.endsWith('.py')) {
     return undefined;
+  }
+  if (norm.endsWith('/__init__.py')) {
+    const pkg = norm.slice(0, -'/__init__.py'.length);
+    if (!pkg) {
+      return undefined;
+    }
+    const slash = pkg.lastIndexOf('/');
+    return slash >= 0 ? pkg.slice(slash + 1) : pkg;
   }
   const withoutExt = norm.slice(0, -3);
   const slash = withoutExt.lastIndexOf('/');

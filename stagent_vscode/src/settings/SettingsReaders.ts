@@ -9,19 +9,27 @@ export {
   readDecisionContentLintEnabled,
   readInjectApprovedDecisionContext,
   readGlobalDecisionInjectMode,
+  readHitlDecisionMode,
 } from './readers/hitl';
 export {
   readSandboxEnabled,
+  readSandboxVerificationOnly,
   readTestRunPreflightEnabled,
   readSplitTestRunBundledCommandsEnabled,
   readTestRunAutoNpmInstallEnabled,
   readWriteOutputIntegrityMode,
   readTestRunFailurePlaybookEnabled,
   readSdkPathContractLintMode,
+  readPythonExportContractLintMode,
+  readPythonPypiSymbolLintMode,
+  readGateAutoRepairEnabled,
+  readRuntimeReplanEnabled,
   readDangerousCommandLintMode,
   readMaxManualStageRetries,
   readMaxWorkflowParseRetries,
   type SdkPathContractLintMode,
+  type PythonExportContractLintMode,
+  type PythonPypiSymbolLintMode,
   type DangerousCommandLintMode,
   type WriteOutputIntegrityMode,
 } from './readers/exec';
@@ -43,6 +51,13 @@ export {
   type PlanStructuralRepairMode,
 } from './readers/gates';
 export {
+  readCharterEnabled,
+  readCharterAutoAnswerMode,
+  readCharterRelativePath,
+  readCharterFeedbackEnabled,
+  readCharterFeedbackCooldownDays,
+} from './readers/charter';
+export {
   readMemoryExperienceStoreEnabled,
   readMemoryMaxExperienceEntries,
   readCodebaseContextEnabled,
@@ -51,3 +66,12 @@ export {
   readPromptVersionsEnabled,
 } from './readers/memory';
 export { readSettingsProfileId } from './readers/core';
+export {
+  readContractInfraChainV2Enabled,
+  readContractPlanPreflightV2Enabled,
+  readContractCommitmentsEnabled,
+  readContractCommitmentsLlmFallbackEnabled,
+  readContractRuntimePreflightV2Enabled,
+  readContractBoundExecutionEnabled,
+  readContractDiagnosticRouterEnabled,
+} from './readers/contract';

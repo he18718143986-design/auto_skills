@@ -17,6 +17,7 @@ export interface HitlStateHost {
   getWorkspaceRootAbsolute(): string | undefined;
   getMaxManualStageRetries(): number;
   isDecisionContentLintVscodeDefault(): boolean;
+  isContractCommitmentsEnabled(): boolean;
 }
 
 /** Webview 交互与推进执行。 */

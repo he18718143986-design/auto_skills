@@ -28,8 +28,8 @@ export const EXECUTION_SETTINGS: SettingDomainEntry[] = [
   },
   {
     key: 'execution.sdkPathContractLint',
-    defaultSummary: 'warn',
-    effect: 'Decision ↔ impl ↔ test SDK/路径契约 lint；hard 在 test_run 前阻断。',
+    defaultSummary: 'hard',
+    effect: 'Decision ↔ impl ↔ test SDK/路径契约 lint；hard 在 test_run 前阻断（默认）。',
   },
   {
     key: 'execution.dangerousCommandLint',

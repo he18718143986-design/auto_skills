@@ -4,6 +4,20 @@ import type { Question } from './StageTypes';
 import type { WorkflowDefinition, WorkflowGlobalConfig, WorkflowMeta } from './WorkflowMetaTypes';
 import type { ErrorType, StageStatus, WorkflowStatus } from './RuntimeTypes';
 import type { GenerationOperationId } from '../generation/GenerationOperationIds';
+import type {
+  DecisionBoardPayload,
+  FrontloadDecisionResolution,
+} from '../decision-frontload/DecisionFrontloadTypes';
+import type { HITLDecisionMode } from '../AdaptiveHITLPolicy';
+import type { TaskTypeClassificationInfo } from '../TaskTypeResolution';
+import type { QualityReportPayload } from '../quality-report/QualityReportTypes';
+import type { DiagnosticRoute } from '../diagnostic-router';
+
+/** 屏 4 Engine Feed 事件种类（与 P0–P3d 对齐）。 */
+export type EngineActivityKind = 'gate' | 'replan' | 'preflight' | 'verify' | 'fix' | 'engine';
+
+/** test_run 软失败等执行语义（区别于 StageStatus）。 */
+export type StageExecSemantic = 'deferred' | 'self-healing';
 
 /** M40.0：生成期结构修补摘要（确认页展示，非运行期保证） */
 export interface StructuralRepairActionSummary {
@@ -49,6 +63,12 @@ type BackendMessageInner =
       settingsProfile?: string;
       /** 相对 default 的门禁差异摘要（确认页）。 */
       profileGateDiff?: string[];
+      /** B-R2：确认页决策板（全部 isDecisionStage + Charter 代答分类）。 */
+      decisionBoard?: DecisionBoardPayload;
+      /** B-R2：当前 HITL 决策模式（确认页闸门/UI 行为）。 */
+      decisionMode?: HITLDecisionMode;
+      /** B-R1：场景判别摘要（taskType / isGreenfield 依据，确认页可改）。 */
+      taskTypeClassification?: TaskTypeClassificationInfo;
     }
   | {
       type: 'stageStatusUpdate';
@@ -57,6 +77,15 @@ type BackendMessageInner =
       isDecisionStage?: boolean;
       /** True when the stage has reached the manual retry limit (pause-bar retry should be disabled). */
       retryDisabled?: boolean;
+      /** 屏 4：test_run 软失败等语义状态（黄 deferred / 修复中）。 */
+      execSemantic?: StageExecSemantic | null;
+    }
+  | {
+      type: 'engineActivity';
+      kind: EngineActivityKind;
+      text: string;
+      stageId?: string;
+      timestamp?: string;
     }
   | { type: 'stageOutputUpdate'; stageId: string; outputKey: string; content: unknown }
   | { type: 'stageQuestionsBefore'; stageId: string; questions: Question[] }
@@ -80,8 +109,17 @@ type BackendMessageInner =
       /** 127 等场景：重试通常无效，UI 应弱化重试按钮。 */
       weakenRetry?: boolean;
       playbookSteps?: string[];
+      /** Contract-First P5：失败诊断路由（config/symbol/assertion/semantic）。 */
+      diagnosticRoute?: DiagnosticRoute;
     }
-  | { type: 'workflowCompleted'; warnings?: string[]; traceId?: string }
+  | {
+      type: 'workflowEscalation';
+      stageId: string;
+      issues: string[];
+      choices: Array<'confirm' | 'reopen_decision' | 'abort'>;
+      reopenDecisionStageId?: string;
+    }
+  | { type: 'workflowCompleted'; warnings?: string[]; traceId?: string; qualityReport?: QualityReportPayload }
   | {
       type: 'workflowFailed';
       reason: string;
@@ -122,7 +160,16 @@ type BackendMessageInner =
       questions: Array<{ id: string; text: string; options?: string[] }>;
     }
   | { type: 'taskWorkspacePathPicked'; path: string }
-  | { type: 'userTaskPolished'; text: string; polishedAt: string; fromCache?: boolean; instanceKey?: string; sessionId?: string }
+  | {
+      type: 'userTaskPolished';
+      text: string;
+      polishedAt: string;
+      fromCache?: boolean;
+      /** 实际使用的润色档位（auto 已解析为 light | standard） */
+      polishTierUsed?: 'light' | 'standard';
+      instanceKey?: string;
+      sessionId?: string;
+    }
   | {
       type: 'generationProgress';
       operation: GenerationOperationId;
@@ -188,8 +235,22 @@ export type FrontendMessage =
   /** 生成前澄清：扫描工作文件夹已有文件并请模型给出 3-5 个澄清问题；回应 clarifyQuestions */
   | { type: 'clarifyStart'; userInput: string; taskType?: string; taskWorkspacePath: string }
   /** 将草稿润色为规范「用户任务」短文；成功时推送 userTaskPolished */
-  | { type: 'polishUserTask'; draft: string; taskType?: string; taskWorkspacePath?: string }
-  | { type: 'startExecution'; workflow?: WorkflowDefinition; sessionId?: string; instanceKey?: string }
+  | {
+      type: 'polishUserTask';
+      draft: string;
+      taskType?: string;
+      taskWorkspacePath?: string;
+      /** 润色档位：auto 根据草稿推断，light 适合简单任务，standard 适合复杂交付 */
+      polishTier?: 'auto' | 'light' | 'standard';
+    }
+  | {
+      type: 'startExecution';
+      workflow?: WorkflowDefinition;
+      sessionId?: string;
+      instanceKey?: string;
+      /** B-R2 frontloaded：确认页批准的决策（auto 项默认采纳 + 用户处理的升级项）。 */
+      frontloadResolutions?: FrontloadDecisionResolution[];
+    }
   | { type: 'approve'; stageId: string }
   | { type: 'approveDecision'; stageId: string; decisionRecord: string; sessionId?: string; instanceKey?: string }
   | { type: 'answerQuestionsBefore'; stageId: string; answers: Record<string, string> }

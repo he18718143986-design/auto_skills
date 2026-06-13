@@ -139,6 +139,18 @@ export function evaluateDecisionContentLintGate(
   };
 }
 
+/** AFK decide 重试注释 SSOT（须与 REQUIRED_SECTIONS 一致；T4 Run #47 误写「背景/问题」导致重试仍拒）。 */
+export function buildDecisionLintRetryUserComment(): string {
+  return [
+    '决策记录被内容 lint 拒绝（缺少必需章节）。请重新输出完整结构化 decisionRecord，必须严格包含以下四个 Markdown 三级标题（###）：',
+    '### 职责边界',
+    '### 关键设计决策',
+    '### 边界压力测试（至少 2 个顶层列表场景）',
+    '### AI 无法验证的假设（至少 1 条）',
+    '只输出决策内容本身，不要解释这次重写。',
+  ].join('\n');
+}
+
 export function verifyDecisionRecord(record: string): VerifyDecisionRecordResult {
   const violations: DecisionViolation[] = [];
   const text = typeof record === 'string' ? record : '';

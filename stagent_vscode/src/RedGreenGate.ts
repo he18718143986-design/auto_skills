@@ -22,7 +22,7 @@ import type { Stage, WorkflowDefinition } from './WorkflowDefinition';
 export type RedGreenMode = 'off' | 'warn' | 'hard';
 
 /** 与 package.json `stagent.tdd.redGreenGate` 默认值一致 */
-export const DEFAULT_RED_GREEN_MODE: RedGreenMode = 'warn';
+export const DEFAULT_RED_GREEN_MODE: RedGreenMode = 'hard';
 
 export function resolveRedGreenMode(raw: unknown): RedGreenMode {
   return raw === 'off' || raw === 'hard' || raw === 'warn' ? raw : DEFAULT_RED_GREEN_MODE;

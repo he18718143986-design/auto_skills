@@ -12,6 +12,7 @@ export interface WorkflowEngineGenerationFacade {
     taskType: string,
     panel: vscode.WebviewPanel,
     taskWorkspacePathRaw?: string,
+    polishTier?: 'auto' | 'light' | 'standard',
   ): Promise<void>;
   generateClarifyQuestions(
     userInput: string,
@@ -48,6 +49,7 @@ export interface WorkflowEngineExecutionFacade {
     panel: vscode.WebviewPanel,
     workflowOverride?: WorkflowDefinition,
     instanceKey?: string,
+    frontloadResolutions?: import('./decision-frontload/DecisionFrontloadTypes').FrontloadDecisionResolution[],
   ): Promise<void>;
   executeNextStage(panel?: vscode.WebviewPanel): Promise<void>;
   isExecutionInFlight(): boolean;

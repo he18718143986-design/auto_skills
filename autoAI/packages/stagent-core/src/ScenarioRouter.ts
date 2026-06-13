@@ -2,7 +2,7 @@
 /*  ScenarioRouter — 场景（taskType × 仓库状态）→ workflowTemplate +      */
 /*  有序 skill 序列（纯函数）。                                          */
 /*                                                                     */
-/*  对齐：WORKFLOW.md §4 路径选型、PLATFORM-PRD §6.5、                   */
+/*  对齐：WORKFLOW.md §4 路径选型、STAGENT-PRD §4.5、                   */
 /*  SKILLS-ENGINE-INTEGRATION.md §4 路由表。                            */
 /*  复用引擎现有 meta.taskType（software/prototype/document/debug/       */
 /*  refactor/improve-architecture/other）。                            */
@@ -81,7 +81,7 @@ function brownfieldFull(touchesUnknownModule: boolean): string[] {
 }
 
 /**
- * 路由规则（优先级从高到低，对齐 PLATFORM-PRD §6.5.3）：
+ * 路由规则（优先级从高到低，对齐 STAGENT-PRD §4.5 / WORKFLOW §4）：
  *  1. debug                          → debug
  *  2. refactor / improve-architecture→ arch_review
  *  3. greenfield && multi_slice      → greenfield_full

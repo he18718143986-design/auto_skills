@@ -144,7 +144,7 @@ function readGitChangeSummary(workspaceRoot: string): string | undefined {
 /** 同步构建工作区快照（无 LLM）；大仓库由 `applySnapshotDegradation` 渐进降级。 */
 export function buildCodebaseSnapshot(
   workspaceRoot: string,
-  options?: { maxModules?: number },
+  options?: { maxModules?: number; onDegraded?: (reason: string, context?: Record<string, unknown>) => void },
 ): CodebaseSnapshot {
   const abs = path.resolve(workspaceRoot);
   if (!fs.existsSync(abs) || !fs.statSync(abs).isDirectory()) {

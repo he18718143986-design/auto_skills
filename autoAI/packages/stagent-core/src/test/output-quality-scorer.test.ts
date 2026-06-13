@@ -103,3 +103,22 @@ test('empty output → zero completeness and retry', () => {
   assert.equal(score.dimensions.completeness, 0);
   assert.equal(score.recommendation, 'retry');
 });
+
+test('test_write without systemPrompt does not throw on scoreStatically', () => {
+  const stage: Stage = {
+    id: 'stage_test_write_core',
+    title: 'test write',
+    tool: 'llm-text',
+    toolConfig: {
+      type: 'llm-text',
+      writeOutputToFile: 'tests/test_core.py',
+      writePathBase: 'workspace',
+    } as Stage['toolConfig'],
+    input: { sources: [], mergeStrategy: 'concat' },
+    outputs: [{ key: 'testCode', format: 'text' }],
+    pauseAfter: false,
+  };
+  const score = scoreStatically(stage, 'import pytest\n\ndef test_ok():\n    assert True\n', BASE_WF);
+  assert.ok(score.overall > 0);
+  assert.ok(score.issues.some((i) => i.code === 'thin-system-prompt'));
+});

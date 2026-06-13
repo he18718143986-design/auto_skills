@@ -16,6 +16,8 @@ export interface WorkflowUiBridgeDeps {
   messagingHost: () => MessagingHost;
   getFeedbackLastAsked: () => string | undefined;
   setFeedbackLastAsked: (iso: string) => Promise<void>;
+  getCharterFeedbackLastAsked: () => string | undefined;
+  setCharterFeedbackLastAsked: (iso: string) => Promise<void>;
 }
 
 /** 轻量 WebviewPanel mock，供单测注入。 */
@@ -72,6 +74,8 @@ export class WorkflowUiBridge {
         applyPostMessageSideEffects(host, enriched, {
           getLastAsked: this.deps.getFeedbackLastAsked,
           setLastAsked: this.deps.setFeedbackLastAsked,
+          getCharterFeedbackLastAsked: this.deps.getCharterFeedbackLastAsked,
+          setCharterFeedbackLastAsked: this.deps.setCharterFeedbackLastAsked,
         });
         try {
           await Promise.resolve(p.webview.postMessage(enriched));

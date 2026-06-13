@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import * as assert from 'node:assert/strict';
-import { verifyDecisionRecord } from '../DecisionRecordVerify';
+import { buildDecisionLintRetryUserComment, verifyDecisionRecord } from '../DecisionRecordVerify';
 
 const COMPLIANT_RECORD = `## 决策清单：用户缓存模块
 
@@ -20,6 +20,15 @@ const COMPLIANT_RECORD = `## 决策清单：用户缓存模块
 ### AI 无法验证的假设
 - 假设 QPS < 1000：若不成立，需切换 Redis 后端。
 `;
+
+test('buildDecisionLintRetryUserComment lists exact ### headings (Run #47 SSOT)', () => {
+  const comment = buildDecisionLintRetryUserComment();
+  assert.match(comment, /### 职责边界/);
+  assert.match(comment, /### 关键设计决策/);
+  assert.match(comment, /### 边界压力测试/);
+  assert.match(comment, /### AI 无法验证的假设/);
+  assert.ok(!comment.includes('背景/问题'));
+});
 
 test('T1: 完整合规决策清单 → ok=true', () => {
   const result = verifyDecisionRecord(COMPLIANT_RECORD);

@@ -20,6 +20,8 @@ export function buildQualityGateExecutionHost(
       engine.runCodeRunner(cfg, instanceKey, stageId, targetPanel),
     runWorkspaceContractLint: () => engine.runWorkspaceContractLint(),
     runSdkPathContractHardGate: () => engine.runSdkPathContractHardGate(),
+    runPythonExportContractHardGate: () => engine.runPythonExportContractHardGate(),
+    runPythonPypiSymbolHardGate: () => engine.runPythonPypiSymbolHardGate(),
     runPostImplStaticAnalysis: async () => {
       if (!readers.readStaticAnalysisEnabled()) {
         return [];
@@ -40,6 +42,8 @@ export function buildQualityGateExecutionHost(
     readTestRunPreflightEnabled: () => readers.readTestRunPreflightEnabled(),
     readTestRunAutoNpmInstallEnabled: () => readers.readTestRunAutoNpmInstallEnabled(),
     readSdkPathContractLintMode: () => readers.readSdkPathContractLintMode(),
+    readPythonExportContractLintMode: () => readers.readPythonExportContractLintMode(),
+    readPythonPypiSymbolLintMode: () => readers.readPythonPypiSymbolLintMode(),
     readStaticAnalysisEnabled: () => readers.readStaticAnalysisEnabled(),
   };
 }

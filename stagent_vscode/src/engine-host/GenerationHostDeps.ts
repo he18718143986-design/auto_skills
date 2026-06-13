@@ -1,10 +1,11 @@
-import type * as vscode from 'vscode';
+import type { LlmInvokeOpts } from '../core/LlmInvokeOpts';
+import type * as vscode from '../platform/HostTypes';
 import type { WorkflowDefinition } from '../WorkflowDefinition';
 
 /** 工作流生成、润色缓存与 JSON 解析。 */
 export interface GenerationHostDeps {
   getPolishCache: () => Map<string, { text: string; polishedAt: string }>;
-  polishCacheKey: (draft: string, taskType: string) => string;
+  polishCacheKey: (draft: string, taskType: string, polishTier: 'light' | 'standard') => string;
   rememberPolishCache: (cacheKey: string, text: string, polishedAt: string) => void;
   ensurePreExecDraftShell: (opts: {
     phase: 'polish' | 'clarify' | 'generate';
@@ -18,6 +19,7 @@ export interface GenerationHostDeps {
     userContent: string,
     panel: vscode.WebviewPanel,
     traceStageId: string,
+    opts?: LlmInvokeOpts,
   ) => Promise<string>;
   parseWorkflowJson: (
     raw: string,

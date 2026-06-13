@@ -8,10 +8,132 @@ import {
   applySoftwareDiskPipeline,
   injectFileWriteAfterImplStages,
   injectInitNpmWorkspaceStage,
+  injectDeliveryWrapupStage,
+  collectDeliverableFilePaths,
+  DELIVERY_WRAPUP_STAGE_ID,
+  injectSmokeStage,
+  looksLikeServeCommand,
+  SMOKE_RUN_STAGE_ID,
   patchNpmDefaultTestScriptAfterInit,
 } from '../WorkflowDiskBootstrap';
 import { verifyRule20 } from '../Rule20Verify';
+import { lintPlanCompleteness } from '../PlanCompletenessGate';
+import { setSelfHealGapDetector } from '../plan-completeness/selfHealGapDetector';
+import { auditSelfHealGaps } from '../workflow-self-heal/injectSelfHealStages';
 import type { Stage, WorkflowDefinition } from '../WorkflowDefinition';
+
+setSelfHealGapDetector(auditSelfHealGaps);
+
+function implStage(id: string, file: string): Stage {
+  return {
+    id,
+    title: id,
+    tool: 'llm-text',
+    toolConfig: { type: 'llm-text', systemPrompt: 'x', writeOutputToFile: file, writePathBase: 'workspace' },
+    input: { sources: [], mergeStrategy: 'concat' },
+    outputs: [{ key: 'code', format: 'text' }],
+    pauseAfter: false,
+  };
+}
+
+test('injectDeliveryWrapupStage 末尾追加 DELIVERY.md 验收阶段（含产物清单、幂等）', () => {
+  const stages = [implStage('stage_impl_server_entry', 'server/src/index.ts')];
+  const out = injectDeliveryWrapupStage(stages);
+  const last = out[out.length - 1]!;
+  assert.equal(last.id, DELIVERY_WRAPUP_STAGE_ID);
+  assert.equal(last.tool, 'llm-text');
+  assert.equal((last.toolConfig as { writeOutputToFile?: string }).writeOutputToFile, 'DELIVERY.md');
+  assert.equal(last.pauseAfter, true); // 里程碑可感知验收
+  assert.ok((last.toolConfig as { systemPrompt: string }).systemPrompt.includes('server/src/index.ts'));
+  assert.deepEqual(injectDeliveryWrapupStage(out), out); // 幂等
+});
+
+test('injectDeliveryWrapupStage 无实现产物时不注入（纯文档/空计划）', () => {
+  const testOnly: Stage = {
+    id: 'stage_test_write_x',
+    title: 't',
+    tool: 'llm-text',
+    toolConfig: { type: 'llm-text', systemPrompt: 'x', writeOutputToFile: 'server/__tests__/x.test.ts' },
+    input: { sources: [], mergeStrategy: 'concat' },
+    outputs: [{ key: 'testCode', format: 'text' }],
+    pauseAfter: false,
+  };
+  assert.equal(injectDeliveryWrapupStage([testOnly]).length, 1);
+});
+
+test('collectDeliverableFilePaths 去重收集 writeOutputToFile', () => {
+  const paths = collectDeliverableFilePaths([
+    implStage('stage_impl_a', 'a.ts'),
+    implStage('stage_impl_b', 'b.ts'),
+    implStage('stage_impl_a2', 'a.ts'),
+  ]);
+  assert.deepEqual(paths.sort(), ['a.ts', 'b.ts']);
+});
+
+test('looksLikeServeCommand 识别长驻启动命令', () => {
+  assert.equal(looksLikeServeCommand('cd server && npm start'), true);
+  assert.equal(looksLikeServeCommand('npm run dev'), true);
+  assert.equal(looksLikeServeCommand('node dist/index.js'), true);
+  assert.equal(looksLikeServeCommand('uvicorn app:app'), true);
+  assert.equal(looksLikeServeCommand('cd server && npm test'), false);
+});
+
+function codeRunner(id: string, command: string): Stage {
+  return {
+    id,
+    title: id,
+    tool: 'code-runner',
+    toolConfig: { type: 'code-runner', command, captureOutput: true, pathBase: 'workspace' },
+    input: { sources: [], mergeStrategy: 'concat' },
+    outputs: [{ key: 'out', format: 'text' }],
+    pauseAfter: false,
+  };
+}
+
+test('injectSmokeStage：复用已有 serve 命令，serve=true 有界，放在交付收口前', () => {
+  const stages = [
+    codeRunner('stage_run_server', 'cd server && npm start'),
+    {
+      id: DELIVERY_WRAPUP_STAGE_ID,
+      title: 'delivery',
+      tool: 'llm-text',
+      toolConfig: { type: 'llm-text', systemPrompt: 'x', writeOutputToFile: 'DELIVERY.md' },
+      input: { sources: [], mergeStrategy: 'concat' },
+      outputs: [{ key: 'delivery', format: 'markdown' }],
+      pauseAfter: true,
+    } as Stage,
+  ];
+  const out = injectSmokeStage(stages);
+  const smokeIdx = out.findIndex((s) => s.id === SMOKE_RUN_STAGE_ID);
+  const deliveryIdx = out.findIndex((s) => s.id === DELIVERY_WRAPUP_STAGE_ID);
+  assert.ok(smokeIdx >= 0 && smokeIdx < deliveryIdx); // 在收口前
+  const cfg = out[smokeIdx]!.toolConfig as { serve?: boolean; command: string };
+  assert.equal(cfg.serve, true);
+  assert.equal(cfg.command, 'cd server && npm start');
+  assert.deepEqual(injectSmokeStage(out), out); // 幂等
+});
+
+test('injectSmokeStage：从 JS 入口产物推导 node 启动命令', () => {
+  const out = injectSmokeStage([implStage('stage_impl_entry', 'dist/index.js')]);
+  const smoke = out.find((s) => s.id === SMOKE_RUN_STAGE_ID);
+  assert.ok(smoke);
+  assert.equal((smoke!.toolConfig as { command: string }).command, 'node dist/index.js');
+});
+
+test('injectSmokeStage：无法可靠推导启动命令时不注入（仅 TS server，需构建）', () => {
+  const out = injectSmokeStage([implStage('stage_impl_server_entry', 'server/src/index.ts')]);
+  assert.equal(out.some((s) => s.id === SMOKE_RUN_STAGE_ID), false);
+});
+
+test('verifyRule20 不因交付收口阶段报 violation', () => {
+  const wf = minimalSoftwareWf([
+    implStage('stage_impl_server_entry', 'server/src/index.ts'),
+  ]);
+  const before = verifyRule20(wf).violations.length;
+  const withDelivery = { ...wf, stages: injectDeliveryWrapupStage(wf.stages) };
+  const after = verifyRule20(withDelivery).violations.length;
+  assert.equal(after, before); // 收口阶段不新增 Rule20 violation
+});
 
 function minimalSoftwareWf(stages: Stage[]): WorkflowDefinition {
   return {
@@ -131,6 +253,44 @@ test('applySoftwareDiskPipeline composes init + bundle + test_run pathBase', () 
   const run = next.stages.find((s) => s.id === 'stage_test_run_a');
   assert.ok(run);
   assert.equal((run!.toolConfig as { pathBase?: string }).pathBase, 'workspace');
+});
+
+test('applySoftwareDiskPipeline injects self-heal chain for test_write/test_run slices', () => {
+  const wf = minimalSoftwareWf([
+    implStage('stage_impl_market_connector', 'server/src/market_connector.ts'),
+    implStage('stage_test_write_market_connector', 'server/__tests__/market_connector.test.ts'),
+    {
+      id: 'stage_test_run_market_connector',
+      title: 'run',
+      tool: 'code-runner',
+      toolConfig: { type: 'code-runner', command: 'cd server && npm test -- market_connector', captureOutput: true },
+      input: { sources: [], mergeStrategy: 'concat' },
+      outputs: [{ key: 'testResults', format: 'json' }],
+      pauseAfter: false,
+    },
+    implStage('stage_test_write_index_resonance', 'server/__tests__/index_resonance.test.ts'),
+    {
+      id: 'stage_test_run_index_resonance',
+      title: 'run',
+      tool: 'code-runner',
+      toolConfig: { type: 'code-runner', command: 'cd server && npm test -- index_resonance', captureOutput: true },
+      input: { sources: [], mergeStrategy: 'concat' },
+      outputs: [{ key: 'testResults', format: 'json' }],
+      pauseAfter: false,
+    },
+  ]);
+  const next = applySoftwareDiskPipeline(wf);
+  const ids = next.stages.map((s) => s.id);
+  assert.ok(ids.includes('stage_npm_install_server'));
+  assert.ok(ids.includes('stage_verify_imports_market_connector'));
+  assert.ok(ids.includes('stage_fix_if_failed_market_connector'));
+  assert.ok(ids.includes('stage_verify_imports_index_resonance'));
+  assert.ok(ids.includes('stage_fix_if_failed_index_resonance'));
+  const writeIdx = ids.indexOf('stage_test_write_index_resonance');
+  const importsIdx = ids.indexOf('stage_verify_imports_index_resonance');
+  const runIdx = ids.indexOf('stage_test_run_index_resonance');
+  assert.ok(importsIdx > writeIdx && runIdx > importsIdx);
+  assert.equal(lintPlanCompleteness(next).some((i) => i.type === 'missing-self-heal-chain'), false);
 });
 
 test('verifyRule20 ignores injected *_stagent_bundle_write file-write stages', () => {

@@ -9,6 +9,9 @@ import { lintCrossFileKeyContract, type ProjectFile } from './CrossFileKeyContra
 import { collectModuleDepthWarnings } from './ModuleDepthScorer';
 import { parseGlossary } from './ProjectGlossaryStore';
 import { lintSampleReaderHeaderContract } from './SampleHeaderContractLint';
+import { COMMITMENT_SNAPSHOT_OUTPUT_KEY } from './commitment';
+import type { CommitmentSnapshot } from './commitment';
+import { readContractCommitmentsEnabled } from './settings/readers/contract';
 import { PRIMARY_DECISION_OUTPUT_KEY } from './WorkflowOutputKeys';
 import {
   collectDecisionRecordsFromInstance,
@@ -17,6 +20,14 @@ import {
   type SdkPathContractIssue,
 } from './SdkPathContractLint';
 import { lintTestQuality, testQualityIssuesToWarnings } from './TestQualityLint';
+import {
+  lintPythonExportContractOnDisk,
+  type PythonExportContractIssue,
+} from './python-contract/PythonExportContractLint';
+import {
+  lintPythonPypiSymbolsOnDisk,
+  type PythonPypiSymbolIssue,
+} from './python-contract/PythonPypiSymbolLint';
 import {
   DEFAULT_FS_READ_TIMEOUT_MS,
   pathExists,
@@ -29,6 +40,8 @@ export interface WorkspaceLintContext {
   workspaceRootAbsolute: string | undefined;
   glossaryEnabled: boolean;
   sdkPathContractLintMode: 'off' | 'warn' | 'hard';
+  pythonExportContractLintMode: 'off' | 'warn' | 'hard';
+  pythonPypiSymbolLintMode: 'off' | 'warn' | 'hard';
 }
 
 export async function collectWorkspaceProjectFiles(ctx: WorkspaceLintContext): Promise<ProjectFile[]> {
@@ -71,12 +84,42 @@ export function collectSdkPathContractIssues(
       decisionRecord: rt.outputs[PRIMARY_DECISION_OUTPUT_KEY],
     })),
   );
+  const commitmentSnapshots = readContractCommitmentsEnabled()
+    ? ctx.instance.stageRuntimes
+        .map((rt) => {
+          const raw = rt.outputs[COMMITMENT_SNAPSHOT_OUTPUT_KEY];
+          if (!raw || typeof raw !== 'object') {
+            return null;
+          }
+          return { stageId: rt.stageId, snapshot: raw as CommitmentSnapshot };
+        })
+        .filter((x): x is { stageId: string; snapshot: CommitmentSnapshot } => x !== null)
+    : undefined;
+
   return lintSdkPathContract({
     workflow: ctx.instance.definition,
     files,
     decisionRecords,
+    commitmentSnapshots,
     registry,
   });
+}
+
+export function collectPythonExportContractIssues(ctx: WorkspaceLintContext): PythonExportContractIssue[] {
+  if (!ctx.instance || ctx.pythonExportContractLintMode === 'off') {
+    return [];
+  }
+  const ws = ctx.workspaceRootAbsolute;
+  if (!ws) {
+    return [];
+  }
+  const testFiles = collectWorkflowArtifacts(ctx.instance.definition).paths.filter((p) =>
+    /(^|\/)tests\/test_.*\.py$/i.test(p.replace(/\\/g, '/')),
+  );
+  if (testFiles.length === 0) {
+    return [];
+  }
+  return lintPythonExportContractOnDisk({ workspaceRoot: ws, testFiles });
 }
 
 export async function runWorkspaceContractLint(ctx: WorkspaceLintContext): Promise<string[]> {
@@ -115,7 +158,54 @@ export async function runWorkspaceContractLint(ctx: WorkspaceLintContext): Promi
   if (ctx.sdkPathContractLintMode === 'warn') {
     warnings.push(...sdkPathContractIssuesToWarnings(collectSdkPathContractIssues(ctx, files)));
   }
+  if (ctx.pythonExportContractLintMode === 'warn') {
+    for (const issue of collectPythonExportContractIssues(ctx)) {
+      warnings.push(`[python-export-contract ${issue.code}] ${issue.message}`);
+    }
+  }
+  if (ctx.pythonPypiSymbolLintMode === 'warn') {
+    for (const issue of collectPythonPypiSymbolIssues(ctx)) {
+      warnings.push(`[python-pypi-symbol ${issue.code}] ${issue.message}`);
+    }
+  }
   return warnings;
+}
+
+export function collectPythonPypiSymbolIssues(ctx: WorkspaceLintContext): PythonPypiSymbolIssue[] {
+  if (!ctx.instance || ctx.pythonPypiSymbolLintMode === 'off') {
+    return [];
+  }
+  const ws = ctx.workspaceRootAbsolute;
+  if (!ws) {
+    return [];
+  }
+  const pyFiles = collectWorkflowArtifacts(ctx.instance.definition).paths.filter((p) =>
+    /\.py$/i.test(p),
+  );
+  if (pyFiles.length === 0) {
+    return [];
+  }
+  return lintPythonPypiSymbolsOnDisk({ workspaceRoot: ws, pyFiles });
+}
+
+export async function runPythonExportContractHardGate(
+  ctx: WorkspaceLintContext,
+): Promise<PythonExportContractIssue | null> {
+  if (ctx.pythonExportContractLintMode !== 'hard') {
+    return null;
+  }
+  const issues = collectPythonExportContractIssues(ctx);
+  return issues[0] ?? null;
+}
+
+export async function runPythonPypiSymbolHardGate(
+  ctx: WorkspaceLintContext,
+): Promise<PythonPypiSymbolIssue | null> {
+  if (ctx.pythonPypiSymbolLintMode !== 'hard') {
+    return null;
+  }
+  const issues = collectPythonPypiSymbolIssues(ctx);
+  return issues[0] ?? null;
 }
 
 export async function runSdkPathContractHardGate(

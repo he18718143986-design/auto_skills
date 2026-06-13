@@ -7,10 +7,21 @@ import {
   readConfigStringEnum,
   readTriStateLintMode,
 } from './readConfigHelpers';
+import { readAfkEnabled, settingExplicitlyConfigured } from './afk';
+
+export type PythonPypiSymbolLintMode = 'off' | 'warn' | 'hard';
 
 /** vscode `stagent.sandbox.enabled`；默认 false */
 export function readSandboxEnabled(cfg?: vscode.WorkspaceConfiguration): boolean {
   return readConfigBooleanStrictTrue(cfg, 'sandbox.enabled');
+}
+
+/** vscode `stagent.sandbox.verificationOnly`；为 true 时仅 test_run/smoke 走沙箱（B-Q2）。AFK 默认 true。 */
+export function readSandboxVerificationOnly(cfg?: vscode.WorkspaceConfiguration): boolean {
+  if (readAfkEnabled(cfg) && !settingExplicitlyConfigured(cfg, 'sandbox.verificationOnly')) {
+    return true;
+  }
+  return cfg?.get<boolean>('sandbox.verificationOnly') === true;
 }
 
 /** vscode `stagent.execution.testRunPreflight`；默认 true（M38.1 运行期 test_run 预检） */
@@ -45,11 +56,49 @@ export function readTestRunFailurePlaybookEnabled(cfg?: vscode.WorkspaceConfigur
   return readConfigBooleanDefaultTrue(cfg, 'execution.testRunFailurePlaybook');
 }
 
-/** M39.2：Decision ↔ impl ↔ test SDK/路径契约 lint 模式；默认 warn */
+/** M39.2：Decision ↔ impl ↔ test SDK/路径契约 lint 模式；默认 hard（test_run 前阻断） */
 export type SdkPathContractLintMode = 'off' | 'warn' | 'hard';
 
 export function readSdkPathContractLintMode(cfg?: vscode.WorkspaceConfiguration): SdkPathContractLintMode {
-  return readTriStateLintMode(cfg, 'execution.sdkPathContractLint');
+  return readTriStateLintMode(cfg, 'execution.sdkPathContractLint', 'hard');
+}
+
+/** Python test/impl 导出契约 lint；默认 warn（hard 时在 test_run 前阻断）。 */
+export type PythonExportContractLintMode = 'off' | 'warn' | 'hard';
+
+export function readPythonExportContractLintMode(
+  cfg?: vscode.WorkspaceConfiguration,
+): PythonExportContractLintMode {
+  if (readAfkEnabled(cfg) && !settingExplicitlyConfigured(cfg, 'python.exportContractLint')) {
+    return 'hard';
+  }
+  return readTriStateLintMode(cfg, 'python.exportContractLint', 'warn');
+}
+
+/** Python 第三方 API 幻觉符号 lint（如 ctpbee MdApi）；默认 warn；hard 时 test_run 前阻断。 */
+export function readPythonPypiSymbolLintMode(
+  cfg?: vscode.WorkspaceConfiguration,
+): PythonPypiSymbolLintMode {
+  if (readAfkEnabled(cfg) && !settingExplicitlyConfigured(cfg, 'python.pypiSymbolLint')) {
+    return 'hard';
+  }
+  return readTriStateLintMode(cfg, 'python.pypiSymbolLint', 'warn');
+}
+
+/** gate block 时尝试 LLM gate-repair（export-contract / pypi-symbol）；AFK 默认开启。 */
+export function readGateAutoRepairEnabled(cfg?: vscode.WorkspaceConfiguration): boolean {
+  if (readAfkEnabled(cfg) && !settingExplicitlyConfigured(cfg, 'execution.gateAutoRepair')) {
+    return true;
+  }
+  return readConfigBooleanDefaultTrue(cfg, 'execution.gateAutoRepair');
+}
+
+/** gate-repair 仍失败时运行时插入 replan stage（P3b）；AFK 默认开启。 */
+export function readRuntimeReplanEnabled(cfg?: vscode.WorkspaceConfiguration): boolean {
+  if (readAfkEnabled(cfg) && !settingExplicitlyConfigured(cfg, 'execution.runtimeReplan')) {
+    return true;
+  }
+  return readConfigBooleanDefaultTrue(cfg, 'execution.runtimeReplan');
 }
 
 export type DangerousCommandLintMode = 'off' | 'warn' | 'hard';

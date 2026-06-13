@@ -37,12 +37,14 @@ test('polish commits user text to history bubble and hides composer dock', () =>
   rt.document.getElementById('user-input')!.value = '口语草稿';
   rt.send({ type: 'taskWorkspacePathPicked', path: '/tmp/ws' });
 
+  rt.document.getElementById('btn-toggle-polish-tools')!.onclick?.();
   rt.document.getElementById('btn-polish')!.onclick?.();
   const polishMsg = rt.postMessages.find((m) => (m as { type?: string }).type === 'polishUserTask') as
-    | { taskType?: string }
+    | { taskType?: string; polishTier?: string }
     | undefined;
   assert.ok(polishMsg);
   assert.equal(polishMsg!.taskType, 'auto');
+  assert.equal(polishMsg!.polishTier, 'auto');
   assert.equal(rt.document.getElementById('chat-history')!.style.display, 'flex');
   const dock = rt.document.getElementById('composer-dock')!;
   assert.notEqual(dock.style.display, 'none');
@@ -69,6 +71,7 @@ test('polish modify restores composer dock with original draft', () => {
   const rt = setupWebviewScriptRuntime(true);
   rt.document.getElementById('user-input')!.value = '口语草稿';
   rt.send({ type: 'taskWorkspacePathPicked', path: '/tmp/ws' });
+  rt.document.getElementById('btn-toggle-polish-tools')!.onclick?.();
   rt.document.getElementById('btn-polish')!.onclick?.();
   rt.document.getElementById('btn-polish-collapse')!.onclick?.();
   assert.notEqual(rt.document.getElementById('composer-dock')!.style.display, 'none');

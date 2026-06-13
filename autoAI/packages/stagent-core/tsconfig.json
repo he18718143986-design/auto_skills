@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "composite": true,
+    "composite": false,
     "module": "commonjs",
     "target": "ES2020",
     "lib": ["ES2020"],
@@ -15,5 +15,29 @@
     "resolveJsonModule": true
   },
   "include": ["src"],
-  "exclude": ["node_modules", "dist"]
+  "exclude": [
+    "node_modules",
+    "dist",
+    "src/rule20/**",
+    "src/commitment/**",
+    "src/test-infra/**",
+    "src/sandbox/**",
+    "src/confirm-plan/**",
+    "src/shared/**",
+    "src/validation/**",
+    "src/panel-handlers/**",
+    "src/sidebar/**",
+    "src/extension.ts",
+    "src/PriorFailurePatternResolver.ts",
+    "src/jsonl/**",
+    "src/extension/**",
+    "src/failure-patterns/**",
+    "src/input-context/**",
+    "src/settings/validators/**",
+    "src/DebugFeedbackLoopGate.ts",
+    "src/TestRunPreflight.ts",
+    "src/TestRunAutoDepsInstall.ts",
+    "src/RequirementsTxtPreflight.ts",
+    "src/WorkflowStageGateFailure.ts",
+  ]
 }

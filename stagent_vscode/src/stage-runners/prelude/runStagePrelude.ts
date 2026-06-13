@@ -4,12 +4,18 @@ import { emitStageError, invariantStageError } from '../../WorkflowStageErrorHel
 import { DECISION_STAGE_INVARIANT_I1_MSG } from '../../workflow/DecisionStageShape';
 import { isDecisionLlmTextStage } from '../../workflow/StageToolKinds';
 import type { StageStepOutcome } from '../../WorkflowExecutorTypes';
+import { tryFixExhaustedReplanBeforeFix } from '../../runtime-replan/testRunSelfHeal';
 import type { StageStepContext } from '../StageStepContext';
 
 /** skip / pre-gates / question-before / 决策阶段 invariant。返回 null 表示继续执行工具。 */
 export async function runStagePrelude(ctx: StageStepContext): Promise<StageStepOutcome | null> {
   const { params, stage, runtime, instance, panel } = ctx;
   const { evaluateSkipCondition, postMessage, scheduleSave, logUserAction } = params;
+
+  const fixExhaustedReplan = tryFixExhaustedReplanBeforeFix(ctx);
+  if (fixExhaustedReplan !== null) {
+    return fixExhaustedReplan;
+  }
 
   if (stage.skipIf && evaluateSkipCondition(stage.skipIf, instance.stageRuntimes)) {
     runtime.status = 'skipped';

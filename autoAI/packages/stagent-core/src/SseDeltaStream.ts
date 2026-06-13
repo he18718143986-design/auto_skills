@@ -1,3 +1,10 @@
+/** OpenAI 兼容 `usage` 块（最终 chunk 随 `stream_options.include_usage` 下发）。 */
+export interface SseUsage {
+  prompt_tokens?: number;
+  completion_tokens?: number;
+  total_tokens?: number;
+}
+
 /**
  * 按行缓冲解析 OpenAI 兼容 SSE，避免 chunk 切断 `data:` 行。
  *
@@ -5,11 +12,15 @@
  * 时触发——包括推理模型在作答前流式输出的思维链（`reasoning_content`）、SSE
  * keepalive 注释行等。调用方据此重置「空闲超时」，避免长思考阶段（只发
  * reasoning、不发 content）被误判为卡死而中断。
+ *
+ * `onUsage`（可选）：当流中出现 `usage` 字段（厂商在末尾 chunk 下发，需请求时
+ * 带 `stream_options: { include_usage: true }`）时回调，用于 token 计量。
  */
 export async function* parseSseDeltaStream(
   body: ReadableStream<Uint8Array>,
   signal: AbortSignal,
   onActivity?: () => void,
+  onUsage?: (usage: SseUsage) => void,
 ): AsyncGenerator<string> {
   const reader = body.getReader();
   const decoder = new TextDecoder();
@@ -38,7 +49,13 @@ export async function* parseSseDeltaStream(
           continue;
         }
         try {
-          const json = JSON.parse(data) as { choices?: { delta?: { content?: string } }[] };
+          const json = JSON.parse(data) as {
+            choices?: { delta?: { content?: string } }[];
+            usage?: SseUsage | null;
+          };
+          if (json.usage && onUsage) {
+            onUsage(json.usage);
+          }
           const delta = json.choices?.[0]?.delta?.content ?? '';
           if (delta) {
             yield delta;

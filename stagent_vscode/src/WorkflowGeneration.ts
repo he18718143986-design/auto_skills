@@ -18,11 +18,18 @@ import {
   TRACE_STAGE_WORKFLOW_GEN_CONTINUE,
   TRACE_STAGE_WORKFLOW_GEN_REPAIR,
 } from './generation/GenerationTraceStageIds';
-import { splitBundledTestRunCommands } from './TestRunCommandNormalize';
+import { splitBundledTestRunCommands, splitBundledVenvPipImportCommands } from './TestRunCommandNormalize';
+import { applyPythonWorkflowRepairs } from './structural-repair/pythonWorkflowRepair';
+import { injectImplSliceScopePrompts } from './impl-scope/injectImplSliceScope';
 import { applyRule20StructuralNormalizations } from './WorkflowRule20Normalize';
 import { generationMsg } from './l10n/gateMsg';
 import { extractJsonObject, isLikelyTruncatedJson } from './JsonExtract';
 import { buildJsonContinuationPrompt } from './LlmInvokeHelpers';
+import type { LlmInvokeOpts } from './core/LlmInvokeOpts';
+import {
+  workflowGenContinueLlmInvokeOpts,
+  workflowGenRepairLlmInvokeOpts,
+} from './core/LlmInvokeOpts';
 import {
   applySnapshotDegradation,
   buildCodebaseSnapshot,
@@ -135,13 +142,23 @@ export function normalizeWorkflow(
     splitBundledTestRunCommands(normalized);
   }
 
+  splitBundledVenvPipImportCommands(normalized);
+  applyPythonWorkflowRepairs(normalized);
+
   normalizeCodeRunnerTimeoutsForWorkflow(normalized);
+
+  injectImplSliceScopePrompts(normalized);
 
   return normalized;
 }
 
 export interface WorkflowJsonParseDeps {
-  invokeLlmRaw: (systemPrompt: string, userContent: string, traceStageId: string) => Promise<string>;
+  invokeLlmRaw: (
+    systemPrompt: string,
+    userContent: string,
+    traceStageId: string,
+    opts?: LlmInvokeOpts,
+  ) => Promise<string>;
   /** 续接/修复阶段的额外 LLM 输出回调，供上层把这些 token 计入生成预算（含续接/修复，不再只算主输出）。 */
   onAuxLlmOutput?: (text: string) => void;
   /** 截断续接最大次数（默认 2）；达到上限仍未闭合则转入 repair。 */
@@ -159,7 +176,12 @@ async function repairWorkflowJson(raw: string, deps: WorkflowJsonParseDeps): Pro
 2) version 必须是 "2.0"；
 3) stages 必须是数组；
 4) 如果无法修复，请至少输出 {"id":"wf_invalid","version":"2.0","meta":{"title":"invalid","taskType":"software","userInput":"","createdAt":"${new Date().toISOString()}"},"stages":[]}。`;
-  return deps.invokeLlmRaw(repairPrompt, raw, TRACE_STAGE_WORKFLOW_GEN_REPAIR);
+  return deps.invokeLlmRaw(
+    repairPrompt,
+    raw,
+    TRACE_STAGE_WORKFLOW_GEN_REPAIR,
+    workflowGenRepairLlmInvokeOpts(),
+  );
 }
 
 /** 从模型原始输出解析 WorkflowDefinition（提取 / 续写 / 修复）。 */
@@ -175,6 +197,7 @@ export async function parseWorkflowJson(raw: string, deps: WorkflowJsonParseDeps
       buildJsonContinuationPrompt(accumulated),
       '',
       TRACE_STAGE_WORKFLOW_GEN_CONTINUE,
+      workflowGenContinueLlmInvokeOpts(),
     );
     deps.onAuxLlmOutput?.(continuation);
     accumulated += continuation;

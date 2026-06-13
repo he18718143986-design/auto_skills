@@ -52,6 +52,14 @@ function babelConfigStage(id = 'stage_impl_babel_config'): Stage {
   return implStage(id, 'babel.config.js');
 }
 
+function pythonVenvChainStages(): Stage[] {
+  return [
+    implStage('stage_venv_create', 'python3 -m venv .venv', 'code-runner'),
+    implStage('stage_venv_pip_install', '.venv/bin/python -m pip install pytest', 'code-runner'),
+    implStage('stage_venv_import_check', '.venv/bin/python -c "import pytest"', 'code-runner'),
+  ];
+}
+
 function issueTypes(w: WorkflowDefinition): string[] {
   return lintPlanCompleteness(w).map((i) => i.type);
 }
@@ -210,13 +218,17 @@ test('M39.1: Expo App.tsx + test_run requires jest and babel before test_run', (
 });
 
 test('M39.1: pytest-only python plan does not require jest infrastructure', () => {
-  const w = wf([
-    implStage('stage_impl_reader', 'reader.py'),
-    implStage('stage_impl_writer', 'writer.py'),
-    implStage('stage_test_run_unit', 'python -m pytest tests/', 'code-runner'),
-  ]);
+  const w = wf(
+    [
+      ...pythonVenvChainStages(),
+      implStage('stage_impl_conftest', 'conftest.py'),
+      implStage('stage_impl_reader', 'reader.py'),
+      implStage('stage_test_run_unit', 'python -m pytest tests/', 'code-runner'),
+    ],
+    'prototype',
+  );
   assert.equal(planRequiresTestInfrastructure(w), false);
-  assert.deepEqual(issueTypes(w), []);
+  assert.ok(!issueTypes(w).includes('missing-test-infrastructure'));
 });
 
 test('M39.1: jest.config.js impl does not inflate multi-module count for main assembly', () => {

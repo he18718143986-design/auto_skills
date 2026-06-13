@@ -12,6 +12,7 @@ import {
   DEBUG_EVENT_CLARIFY_REUSE_STRATEGY,
   DEBUG_EVENT_TASK_TYPE_RESOLVED,
 } from './DebugLogEvents';
+import { isWorkflowTemplate } from './path-router/WorkflowTemplateTypes';
 import { WORKFLOW_LEVEL_STAGE_ID } from './workflow/WorkflowLevelIds';
 
 export function applyGenerationMetadata(
@@ -31,7 +32,18 @@ export function applyGenerationMetadata(
     effectiveType,
   });
   const next = host.normalizeWorkflow(wf, userInput, effectiveType);
-  next.meta = { ...next.meta, taskType: effectiveType, taskWorkspacePath: taskWorkspaceAbs };
+  const modelTemplate = wf.meta?.workflowTemplate?.trim();
+  const workflowTemplate = isWorkflowTemplate(modelTemplate)
+    ? modelTemplate
+    : ctx.pathRouter.workflowTemplate;
+  const isGreenfield = wf.meta?.isGreenfield ?? ctx.pathRouter.suggestedIsGreenfield;
+  next.meta = {
+    ...next.meta,
+    taskType: effectiveType,
+    taskWorkspacePath: taskWorkspaceAbs,
+    workflowTemplate,
+    isGreenfield,
+  };
   if (polishContext?.originalDraft?.trim() && polishContext.polishedAt) {
     next.meta = {
       ...next.meta,
@@ -42,6 +54,16 @@ export function applyGenerationMetadata(
     };
   }
   const reuseStrategy = resolveReuseStrategyFromClarify(clarifyAnswers?.q_files);
+  const stackProfile = ctx.pathRouter.stackProfile;
+  if (stackProfile === 'python') {
+    next.globalConfig = {
+      ...next.globalConfig,
+      language: next.globalConfig?.language ?? 'python',
+      stackProfile: 'python',
+    };
+  } else if (stackProfile === 'node') {
+    next.globalConfig = { ...next.globalConfig, stackProfile: 'node' };
+  }
   if (reuseStrategy !== 'regenerate') {
     const existingFiles = scanExistingTopLevelFiles(taskWorkspaceAbs);
     next.meta = {

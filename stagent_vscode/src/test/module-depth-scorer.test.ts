@@ -4,10 +4,12 @@ import {
   analyzePythonModuleDepth,
   applyModuleDepthPenaltyToQualityScore,
   classifyDepthRatio,
+  classifyLeverage,
   collectModuleDepthWarnings,
   formatModuleDepthWarning,
   moduleDepthPenalty,
   scoreModuleDepth,
+  scoreModuleDepthByLeverage,
 } from '../ModuleDepthScorer';
 import { scoreStatically } from '../OutputQualityScorer';
 
@@ -103,6 +105,60 @@ def g(x):
   const warnings = collectModuleDepthWarnings([{ path: 'wrap.py', content }]);
   assert.equal(warnings.length, 1);
   assert.ok(warnings[0].startsWith('architecture:shallow-module:wrap.py'));
+});
+
+test('classifyLeverage：杠杆阈值分类', () => {
+  assert.equal(classifyLeverage(8), 'deep');
+  assert.equal(classifyLeverage(3), 'moderate');
+  assert.equal(classifyLeverage(1), 'shallow');
+});
+
+test('scoreModuleDepthByLeverage：杠杆语义（窄接口大行为=深）', () => {
+  const r = scoreModuleDepthByLeverage({
+    publicSymbolCount: 1,
+    implementationLines: 40,
+    behaviorUnits: 36,
+    interfaceCost: 1.25,
+  });
+  assert.equal(r.classification, 'deep');
+  assert.ok((r.leverage ?? 0) >= 6);
+});
+
+test('scoreModuleDepthByLeverage：behaviorUnits 缺省时回退比值法（向后兼容）', () => {
+  const r = scoreModuleDepthByLeverage({ publicSymbolCount: 1, implementationLines: 60 });
+  assert.equal(r.classification, 'deep');
+  assert.equal(r.leverage, undefined);
+});
+
+test('depth-as-leverage 修正：灌水/透传链不再被误判为深', () => {
+  // 窄接口（1 个公共 facade）+ 大量透传委托：旧的「实现行/接口」比值会判 deep（实现行多、接口=1），
+  // 杠杆语义只数真正行为（透传 return 不计）→ behaviorUnits≈0 → 正确判为 shallow。
+  const content = `def facade(x):
+    return _a(x)
+
+def _a(x):
+    return _b(x)
+
+def _b(x):
+    return _c(x)
+
+def _c(x):
+    return _d(x)
+
+def _d(x):
+    return _e(x)
+
+def _e(x):
+    return _f(x)
+
+def _f(x):
+    return x
+`;
+  const byRatio = scoreModuleDepth({ publicSymbolCount: 1, implementationLines: 13 });
+  assert.equal(byRatio.classification, 'deep'); // 旧框架（比值）会误判为深
+  const r = analyzePythonModuleDepth(content);
+  assert.equal(r.classification, 'shallow'); // 杠杆框架正确判浅
+  assert.ok(formatModuleDepthWarning('facade.py', r)?.includes('杠杆'));
 });
 
 test('#14 applyModuleDepthPenaltyToQualityScore 浅模块降分', () => {

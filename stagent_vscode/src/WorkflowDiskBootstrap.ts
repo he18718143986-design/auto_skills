@@ -6,5 +6,11 @@ export {
   patchNpmDefaultTestScriptAfterInit,
   injectInitNpmWorkspaceStage,
   injectFileWriteAfterImplStages,
+  injectDeliveryWrapupStage,
+  collectDeliverableFilePaths,
+  DELIVERY_WRAPUP_STAGE_ID,
+  injectSmokeStage,
+  looksLikeServeCommand,
+  SMOKE_RUN_STAGE_ID,
   applySoftwareDiskPipeline,
 } from './disk-bootstrap';

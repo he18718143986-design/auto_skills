@@ -29,7 +29,7 @@
 
 各路径共用 Phase 0–6 **骨架**与同一 **Skill 工具箱**；**没有任何一条路径会跑遍全部 Skill**（见 [§19](#19-路径--skill-覆盖矩阵-与-skill-全库分类)）。
 
-如果你正在构建「软件开发工作流平台」，可以把路径选型建模为 **Path Router**（输入：需求 + 仓库快照 → 输出：`workflowTemplate`），详见 [PLATFORM-PRD.md §6.5](./PLATFORM-PRD.md#65-path-router需求--仓库状态)。
+如果你正在构建「软件开发工作流平台」，可以把路径选型建模为 **Path Router**（输入：需求 + 仓库快照 → 输出：`workflowTemplate`），详见 [STAGENT-PRD.md §4.5](./STAGENT-PRD.md#45-path-router)。
 
 ---
 
@@ -417,7 +417,7 @@ grill / arch-review 过程中浮现、且具有普适性的决策，应在 sessi
 
 - **节点类型**：`CharterGate`（Project 级配置，类似 SetupGate，但**可选**）
 - **与 grill 的关系**：Charter 作为 grill 节点的**自动应答策略层**，由 `autoAnswerMode` 控制；正交于 Path Router（任何 `workflowTemplate` 都可叠加）
-- **度量**：Charter 覆盖率、升级精确率、**里程碑处被人发现的 misalignment 率**（详见 [PLATFORM-PRD.md §6.6](./PLATFORM-PRD.md#66-charter决策主旨--自动应答策略)）
+- **度量**：Charter 覆盖率、升级精确率、**里程碑处被人发现的 misalignment 率**（详见 [STAGENT-PRD.md §7](./STAGENT-PRD.md#7-charter决策主旨)）
 
 ---
 
@@ -1162,7 +1162,7 @@ PRD #210 拆成 vertical slices，优先 AFK。
 
 ## 15. 工作流平台设计参考
 
-> **完整平台 PRD** 见 **[PLATFORM-PRD.md](./PLATFORM-PRD.md)**（含 User Stories、数据模型、API、UI 规格、MVP 里程碑与验收标准）。  
+> **完整产品 PRD** 见 **[STAGENT-PRD.md](./STAGENT-PRD.md)**（AFK 自执行、工作计划、验收标准）。  
 > 本节为 WORKFLOW 文档内的摘要。Brownfield 路径对应 PRD 中的 `workflowTemplate: full` 与 `express`，Bug 路径对应 `taskType: debug`。
 
 若你要把此流程产品化，建议的数据模型：
@@ -1196,7 +1196,7 @@ Issue
 | Gate | 条件 |
 |------|------|
 | CanGrill | setupComplete |
-| CanAutoAnswerGrill | charterExists && autoAnswerMode != off（见 [§5.5](#55-phase-05决策主旨charter可选)、[PLATFORM-PRD §6.6](./PLATFORM-PRD.md#66-charter决策主旨--自动应答策略)） |
+| CanAutoAnswerGrill | charterExists && autoAnswerMode != off（见 [§5.5](#55-phase-05决策主旨charter可选)、[STAGENT-PRD.md §7](./STAGENT-PRD.md#7-charter决策主旨)） |
 | MustEscalateToHuman | 命中 ADR 判据 \|\| 越过 Charter 约束 \|\| 置信度 < 阈值（反向闸门，禁止代答） |
 | CanToPrd | grillingComplete |
 | CanToIssues | prdPublished |
@@ -1215,7 +1215,7 @@ Issue
 
 ### 15.4 推荐 UI 流程
 
-按 Path Router 模板分支（平台见 [PLATFORM-PRD §6.5](./PLATFORM-PRD.md#65-path-router需求--仓库状态)）：
+按 Path Router 模板分支（平台见 [STAGENT-PRD.md §4.5](./STAGENT-PRD.md#45-path-router)）：
 
 | 模板 | UI 主链 |
 |------|---------|
@@ -1409,7 +1409,7 @@ Brownfield 专属误区见 [§14.8](#148-brownfield-常见误区)。
 | P5 Arch | 1（improve-arch） | ~3 |
 | 横切 | — | 4（triage, handoff, caveman, + zoom-out/diagnose 挂载） |
 
-**平台 UI 规则（摘自 [PLATFORM-PRD §6.5.5](./PLATFORM-PRD.md#655-路径--skill-覆盖)）**
+**平台 UI 规则（摘自 [WORKFLOW.md §19.1](#191-路径--skill-覆盖矩阵)）**
 
 - 选定 `workflowTemplate` 后，**只展示**该路径列中为 ● 或 ○ 的 skill 按钮。  
 - 列为 **—** 或 **⊘** 的 skill 不在 Feature 流水线中自动编排。  
@@ -1481,7 +1481,7 @@ Brownfield 专属误区见 [§14.8](#148-brownfield-常见误区)。
 3. 在 agent 中运行 `/setup-matt-pocock-skills`
 4. 开始用 `/grill-me` 或 `/grill-with-docs`
 
-本文档在此基础上扩展为**完整软件项目工作流**（路径选型 §4 + Greenfield §13 + Brownfield §14），并补充 prototype → PRD → issues → TDD → 架构治理 → triage 横切的完整链路。平台 Path Router 见 [PLATFORM-PRD §6.5](./PLATFORM-PRD.md#65-path-router需求--仓库状态)。
+本文档在此基础上扩展为**完整软件项目工作流**（路径选型 §4 + Greenfield §13 + Brownfield §14），并补充 prototype → PRD → issues → TDD → 架构治理 → triage 横切的完整链路。平台 Path Router 见 [STAGENT-PRD.md §4.5](./STAGENT-PRD.md#45-path-router)。
 
 ---
 

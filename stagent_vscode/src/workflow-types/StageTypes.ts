@@ -24,6 +24,18 @@ export interface CodeRunnerConfig {
   pathBase?: ToolPathBase;
   timeout?: number; // 秒，默认 60
   captureOutput: boolean;
+  /**
+   * B-Q1 有界运行：command 为长驻进程（如 `npm start`）时设为 true，
+   * 引擎以「后台起 → 探活/grace → 进程组 kill」方式有界执行（spawnBoundedServe），
+   * 避免长驻进程卡住执行器。仅 smoke/e2e 阶段使用；缺省 false = 历史行为。
+   */
+  serve?: boolean;
+  /** serve=true 时的探活命令（shell，exit 0 即就绪）；未设则用 graceMs 存活探测。 */
+  readyProbe?: string;
+  /** serve=true 无 readyProbe 时：进程需稳定存活这么久才算通过（ms）。 */
+  graceMs?: number;
+  /** serve=true 探活轮询上限（ms）。 */
+  readyTimeoutMs?: number;
 }
 
 export interface FileWriteConfig {
@@ -106,6 +118,10 @@ export interface Question {
   text: string;
   hint?: string;
   required?: boolean; // 默认 true
+  /** stageQuestionsBefore 出站 enrich；不属于持久化 workflow JSON */
+  suggestedAnswer?: string;
+  provenance?: import('../charter/CharterTypes').DecisionProvenance;
+  ruleRefs?: number[];
 }
 
 // ─── Stage ─────────────────────────────────────────────────────
@@ -130,4 +146,6 @@ export interface Stage {
   onError?: ErrorHandling;
   /** 前置 stage id 列表；若声明则每一项必须存在于 workflow 且在本阶段之前（§7.8.3 / SPEC §4.1）。是否按 DAG 执行由 globalConfig.enableDagScheduler 决定。 */
   dependsOn?: string[];
+  /** Contract-First：确定性步骤（venv/conftest/verify）跳过 confidence HITL pause。 */
+  meta?: { executionMode?: 'deterministic' };
 }

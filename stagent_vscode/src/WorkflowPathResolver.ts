@@ -45,13 +45,58 @@ export function resolveExistingDirectoryPath(
   return { ok: true, abs };
 }
 
-/** `meta.taskWorkspacePath` 解析为绝对路径；缺失/空白返回 undefined。 */
-export function resolveWorkspaceRootAbsolute(taskWorkspacePath?: string): string | undefined {
-  const raw = taskWorkspacePath?.trim();
-  if (!raw) {
+/**
+ * 从实例 taskDir 反推工作区根：`<ws>/.stagent/instances/<id>` → `<ws>`。
+ * taskDir 结构不符时返回 undefined。
+ */
+export function workspaceRootFromTaskDir(taskDir?: string): string | undefined {
+  if (!taskDir?.trim()) {
     return undefined;
   }
-  return path.resolve(expandUserHomePath(raw));
+  const instancesDir = path.dirname(path.resolve(taskDir));
+  if (path.basename(instancesDir) !== 'instances') {
+    return undefined;
+  }
+  const stagentDir = path.dirname(instancesDir);
+  if (path.basename(stagentDir) !== '.stagent') {
+    return undefined;
+  }
+  return path.dirname(stagentDir);
+}
+
+/**
+ * 将 meta.taskWorkspacePath 钉死为绝对路径。
+ * 相对路径优先相对 taskDir 所属工作区解析，避免执行期 cwd 变化导致 `../T4` 漂移。
+ */
+export function pinTaskWorkspacePathAbsolute(
+  taskWorkspacePath: string | undefined,
+  taskDirHint?: string,
+): string | undefined {
+  const fromTaskDir = workspaceRootFromTaskDir(taskDirHint);
+  const raw = taskWorkspacePath?.trim();
+  if (!raw) {
+    return fromTaskDir;
+  }
+  const expanded = expandUserHomePath(raw);
+  if (path.isAbsolute(expanded)) {
+    return path.resolve(expanded);
+  }
+  if (fromTaskDir) {
+    return path.resolve(fromTaskDir, expanded);
+  }
+  return path.resolve(expanded);
+}
+
+/** `meta.taskWorkspacePath` 解析为绝对路径；缺失/空白时尝试 taskDir 反推。 */
+export function resolveWorkspaceRootAbsolute(
+  taskWorkspacePath?: string,
+  taskDirHint?: string,
+): string | undefined {
+  const pinned = pinTaskWorkspacePathAbsolute(taskWorkspacePath, taskDirHint);
+  if (pinned) {
+    return pinned;
+  }
+  return workspaceRootFromTaskDir(taskDirHint);
 }
 
 /**

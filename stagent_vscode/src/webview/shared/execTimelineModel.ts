@@ -1,3 +1,5 @@
+import type { StageExecSemantic } from '../../workflow-types/MessageTypes';
+import type { CockpitStageRole } from './stageCockpitRole';
 import type { ExecStageStatus } from './stageStatusPolicy';
 
 export interface StageTimelineItem {
@@ -6,6 +8,8 @@ export interface StageTimelineItem {
   status: ExecStageStatus;
   isDecisionStage?: boolean;
   selected?: boolean;
+  role?: CockpitStageRole;
+  execSemantic?: StageExecSemantic;
 }
 
 /** 决策阶段始终顶层展示；其余连续阶段合并为可折叠「执行步骤」组。 */
@@ -14,6 +18,14 @@ export type ExecTimelineNode =
   | { type: 'segment-fold'; segmentKey: string; stages: StageTimelineItem[] };
 
 const ACTIVE_STATUSES = new Set(['running', 'retrying', 'error', 'paused', 'waiting-questions']);
+
+/** 屏 4：deferred 语义在折叠组中视为需关注。 */
+export function isTimelineAttentionStatus(status: ExecStageStatus, execSemantic?: StageExecSemantic): boolean {
+  if (execSemantic === 'deferred' || execSemantic === 'self-healing') {
+    return true;
+  }
+  return ACTIVE_STATUSES.has(status);
+}
 
 export function buildExecTimelineNodes(stages: StageTimelineItem[]): ExecTimelineNode[] {
   const nodes: ExecTimelineNode[] = [];
@@ -44,7 +56,7 @@ export function buildExecTimelineNodes(stages: StageTimelineItem[]): ExecTimelin
 }
 
 export function timelineFoldNeedsAttention(stages: StageTimelineItem[]): boolean {
-  return stages.some((st) => ACTIVE_STATUSES.has(st.status));
+  return stages.some((st) => isTimelineAttentionStatus(st.status, st.execSemantic));
 }
 
 export interface ExecTimelineFoldState {
@@ -64,7 +76,7 @@ export function shouldExpandSegmentFold(
     if (viewStageId === st.id) {
       return true;
     }
-    if (ACTIVE_STATUSES.has(st.status)) {
+    if (isTimelineAttentionStatus(st.status, st.execSemantic)) {
       return true;
     }
   }

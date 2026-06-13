@@ -61,6 +61,15 @@ export function getStateFilePath(
   return path.join(dir, WF_STATE_FILE_NAME);
 }
 
+export async function persistInstanceFileAsync(
+  instanceKey: string,
+  instance: WorkflowInstance,
+  workspacePath: string | undefined,
+  globalStoragePath: string,
+): Promise<void> {
+  persistInstanceFile(instanceKey, instance, workspacePath, globalStoragePath);
+}
+
 export function persistInstanceFile(
   instanceKey: string,
   instance: WorkflowInstance,

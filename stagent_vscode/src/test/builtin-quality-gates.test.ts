@@ -26,6 +26,7 @@ const defaultGates = {
   planCompletenessEnabled: true,
   planStructuralRepairMode: 'off' as const,
   staticAnalysisEnabled: false,
+  contractPlanPreflightV2: false,
 };
 
 function baseMeta() {

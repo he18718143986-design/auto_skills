@@ -1,4 +1,8 @@
 import type * as vscode from 'vscode';
+import {
+  recordCharterQuestionProvenance,
+  syncDecisionProvenanceFromGrill,
+} from '../charter/CharterGrillAutoAnswer';
 import { validateRequiredAnswers } from '../QuestionAfterFlow';
 import { readGrillAdaptiveModeForStage } from '../GrillAdaptiveFlow';
 import { getStagentConfiguration } from '../settings/getStagentConfiguration';
@@ -34,7 +38,11 @@ export async function handleAnswerQuestionsBefore(
     }
 
     host.logUserAction('answer_questions_before', { stageId, answerKeys: Object.keys(answers) });
+    for (const qid of Object.keys(answers)) {
+      recordCharterQuestionProvenance(rt, qid, 'human');
+    }
     applyQuestionBeforeAnswers(rt, answers);
+    syncDecisionProvenanceFromGrill(rt);
     if (instance.currentStageIndex !== idx) {
       host.setCurrentStageIndex(idx);
     }

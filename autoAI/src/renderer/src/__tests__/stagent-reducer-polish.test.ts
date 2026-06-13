@@ -131,9 +131,11 @@ describe('reduceStagentState draftInstanceKey (确认页草稿)', () => {
       kind: 'event',
       msg: {
         type: 'instanceResumed',
+        resync: true,
         instanceKey: 'inst-failed',
         workflow: wf,
         instanceStatus: 'failed',
+        stageStatuses: { s1: 'error' },
         failedStageId: 's1',
         failedSummary: { error: 'boom', errorType: 'tool-execution-failed' },
       },
@@ -141,6 +143,9 @@ describe('reduceStagentState draftInstanceKey (确认页草稿)', () => {
     expect(next.phase).toBe('execution')
     expect(next.activeInstanceKey).toBe('inst-failed')
     expect(next.failed?.reason).toBe('boom')
+    expect(next.stageStatus).toEqual({ s1: 'error' })
+    expect(next.focusFailedStageId).toBe('s1')
+    expect(next.engineActivityFeed).toEqual([])
   })
 
   it('reset 清空 draftInstanceKey', () => {
@@ -179,6 +184,51 @@ describe('reduceStagentState selectTask (#10 多实例)', () => {
       instanceKey: 'inst-b',
     })
     expect(next.activeInstanceKey).toBe('inst-b')
+  })
+})
+
+import { shouldDropStaleMessage } from '../stagent/stagentSeqGate'
+
+describe('shouldDropStaleMessage seq/uiEpoch gating', () => {
+  it('drops stageStatusUpdate when seq regresses', () => {
+    const cursor = { lastSeq: 5, uiEpoch: 1 }
+    expect(
+      shouldDropStaleMessage(
+        { type: 'stageStatusUpdate', stageId: 's1', status: 'running', seq: 3, uiEpoch: 1 },
+        cursor,
+      ),
+    ).toBe(true)
+    expect(cursor.lastSeq).toBe(5)
+  })
+
+  it('accepts newer seq and advances cursor', () => {
+    const cursor = { lastSeq: 2, uiEpoch: 1 }
+    expect(
+      shouldDropStaleMessage(
+        { type: 'stageError', stageId: 's1', error: 'x', errorType: 'generic', seq: 4, uiEpoch: 1 },
+        cursor,
+      ),
+    ).toBe(false)
+    expect(cursor.lastSeq).toBe(4)
+  })
+
+  it('resync on instanceResumed bumps uiEpoch and resets seq', () => {
+    const cursor = { lastSeq: 9, uiEpoch: 2 }
+    expect(
+      shouldDropStaleMessage(
+        {
+          type: 'instanceResumed',
+          instanceKey: 'k1',
+          workflow: { id: 'w', version: '2.0', meta: { title: 't', taskType: 'software', userInput: '', createdAt: '' }, stages: [] },
+          instanceStatus: 'running',
+          resync: true,
+          uiEpoch: 3,
+        },
+        cursor,
+      ),
+    ).toBe(false)
+    expect(cursor.uiEpoch).toBe(3)
+    expect(cursor.lastSeq).toBe(0)
   })
 })
 

@@ -6,10 +6,13 @@ import * as path from 'path';
 import type { QualityGate } from '../QualityGate';
 import { verifyRule20 } from '../Rule20Verify';
 import {
+  formatHardPlanCompletenessBlockReason,
   formatRule20ViolationsBlockReason,
+  hardBlockPlanCompletenessIssues,
   shouldBlockGenerateOnRule20Violations,
 } from '../GeneratedWorkflowGate';
 import { lintPlanCompleteness, formatPlanCompletenessBlockReason } from '../PlanCompletenessGate';
+import { isSoftwareTaskType } from '../workflow/TaskType';
 import { validateAndPrepareGeneratedWorkflow } from '../WorkflowEngineHelpers';
 import { buildGeneratorWarnings } from '../Rule20RuntimeGate';
 import { buildAutoInsertedGlobalArchitectureWarningLine } from '../WorkflowRule20Normalize';
@@ -35,6 +38,7 @@ import {
   GATE_ID_DEPENDENCY_GRAPH_WARNINGS,
   GATE_ID_GENERATOR_META_WARNINGS,
   GATE_ID_PLAN_COMPLETENESS,
+  GATE_ID_PLAN_COMPLETENESS_HARD,
   GATE_ID_PROTOTYPE_DATA_CONTRACT,
   GATE_ID_RULE20_VIOLATIONS,
   GATE_ID_SCHEMA_VALIDATION,
@@ -79,6 +83,22 @@ export const BUILTIN_GENERATE_GATES: QualityGate[] = [
       }
       return block(GATE_ID_RULE20_VIOLATIONS, [formatRule20ViolationsBlockReason(verifyResult!.violations)], {
         verifyResult,
+      });
+    },
+  },
+  {
+    id: GATE_ID_PLAN_COMPLETENESS_HARD,
+    label: '计划完整性硬阻断（TDD 链）',
+    phase: 'generate',
+    priority: 25,
+    enabled: (ctx) => !!ctx.workflow && !!ctx.effectiveTaskType && isSoftwareTaskType(ctx.effectiveTaskType),
+    evaluate(ctx) {
+      const hardIssues = hardBlockPlanCompletenessIssues(ctx.workflow!, ctx.effectiveTaskType!);
+      if (hardIssues.length === 0) {
+        return null;
+      }
+      return block(GATE_ID_PLAN_COMPLETENESS_HARD, [formatHardPlanCompletenessBlockReason(hardIssues)], {
+        issues: hardIssues,
       });
     },
   },

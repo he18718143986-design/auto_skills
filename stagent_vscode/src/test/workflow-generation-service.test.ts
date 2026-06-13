@@ -21,6 +21,8 @@ function mockUi(posted: unknown[]): WorkflowUiBridge {
     }),
     getFeedbackLastAsked: () => undefined,
     setFeedbackLastAsked: async () => {},
+    getCharterFeedbackLastAsked: () => undefined,
+    setCharterFeedbackLastAsked: async () => {},
   });
 }
 
@@ -66,7 +68,7 @@ function hostFactory(posted: unknown[], generation: WorkflowGenerationService): 
     parseWorkflowJson: async (raw) => JSON.parse(raw) as WorkflowDefinition,
     normalizeWorkflow: (wf, _u, _t) => wf,
     isGenerationSuperseded: (myGen) => generation.isGenerationSuperseded(myGen),
-    polishCacheKey: (d, t) => generation.polishCacheKey(d, t),
+    polishCacheKey: (d, t, tier) => generation.polishCacheKey(d, t, tier),
     rememberPolishCache: (k, text, at) => generation.rememberPolishCache(k, text, at),
     markStageArtifactsApproved: () => {},
     getWorkspaceRootAbsolute: () => undefined,
@@ -118,7 +120,7 @@ describe('WorkflowGenerationService integration', () => {
     svcHolder.svc = svc;
     svc.setUi(ui);
     const panel = { webview: { postMessage: () => {} } } as never;
-    svc.rememberPolishCache(svc.polishCacheKey('draft', 'software'), 'cached', '2020-01-01T00:00:00.000Z');
+    svc.rememberPolishCache(svc.polishCacheKey('draft', 'software', 'standard'), 'cached', '2020-01-01T00:00:00.000Z');
     await svc.polishUserTask('draft', 'software', panel);
     assert.equal(llmCalls, 0);
     const msg = posted.find((m) => typeof m === 'object' && m !== null && (m as { type?: string }).type === 'userTaskPolished');

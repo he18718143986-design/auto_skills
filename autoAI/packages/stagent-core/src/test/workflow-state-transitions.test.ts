@@ -36,9 +36,33 @@ test('markDecisionApproved writes decision record', () => {
   const stage = makeStage({ id: 'stage_decide_x', title: 'x' });
   const rt: StageRuntime = { stageId: stage.id, status: 'paused', outputs: {}, retryCount: 0 };
   const record = markDecisionApproved(stage, rt, '', 'fallback', '2026-05-08T00:00:00.000Z');
-  assert.equal(record, 'fallback');
-  assert.equal(rt.outputs.decisionRecord, 'fallback');
-  assert.equal(rt.approvedDecisionRecord, 'fallback');
+  assert.match(record, /fallback/);
+  assert.match(record, /### 决策溯源/);
+  assert.match(record, /provenance: human/);
+  assert.equal(rt.outputs.decisionRecord, record);
+  assert.equal(rt.approvedDecisionRecord, record);
+});
+
+test('markDecisionApproved dual-writes charter provenance into decision record', () => {
+  const stage = makeStage({ id: 'stage_decide_x', title: 'x' });
+  const rt: StageRuntime = {
+    stageId: stage.id,
+    status: 'paused',
+    outputs: {},
+    retryCount: 0,
+    decisionProvenance: 'charter_inferred',
+    charterQuestionProvenance: { q_arch: 'charter_direct' },
+  };
+  const record = markDecisionApproved(
+    stage,
+    rt,
+    '### 职责边界\n- scope',
+    '',
+    '2026-05-08T00:00:00.000Z',
+  );
+  assert.match(record, /### 职责边界/);
+  assert.match(record, /provenance: charter_inferred/);
+  assert.match(record, /q_arch: charter_direct/);
 });
 
 test('retry helpers keep current semantics', () => {

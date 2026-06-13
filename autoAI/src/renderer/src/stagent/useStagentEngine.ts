@@ -6,7 +6,7 @@
 /*  直接由 BackendMessage 携带，UI 复用这些纯函数产物而非重复推导。     */
 /* ------------------------------------------------------------------ */
 
-import { useCallback, useEffect, useReducer, useState } from 'react'
+import { useCallback, useEffect, useReducer, useRef, useState } from 'react'
 import type {
   BackendMessage,
   DeleteScope,
@@ -17,7 +17,9 @@ import type {
   StageArtifactHint,
   StageStatus,
   TaskListItem,
+  TaskTypeClassificationInfo,
   WorkflowDefinition,
+  QualityReportPayload,
 } from '@stagent/core'
 
 export type StagentPhase = 'input' | 'confirm' | 'execution'
@@ -45,6 +47,10 @@ export interface StagentState {
   blockReasons: string[]
   warnings: string[]
   planSummary?: PlanSummary | null
+  /** Path Router + taskType 判别摘要（确认页决策板） */
+  taskTypeClassification?: TaskTypeClassificationInfo
+  /** B-R2：确认页决策板（Charter 代答分类） */
+  decisionBoard?: { items: Array<Record<string, unknown>>; summary: { total: number; auto: number; needsReview: number } }
   stageStatus: Record<string, StageStatus>
   streams: Record<string, string>
   outputs: Record<string, Record<string, unknown>>
@@ -54,13 +60,30 @@ export interface StagentState {
   decisionStageId?: string
   /** 暂停等待人工的普通阶段（走 approve） */
   pausedStageId?: string
-  errors: Record<string, { error: string; errorType: string; stdout?: string; stderr?: string }>
+  errors: Record<
+    string,
+    {
+      error: string
+      errorType: string
+      stdout?: string
+      stderr?: string
+      userTitle?: string
+      userBody?: string
+      playbookSteps?: string[]
+    }
+  >
   confidence: Record<string, StageConfidence>
   artifacts: Record<string, StageArtifactHint[]>
   failed?: { reason: string; errorType: string }
   /** #5：跨实例切换被引擎拒绝时的提示（执行中切换其他任务） */
   switchBlocked?: { reason: string; targetInstanceKey: string }
   completed: boolean
+  /** 屏 4：引擎活动 Feed（gate / replan / preflight）。 */
+  engineActivityFeed: Array<{ kind: string; text: string; stageId?: string; timestamp?: string }>
+  /** 屏 5：workflowCompleted.qualityReport */
+  qualityReport?: QualityReportPayload | null
+  /** instanceResumed 后聚焦的失败阶段 */
+  focusFailedStageId?: string
   /** 产物落盘信号：递增即触发文件树重载（artifact/阶段完成/工作流完成/回滚时 bump）。 */
   fileTreeRevision: number
 }
@@ -81,6 +104,8 @@ export const initialStagentState: StagentState = {
   confidence: {},
   artifacts: {},
   completed: false,
+  engineActivityFeed: [],
+  qualityReport: null,
   fileTreeRevision: 0,
 }
 
@@ -140,8 +165,24 @@ export function reduceStagentState(state: StagentState, action: Action): Stagent
         blockReasons: msg.blockReasons ?? [],
         warnings: msg.warningsDisplay ?? msg.warnings ?? [],
         planSummary: msg.planSummary ?? null,
+        taskTypeClassification: msg.taskTypeClassification,
+        decisionBoard: msg.decisionBoard,
       }
-    case 'instanceResumed':
+    case 'instanceResumed': {
+      const stageStatus = msg.stageStatuses
+        ? { ...msg.stageStatuses }
+        : state.stageStatus
+      let decisionStageId: string | undefined
+      let pausedStageId: string | undefined
+      if (msg.workflow?.stages && msg.stageStatuses) {
+        for (const s of msg.workflow.stages) {
+          const st = msg.stageStatuses[s.id]
+          if (st === 'paused') {
+            if (s.isDecisionStage) decisionStageId = s.id
+            else pausedStageId = s.id
+          }
+        }
+      }
       return {
         ...state,
         phase: 'execution',
@@ -150,6 +191,13 @@ export function reduceStagentState(state: StagentState, action: Action): Stagent
         activeInstanceKey: msg.instanceKey,
         draftInstanceKey: msg.instanceKey,
         completed: msg.instanceStatus === 'completed',
+        stageStatus,
+        decisionStageId,
+        pausedStageId,
+        focusFailedStageId: msg.failedStageId,
+        engineActivityFeed: msg.resync ? [] : state.engineActivityFeed,
+        qualityReport: msg.resync ? null : state.qualityReport,
+        errors: msg.resync ? {} : state.errors,
         failed:
           msg.instanceStatus === 'failed' && msg.failedSummary
             ? { reason: msg.failedSummary.error, errorType: msg.failedSummary.errorType }
@@ -157,6 +205,7 @@ export function reduceStagentState(state: StagentState, action: Action): Stagent
               ? { reason: '工作流执行失败', errorType: 'unknown' }
               : undefined,
       }
+    }
     case 'workflowFailed':
       return {
         ...state,
@@ -240,6 +289,9 @@ export function reduceStagentState(state: StagentState, action: Action): Stagent
             errorType: msg.errorType,
             stdout: msg.stdout,
             stderr: msg.stderr,
+            userTitle: msg.userTitle,
+            userBody: msg.userBody,
+            playbookSteps: msg.playbookSteps,
           },
         },
       }
@@ -268,8 +320,20 @@ export function reduceStagentState(state: StagentState, action: Action): Stagent
       }
       return { ...state, stageStatus, streams, outputs, fileTreeRevision: state.fileTreeRevision + 1 }
     }
+    case 'engineActivity': {
+      const feed = [
+        ...state.engineActivityFeed,
+        { kind: msg.kind, text: msg.text, stageId: msg.stageId, timestamp: msg.timestamp },
+      ].slice(-40)
+      return { ...state, phase: 'execution', engineActivityFeed: feed }
+    }
     case 'workflowCompleted':
-      return { ...state, completed: true, fileTreeRevision: state.fileTreeRevision + 1 }
+      return {
+        ...state,
+        completed: true,
+        qualityReport: msg.qualityReport ?? null,
+        fileTreeRevision: state.fileTreeRevision + 1,
+      }
     default:
       return state
   }
@@ -324,10 +388,13 @@ export interface StagentEngine {
   ) => Promise<{ ok: boolean; review?: string; model?: string; error?: string }>
 }
 
+import { shouldDropStaleMessage, type SeqGatedMessage } from './stagentSeqGate'
+
 export function useStagentEngine(): StagentEngine {
   const [state, dispatch] = useReducer(reduceStagentState, initialStagentState)
   const [models, setModels] = useState<StagentModelOption[]>([])
   const [preferredModel, setPreferredModel] = useState('')
+  const seqCursor = useRef({ lastSeq: 0, uiEpoch: 0 })
 
   const refreshControls = useCallback(() => {
     void window.autoAI.stagent
@@ -347,7 +414,11 @@ export function useStagentEngine(): StagentEngine {
         .catch(() => {})
     }
     const off = window.autoAI.stagent.onEvent((raw) => {
-      dispatch({ kind: 'event', msg: raw as BackendMessage })
+      const msg = raw as SeqGatedMessage
+      if (shouldDropStaleMessage(msg, seqCursor.current)) {
+        return
+      }
+      dispatch({ kind: 'event', msg })
     })
     const offTasks = window.autoAI.stagent.onTasksChanged(refreshTasks)
     // 与 VS Code webview 的 webviewReady 一致，并主动拉取侧栏任务项 + 模型链。
@@ -374,7 +445,10 @@ export function useStagentEngine(): StagentEngine {
     },
     [],
   )
-  const reset = useCallback(() => dispatch({ kind: 'reset' }), [])
+  const reset = useCallback(() => {
+    seqCursor.current = { lastSeq: 0, uiEpoch: 0 }
+    dispatch({ kind: 'reset' })
+  }, [])
   const consumeWorkspacePath = useCallback(() => dispatch({ kind: 'consumeWorkspacePath' }), [])
   const selectTask = useCallback(
     (instanceKey: string) => dispatch({ kind: 'selectTask', instanceKey }),

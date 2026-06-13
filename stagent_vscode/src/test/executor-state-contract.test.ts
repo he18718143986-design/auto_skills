@@ -98,6 +98,7 @@ test('runCodeRunnerCommand declines soft constraint when sandbox enabled without
           postStreamChunk: () => {},
           warn: () => {},
           sandboxEnabled: true,
+          sandboxVerificationOnly: false,
         },
         { type: 'code-runner', command: 'echo hi', captureOutput: true },
         'inst',
@@ -121,6 +122,7 @@ test('runCodeRunnerCommand runs with soft constraint after user confirms', {
       postStreamChunk: () => {},
       warn: () => {},
       sandboxEnabled: true,
+      sandboxVerificationOnly: false,
       confirmSoftConstraintSandbox: async () => true,
     },
     { type: 'code-runner', command: 'echo hi', captureOutput: true },
@@ -159,6 +161,7 @@ test('runWorkflowGeneration swallows errors when generation is superseded', asyn
       planCompletenessEnabled: false,
       planStructuralRepairMode: 'off' as const,
       staticAnalysisEnabled: false,
+      contractPlanPreflightV2: false,
     }),
     getMaxStageWarn: () => 45,
   };
@@ -246,6 +249,7 @@ test('handleRetry I-9 violation fails instance and posts stageError', async () =
     getWorkspaceRootAbsolute: () => '/tmp',
     getMaxManualStageRetries: () => 5,
     isDecisionContentLintVscodeDefault: () => false,
+    isContractCommitmentsEnabled: () => false,
   };
 
   const restore = mock.method(transitions, 'collectDecisionRetryResets', () => ({

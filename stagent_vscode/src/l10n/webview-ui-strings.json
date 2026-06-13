@@ -43,6 +43,22 @@
     "en": "Describe the task you want to accomplish…",
     "zh": "描述你想完成的任务…"
   },
+  "stagent.webview.main.inputPrimaryHint": {
+    "en": "Primary path: describe your task and click Generate workflow. Unclear requirements will show decision questions; approve decisions on the confirm page.",
+    "zh": "主路径：写清需求后点「生成工作流」。不够清楚时会弹出决策澄清；最终在确认页筛选 taskType、plan 与决策板。"
+  },
+  "stagent.webview.main.btnTogglePolishTools": {
+    "en": "Advanced: polish (optional)",
+    "zh": "高级：需求润色（可选）"
+  },
+  "stagent.webview.main.btnHidePolishTools": {
+    "en": "Hide polish tools",
+    "zh": "收起润色工具"
+  },
+  "stagent.webview.main.polishOptionalHint": {
+    "en": "Optional: rewrite informal text before generating. Prefer clarification questions when unsure.",
+    "zh": "可选：把口语整理成短文再生成。拿不准时建议用澄清问题，而不是完整润色。"
+  },
   "stagent.webview.main.workspaceFolderLabel": {
     "en": "Workspace folder",
     "zh": "工作文件夹"
@@ -58,6 +74,22 @@
   "stagent.webview.main.btnPolish": {
     "en": "Polish requirements",
     "zh": "需求润色"
+  },
+  "stagent.webview.main.polishTierAuto": {
+    "en": "Auto",
+    "zh": "自动"
+  },
+  "stagent.webview.main.polishTierLight": {
+    "en": "Light",
+    "zh": "轻量"
+  },
+  "stagent.webview.main.polishTierStandard": {
+    "en": "Full",
+    "zh": "完整"
+  },
+  "stagent.webview.main.polishTierApplied": {
+    "en": "Polish tier: {0}",
+    "zh": "本次润色：{0}"
   },
   "stagent.webview.main.btnGenWorkflow": {
     "en": "Generate workflow",
@@ -114,6 +146,14 @@
   "stagent.webview.main.startExecution": {
     "en": "Start execution",
     "zh": "开始执行"
+  },
+  "stagent.webview.main.approveAllAndStart": {
+    "en": "Approve all and start",
+    "zh": "批准全部并开始执行"
+  },
+  "stagent.webview.main.decisionBoard": {
+    "en": "Decision board (pre-execution)",
+    "zh": "决策板（执行前）"
   },
   "stagent.webview.main.execProgress": {
     "en": "Progress",
@@ -196,8 +236,12 @@
     "zh": "生成前澄清"
   },
   "stagent.webview.input.clarifyIntro": {
-    "en": "Answering these questions helps split the workflow more accurately (optional). Press Esc to cancel and return to editing.",
-    "zh": "回答以下问题有助于更准确地拆解工作流（可留空或跳过）。按 Esc 取消并返回编辑。"
+    "en": "These questions lock in software-affecting decisions (optional). Press Esc to cancel and return to editing.",
+    "zh": "以下问题用于敲定影响软件的关键决策（可跳过）。按 Esc 取消并返回编辑。"
+  },
+  "stagent.webview.input.directGenerateDetail": {
+    "en": "Requirement looks clear — skipping extra clarification",
+    "zh": "需求已够清楚，跳过额外澄清"
   },
   "stagent.webview.input.clarifyAnswerPlaceholder": {
     "en": "(optional) Your answer",
@@ -319,6 +363,50 @@
     "en": "Task type (meta.taskType): {0}",
     "zh": "任务类型（meta.taskType）：{0}"
   },
+  "stagent.webview.main.taskTypeClassification": {
+    "en": "Path & scene (workflowTemplate + taskType)",
+    "zh": "路径与场景（workflowTemplate + taskType）"
+  },
+  "stagent.webview.confirm.workflowTemplateEffective": {
+    "en": "Workflow path: {0}",
+    "zh": "工作流路径：{0}"
+  },
+  "stagent.webview.confirm.workflowTemplateSelectLabel": {
+    "en": "Workflow path (workflowTemplate)",
+    "zh": "工作流路径（workflowTemplate）"
+  },
+  "stagent.webview.confirm.workflowTemplateModelHint": {
+    "en": "router suggested {0}",
+    "zh": "路由建议 {0}"
+  },
+  "stagent.webview.confirm.taskTypeSelectLabel": {
+    "en": "Effective task type",
+    "zh": "生效任务类型"
+  },
+  "stagent.webview.confirm.greenfieldLabel": {
+    "en": "Greenfield project (isGreenfield)",
+    "zh": "绿场项目（isGreenfield）"
+  },
+  "stagent.webview.confirm.taskTypeLockLabel": {
+    "en": "Lock classification (no further edits)",
+    "zh": "锁定判别（不再修改）"
+  },
+  "stagent.webview.confirm.taskTypeEffective": {
+    "en": "Will run as {0} · {1}",
+    "zh": "将按「{0}」执行 · {1}"
+  },
+  "stagent.webview.confirm.taskTypeModelHint": {
+    "en": "model suggested {0}",
+    "zh": "模型建议 {0}"
+  },
+  "stagent.webview.confirm.greenfieldYes": {
+    "en": "greenfield",
+    "zh": "绿场"
+  },
+  "stagent.webview.confirm.greenfieldNo": {
+    "en": "brownfield",
+    "zh": "棕场"
+  },
   "stagent.webview.confirm.profileHeader": {
     "en": "—— Settings profile ——",
     "zh": "—— 设置 Profile ——"
@@ -330,6 +418,82 @@
   "stagent.webview.confirm.profileGateDiff": {
     "en": "Gate diff vs default:",
     "zh": "相对 default 的门禁："
+  },
+  "stagent.webview.confirm.decisionBoardSummary": {
+    "en": "Total {0} · auto {1} · needs review {2} · pending {3}",
+    "zh": "共 {0} 项 · 自动 {1} · 需拍板 {2} · 待处理 {3}"
+  },
+  "stagent.webview.confirm.decisionBoardGateHint": {
+    "en": "Resolve all pending items ({2} left) before starting.",
+    "zh": "须处理完全部待拍板项（剩余 {2}）后方可开始。"
+  },
+  "stagent.webview.confirm.decisionConfirmItem": {
+    "en": "Confirm this item",
+    "zh": "确认此项"
+  },
+  "stagent.webview.confirm.decisionNoProposal": {
+    "en": "(no proposal)",
+    "zh": "（无拟答）"
+  },
+  "stagent.webview.confirm.decisionKind.auto": {
+    "en": "Charter covered — default accept",
+    "zh": "主旨已覆盖，默认采纳"
+  },
+  "stagent.webview.confirm.decisionKind.conflict": {
+    "en": "Charter conflict — your call",
+    "zh": "主旨冲突，需您拍板"
+  },
+  "stagent.webview.confirm.decisionKind.uncovered": {
+    "en": "Not in Charter — your call",
+    "zh": "主旨未覆盖，需您拍板"
+  },
+  "stagent.webview.confirm.decisionKind.lowconf": {
+    "en": "Low confidence — please confirm",
+    "zh": "置信偏低，请确认"
+  },
+  "stagent.webview.confirm.decisionProvenance.charter_direct": {
+    "en": "Answered from Charter",
+    "zh": "按决策主旨自动作答"
+  },
+  "stagent.webview.confirm.decisionProvenance.charter_inferred": {
+    "en": "Inferred from Charter, you confirmed",
+    "zh": "主旨推导后您已确认"
+  },
+  "stagent.webview.confirm.decisionProvenance.escalated": {
+    "en": "Charter gap — you decided",
+    "zh": "主旨未覆盖，您拍板定案"
+  },
+  "stagent.webview.confirm.decisionProvenance.human": {
+    "en": "You decided",
+    "zh": "您亲自拍板"
+  },
+  "stagent.webview.confirm.taskTypePlain.software": {
+    "en": "Full software delivery",
+    "zh": "完整软件交付"
+  },
+  "stagent.webview.confirm.taskTypePlain.prototype": {
+    "en": "Quick prototype",
+    "zh": "快速验证原型"
+  },
+  "stagent.webview.confirm.taskTypePlain.refactor": {
+    "en": "Refactor (same behavior)",
+    "zh": "重构（行为不变）"
+  },
+  "stagent.webview.confirm.taskTypePlain.debug": {
+    "en": "Debug fix",
+    "zh": "排错修复"
+  },
+  "stagent.webview.confirm.taskTypePlain.document": {
+    "en": "Documentation",
+    "zh": "文档产出"
+  },
+  "stagent.webview.confirm.taskTypePlain.improve-architecture": {
+    "en": "Architecture improvement",
+    "zh": "架构改进"
+  },
+  "stagent.webview.confirm.taskTypePlain.other": {
+    "en": "Light automation",
+    "zh": "轻量自动化"
   },
   "stagent.webview.confirm.experienceRefsDetail": {
     "en": "Referenced past experience: {0} item(s) (userInput text excluded)",
@@ -418,6 +582,10 @@
   "stagent.webview.exec.beforeIntro": {
     "en": "Confirm the following before this stage runs:",
     "zh": "AI 在执行此阶段前需要确认以下信息："
+  },
+  "stagent.webview.exec.beforeIntroSuggest": {
+    "en": "Charter suggested answers below — confirm or edit, then submit:",
+    "zh": "以下为主旨推荐答案，请确认或修改后提交："
   },
   "stagent.webview.exec.beforeSubmit": {
     "en": "Start execution",
@@ -1210,5 +1378,129 @@
   "stagent.webview.plan.dagDeps": {
     "en": "Dependencies: ",
     "zh": "依赖："
+  },
+  "stagent.webview.cockpit.timelineTitle": {
+    "en": "Stages (role tags)",
+    "zh": "阶段时间线（工位标签）"
+  },
+  "stagent.webview.cockpit.engineFeedTitle": {
+    "en": "Engine activity",
+    "zh": "引擎活动"
+  },
+  "stagent.webview.cockpit.engineFeedEmpty": {
+    "en": "Waiting for engine events (gate / replan / verify / fix)…",
+    "zh": "等待引擎事件（gate / replan / verify / fix）…"
+  },
+  "stagent.webview.cockpit.sliceHealthTitle": {
+    "en": "Slice health",
+    "zh": "切片健康度"
+  },
+  "stagent.webview.cockpit.sliceHealthEmpty": {
+    "en": "No TDD slices in plan",
+    "zh": "计划中无 TDD 切片"
+  },
+  "stagent.webview.cockpit.deferredCallout": {
+    "en": "test_run soft-fail — engine fix chain running (not workflow failed)",
+    "zh": "test_run 软失败 · 引擎修复链运行中（工作流未 failed）"
+  },
+  "stagent.webview.cockpit.deferred": {
+    "en": "deferred",
+    "zh": "deferred"
+  },
+  "stagent.webview.cockpit.roleWorker": {
+    "en": "Worker",
+    "zh": "Worker"
+  },
+  "stagent.webview.cockpit.roleVerify": {
+    "en": "Verify",
+    "zh": "Verify"
+  },
+  "stagent.webview.cockpit.roleRepairer": {
+    "en": "Repairer",
+    "zh": "Repairer"
+  },
+  "stagent.webview.cockpit.roleEngine": {
+    "en": "Engine",
+    "zh": "Engine"
+  },
+  "stagent.webview.cockpit.roleEngineReplan": {
+    "en": "Engine·replan",
+    "zh": "Engine·replan"
+  },
+  "stagent.webview.cockpit.roleDecision": {
+    "en": "Decision",
+    "zh": "Decision"
+  },
+  "stagent.webview.cockpit.roleOther": {
+    "en": "Other",
+    "zh": "Other"
+  },
+  "stagent.webview.cockpit.qualityReportTitle": {
+    "en": "Quality report (acceptance)",
+    "zh": "质量报告（验收）"
+  },
+  "stagent.webview.cockpit.afkPass": {
+    "en": "AFK acceptance passed — ready to merge",
+    "zh": "AFK 验收通过 · 可合并"
+  },
+  "stagent.webview.cockpit.afkFail": {
+    "en": "AFK acceptance not met",
+    "zh": "AFK 验收未通过"
+  },
+  "stagent.webview.cockpit.statStableVerify": {
+    "en": "Stable verification: {0}/{1}",
+    "zh": "稳定验证：{0}/{1}"
+  },
+  "stagent.webview.cockpit.statHuman": {
+    "en": "Human interventions: {0}",
+    "zh": "人工介入：{0}"
+  },
+  "stagent.webview.cockpit.statReplan": {
+    "en": "Engine replans: {0}",
+    "zh": "引擎 replan：{0}"
+  },
+  "stagent.webview.cockpit.statDod": {
+    "en": "DoD deliverables: {0}/{1}",
+    "zh": "DoD 交付项：{0}/{1}"
+  },
+  "stagent.webview.cockpit.aTrackTitle": {
+    "en": "A-track · objective verification",
+    "zh": "A 轨 · 客观验证"
+  },
+  "stagent.webview.cockpit.bTrackTitle": {
+    "en": "B-track · charter coverage",
+    "zh": "B 轨 · 主旨覆盖"
+  },
+  "stagent.webview.cockpit.engineSummaryTitle": {
+    "en": "Engine self-heal summary",
+    "zh": "引擎自愈摘要"
+  },
+  "stagent.webview.cockpit.colStage": {
+    "en": "Stage",
+    "zh": "阶段"
+  },
+  "stagent.webview.cockpit.colRuns": {
+    "en": "Runs",
+    "zh": "多跑"
+  },
+  "stagent.webview.cockpit.colResult": {
+    "en": "Result",
+    "zh": "结果"
+  },
+  "stagent.webview.cockpit.resultStable": {
+    "en": "stable",
+    "zh": "稳定"
+  },
+  "stagent.webview.cockpit.resultFlaky": {
+    "en": "flaky",
+    "zh": "flaky"
+  },
+  "stagent.webview.cockpit.resultUnstable": {
+    "en": "unstable",
+    "zh": "未稳定"
+  },
+  "stagent.webview.cockpit.charterCoverage": {
+    "en": "Charter coverage rate: {0}%",
+    "zh": "主旨覆盖率：{0}%"
   }
 }

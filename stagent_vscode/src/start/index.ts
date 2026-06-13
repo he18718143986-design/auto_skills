@@ -2,6 +2,7 @@ import type * as vscode from 'vscode';
 import { showStartErrorToast } from '../adapters/showStartErrorToast';
 import { uiMsg } from '../l10n/uiStrings';
 import type { WorkflowDefinition } from '../WorkflowDefinition';
+import type { FrontloadDecisionResolution } from '../decision-frontload/DecisionFrontloadTypes';
 import { kickoffFirstWorkflowStage } from '../KickoffFirstStage';
 import { bootstrapWorkflowRuntime } from '../RuntimeBootstrap';
 import { validateStartWorkflowPreconditions } from '../StartPreconditions';
@@ -15,6 +16,7 @@ export async function startWorkflowExecution(
   panel: vscode.WebviewPanel,
   workflowOverride?: WorkflowDefinition,
   instanceKey?: string,
+  frontloadResolutions?: FrontloadDecisionResolution[],
 ): Promise<void> {
   host.bindPanel(panel);
   if (!workflowOverride) {
@@ -27,7 +29,7 @@ export async function startWorkflowExecution(
     return;
   }
 
-  const boot = bootstrapWorkflowRuntime(host, panel, wf, instanceKey);
+  const boot = bootstrapWorkflowRuntime(host, panel, wf, instanceKey, frontloadResolutions);
   if (!boot.ok) {
     return;
   }

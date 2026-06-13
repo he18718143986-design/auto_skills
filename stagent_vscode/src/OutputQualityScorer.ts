@@ -233,7 +233,8 @@ function scoreSpecCompliance(text: string, stage: Stage): { score: number; issue
   }
 
   const tc = stage.toolConfig;
-  if (tc.type === 'llm-text' && tc.systemPrompt.trim().length < 20) {
+  const systemPrompt = tc.type === 'llm-text' ? (tc.systemPrompt ?? '') : '';
+  if (tc.type === 'llm-text' && systemPrompt.trim().length < 20) {
     issues.push({
       code: 'thin-system-prompt',
       severity: 'info',

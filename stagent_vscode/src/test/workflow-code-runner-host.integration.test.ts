@@ -12,6 +12,7 @@ describe('WorkflowCodeRunnerHost integration', () => {
     postStreamChunk: () => {},
     warn: () => {},
     sandboxEnabled: false,
+    sandboxVerificationOnly: false,
   };
 
   it('resolveCodeRunnerCwd honors instance pathBase default', () => {

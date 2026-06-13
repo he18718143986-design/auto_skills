@@ -55,8 +55,7 @@ const api: AutoAIAPI = {
 
   // M3+: Chat
   chat: {
-    send: (siteId, text, attachments) =>
-      ipcRenderer.invoke('chat:send', siteId, text, attachments),
+    send: (siteId, text) => ipcRenderer.invoke('chat:send', siteId, text),
     onReply: (cb) => {
       const handler = (_: Electron.IpcRendererEvent, payload: { siteId: string; result: AutomationResult }) =>
         cb(payload as { siteId: string; result: AutomationResult })

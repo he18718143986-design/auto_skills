@@ -9,6 +9,7 @@ import {
   FRONTEND_MSG_PICK_TASK_WORKSPACE_FOLDER,
   FRONTEND_MSG_POLISH_USER_TASK,
 } from '../../workflow/FrontendMessageTypes';
+import { isRequirementClearEnough } from '../../pregen/RequirementClarity';
 import { DEFAULT_TASK_TYPE, inputStore } from './stores';
 import { vscode } from './vscode-api';
 
@@ -31,7 +32,10 @@ export function setInputPageBusy(op, title, detail) {
   renderGenStatusDetail();
   stream.textContent = '';
   document.getElementById('btn-gen').disabled = true;
-  document.getElementById('btn-polish').disabled = true;
+  const btnPolish = document.getElementById('btn-polish');
+  if (btnPolish) btnPolish.disabled = true;
+  const btnTogglePolish = document.getElementById('btn-toggle-polish-tools');
+  if (btnTogglePolish) btnTogglePolish.disabled = true;
   syncInputActionsVisibility();
   scrollChatPanelToBottom();
 }
@@ -54,7 +58,10 @@ export function clearInputPageBusy() {
   inputStore.genStreamChars = 0;
   inputStore.genStatusDetailBase = '';
   document.getElementById('btn-gen').disabled = false;
-  document.getElementById('btn-polish').disabled = false;
+  const btnPolish = document.getElementById('btn-polish');
+  if (btnPolish) btnPolish.disabled = false;
+  const btnTogglePolish = document.getElementById('btn-toggle-polish-tools');
+  if (btnTogglePolish) btnTogglePolish.disabled = false;
   document.getElementById('gen-status-panel').style.display = 'none';
   document.getElementById('gen-status-panel').classList.remove('error');
   document.getElementById('gen-stream').textContent = '';
@@ -64,7 +71,10 @@ export function clearInputPageBusy() {
 export function showInputPageError(reason) {
   inputStore.inputBusyOp = null;
   document.getElementById('btn-gen').disabled = false;
-  document.getElementById('btn-polish').disabled = false;
+  const btnPolish = document.getElementById('btn-polish');
+  if (btnPolish) btnPolish.disabled = false;
+  const btnTogglePolish = document.getElementById('btn-toggle-polish-tools');
+  if (btnTogglePolish) btnTogglePolish.disabled = false;
   document.getElementById('polish-assistant').style.display = 'none';
   const panel = document.getElementById('gen-status-panel');
   panel.style.display = 'flex';
@@ -101,7 +111,12 @@ export function startWorkflowGeneration(userInput) {
   document.getElementById('polish-assistant').style.display = 'none';
   commitUserMessage(trimmed);
   inputStore.pendingClarifyInput = trimmed;
-  setInputPageBusy(GENERATION_OPERATION_WORKFLOW, wMsg('stagent.webview.input.analyzingRequirement'), wMsg('stagent.webview.input.scanningWorkspace'));
+  const clearEnough = isRequirementClearEnough(trimmed);
+  setInputPageBusy(
+    GENERATION_OPERATION_WORKFLOW,
+    clearEnough ? wMsg('stagent.webview.input.generatingWorkflow') : wMsg('stagent.webview.input.analyzingRequirement'),
+    clearEnough ? wMsg('stagent.webview.input.directGenerateDetail') : wMsg('stagent.webview.input.scanningWorkspace'),
+  );
   vscode.postMessage({
     type: FRONTEND_MSG_CLARIFY_START,
     userInput: trimmed,
@@ -140,7 +155,9 @@ export function syncInputActionsVisibility() {
           ? wMsg('stagent.webview.main.polishing')
           : edit.style.display === 'none'
             ? wMsg('stagent.webview.input.polishFailedRetry')
-            : wMsg('stagent.webview.main.polishDockHint');
+            : inputStore.lastPolishTierUsed
+              ? `${wMsg('stagent.webview.main.polishTierApplied', polishTierLabel(inputStore.lastPolishTierUsed))} · ${wMsg('stagent.webview.main.polishDockHint')}`
+              : wMsg('stagent.webview.main.polishDockHint');
     }
     return;
   }
@@ -168,6 +185,27 @@ export function syncInputActionsVisibility() {
     btnGen.disabled = !ready;
   }
   btnGen.title = ready ? '' : wMsg('stagent.webview.input.fillRequiredTitle');
+  syncPolishOptionalTools();
+}
+
+export function syncPolishOptionalTools() {
+  const optional = document.getElementById('polish-optional-tools');
+  const toggle = document.getElementById('btn-toggle-polish-tools');
+  if (!optional || !toggle) return;
+  const showComposer =
+    !isPolishAssistantVisible() && !isGenErrorVisible() && inputStore.inputBusyOp !== GENERATION_OPERATION_WORKFLOW;
+  const expanded = inputStore.polishToolsExpanded && showComposer;
+  optional.style.display = expanded ? 'block' : 'none';
+  optional.setAttribute('aria-hidden', expanded ? 'false' : 'true');
+  toggle.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+  toggle.textContent = expanded
+    ? wMsg('stagent.webview.main.btnHidePolishTools')
+    : wMsg('stagent.webview.main.btnTogglePolishTools');
+}
+
+export function togglePolishOptionalTools() {
+  inputStore.polishToolsExpanded = !inputStore.polishToolsExpanded;
+  syncPolishOptionalTools();
 }
 
 export function scrollChatPanelToBottom() {
@@ -237,6 +275,7 @@ export function isPolishAssistantVisible() {
 
 export function openPolishPanel(originalText) {
   inputStore.polishOriginalDraft = originalText;
+  inputStore.lastPolishTierUsed = null;
   inputStore.inputBusyOp = GENERATION_OPERATION_POLISH;
   document.getElementById('gen-status-panel').style.display = 'none';
   commitUserMessage(originalText);
@@ -261,11 +300,18 @@ export function closePolishPanel() {
   }
 }
 
-export function showPolishResult(text, fromCache) {
+function polishTierLabel(tier) {
+  if (tier === 'light') return wMsg('stagent.webview.main.polishTierLight');
+  if (tier === 'standard') return wMsg('stagent.webview.main.polishTierStandard');
+  return '';
+}
+
+export function showPolishResult(text, fromCache, polishTierUsed) {
   document.getElementById('polish-loading').style.display = 'none';
   const edit = document.getElementById('polish-result-edit');
   edit.style.display = 'block';
   edit.value = text || '';
+  inputStore.lastPolishTierUsed = polishTierUsed === 'light' || polishTierUsed === 'standard' ? polishTierUsed : null;
   if (fromCache) {
     document.getElementById('polish-loading-text').textContent = wMsg('stagent.webview.input.usedMemoryCache');
   }
@@ -307,7 +353,19 @@ export function sendGenerateWorkflow(userInput, clarifyAnswers) {
   vscode.postMessage(payload);
 }
 
+export function syncPolishTierButtons() {
+  for (const id of ['polish-tier-auto', 'polish-tier-light', 'polish-tier-standard']) {
+    const btn = document.getElementById(id);
+    if (!btn) continue;
+    const tier = btn.getAttribute('data-tier');
+    btn.classList.toggle('active', tier === inputStore.polishTier);
+  }
+}
+
 export function registerInputView(): void {
+  syncPolishTierButtons();
+  syncPolishOptionalTools();
+  document.getElementById('btn-toggle-polish-tools')!.onclick = () => togglePolishOptionalTools();
   document.getElementById('btn-pick-workspace')!.onclick = () => {
     vscode.postMessage({ type: FRONTEND_MSG_PICK_TASK_WORKSPACE_FOLDER });
   };
@@ -334,6 +392,16 @@ export function registerInputView(): void {
     syncPolishResultHeight();
     syncInputActionsVisibility();
   });
+  for (const id of ['polish-tier-auto', 'polish-tier-light', 'polish-tier-standard']) {
+    const btn = document.getElementById(id);
+    if (!btn) continue;
+    btn.onclick = () => {
+      const tier = btn.getAttribute('data-tier');
+      if (tier !== 'auto' && tier !== 'light' && tier !== 'standard') return;
+      inputStore.polishTier = tier;
+      syncPolishTierButtons();
+    };
+  }
   document.getElementById('btn-polish')!.onclick = () => {
     const draft = (document.getElementById('user-input') as HTMLTextAreaElement).value.trim();
     if (!isInputReady() || !draft) return;
@@ -343,6 +411,7 @@ export function registerInputView(): void {
       type: FRONTEND_MSG_POLISH_USER_TASK,
       draft,
       taskType: DEFAULT_TASK_TYPE,
+      polishTier: inputStore.polishTier,
       ...(taskWorkspacePath ? { taskWorkspacePath } : {}),
     });
   };

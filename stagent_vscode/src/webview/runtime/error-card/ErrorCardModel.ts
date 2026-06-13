@@ -12,6 +12,7 @@ import {
 } from '../../../errors/stageErrorBuilders';
 import { isTestRunStageId } from '../../../workflow/StageIdPatterns';
 import { wMsg } from '../../l10n/wMsg';
+import { execStore } from '../stores';
 import { isDecisionStage } from '../shell';
 
 export type ErrorUserCategory = 'environment' | 'code' | 'generic';
@@ -125,6 +126,9 @@ function resolveIcon(msg: StageErrorCardMessage, cfgIcon: string): string {
 }
 
 function shouldOfferUpstreamFix(msg: StageErrorCardMessage): boolean {
+  if (execStore.selfHealActive && execStore.stageExecSemantic[msg.stageId] === 'deferred') {
+    return false;
+  }
   return (
     isTestRunStageId(msg.stageId) &&
     msg.userCategory === 'code' &&

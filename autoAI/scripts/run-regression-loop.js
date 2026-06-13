@@ -30,6 +30,7 @@ function runStep(name, command, args) {
 fs.writeFileSync(runLog, '', 'utf8')
 const typecheckCode = runStep('typecheck', 'npm', ['run', 'typecheck'])
 const testCode = runStep('test', 'npm', ['run', 'test'])
+const docsCode = runStep('docs-links', 'node', ['scripts/check-docs-links.mjs'])
 
 const extract = spawnSync(
   'node',
@@ -39,7 +40,7 @@ const extract = spawnSync(
 process.stdout.write(extract.stdout || '')
 process.stderr.write(extract.stderr || '')
 
-if (typecheckCode !== 0 || testCode !== 0) {
+if (typecheckCode !== 0 || testCode !== 0 || docsCode !== 0) {
   process.exit(1)
 }
 if ((extract.status == null ? 1 : extract.status) !== 0) {

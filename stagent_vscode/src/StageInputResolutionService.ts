@@ -23,7 +23,10 @@ import {
   INPUT_CONTEXT_SUMMARY_TARGET_MAX_CHARS,
   INPUT_CONTEXT_SUMMARY_TARGET_MIN_CHARS,
 } from './workflow/DecisionContentLimits';
+import { augmentSystemPromptWithCharterConstraints } from './charter/CharterContextService';
+import { getStagentConfiguration } from './settings/getStagentConfiguration';
 import {
+  DEBUG_EVENT_CHARTER_CONSTRAINTS_INJECT,
   DEBUG_EVENT_DEGRADE_MODE_SWITCH,
   DEBUG_EVENT_GLOBAL_DECISION_CONTEXT_INJECT,
   DEBUG_EVENT_INPUT_SUMMARY_FALLBACK,
@@ -122,6 +125,19 @@ export class StageInputResolutionService {
         chars: block.length,
       });
     }
-    return appendGlobalDecisionContextToSystemPrompt(systemPrompt, block);
+    let prompt = appendGlobalDecisionContextToSystemPrompt(systemPrompt, block);
+    const charterAug = augmentSystemPromptWithCharterConstraints(
+      prompt,
+      this.deps.getWorkspaceRootAbsolute(),
+      getStagentConfiguration(),
+    );
+    if (charterAug.block) {
+      this.deps.debugLog(stage.id, DEBUG_EVENT_CHARTER_CONSTRAINTS_INJECT, runtime.retryCount + 1, {
+        target: 'systemPrompt',
+        chars: charterAug.block.length,
+      });
+    }
+    prompt = charterAug.prompt;
+    return prompt;
   }
 }

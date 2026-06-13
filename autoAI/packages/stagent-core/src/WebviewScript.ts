@@ -1282,20 +1282,45 @@ export function buildWebviewScript(): string {
       bar.appendChild(btn);
     }
 
+    function appendQuestionProvenanceBadge(block, provenance, ruleRefs) {
+      if (!provenance) return;
+      const refs = Array.isArray(ruleRefs) && ruleRefs.length > 0 ? ' · R#' + ruleRefs.join(',R#') : '';
+      const labels = {
+        charter_direct: '主旨直接命中',
+        charter_inferred: '主旨推导',
+        escalated: '须人工确认',
+        human: '人工',
+      };
+      const badge = document.createElement('span');
+      badge.className = 'question-provenance-badge decision-provenance-badge';
+      badge.dataset.provenance = provenance;
+      badge.textContent = (labels[provenance] || provenance) + refs;
+      block.appendChild(badge);
+    }
+
     function renderBeforeQuestionsCard(stageId, questions) {
       const bar = document.getElementById('pause-bar');
       bar.innerHTML = '';
       document.getElementById('output-label').textContent = '⏸ 执行前确认：' + stageId;
 
+      const hasSuggest = (questions || []).some((q) => String(q.suggestedAnswer ?? '').trim());
       const title = document.createElement('div');
       title.className = 'muted';
-      title.textContent = 'AI 在执行此阶段前需要确认以下信息：';
+      title.textContent = hasSuggest
+        ? '以下为主旨推荐答案，请确认或修改后提交：'
+        : 'AI 在执行此阶段前需要确认以下信息：';
       bar.appendChild(title);
 
       const answers = {};
       (questions || []).forEach((q, idx) => {
         const block = document.createElement('div');
+        block.className = 'question-field';
         block.style.marginTop = '10px';
+        if (q.provenance === 'charter_inferred') {
+          block.classList.add('question-field-charter-inferred');
+        } else if (q.provenance === 'charter_direct') {
+          block.classList.add('question-field-charter-direct');
+        }
         const qId = String(q.id || ('before_q_' + (idx + 1)));
         const qText = String(
           q.text || q.question || q.prompt || q.title || q.hint || ('请补充问题 ' + (idx + 1)),
@@ -1304,6 +1329,7 @@ export function buildWebviewScript(): string {
         const qTitle = document.createElement('div');
         qTitle.textContent = '问题 ' + (idx + 1) + '：' + qText + (q.required === false ? '' : ' *');
         block.appendChild(qTitle);
+        appendQuestionProvenanceBadge(block, q.provenance, q.ruleRefs);
 
         if (q.hint) {
           const hint = document.createElement('div');
@@ -1315,6 +1341,11 @@ export function buildWebviewScript(): string {
         const input = document.createElement('input');
         input.type = 'text';
         input.placeholder = q.hint || '请输入答案';
+        const suggested = String(q.suggestedAnswer ?? '').trim();
+        if (suggested) {
+          input.value = suggested;
+          answers[qId] = suggested;
+        }
         input.oninput = () => {
           answers[qId] = input.value || '';
         };

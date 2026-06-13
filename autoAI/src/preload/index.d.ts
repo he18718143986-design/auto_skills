@@ -217,7 +217,7 @@ export interface AutoAIAPI {
   }
 
   chat: {
-    send(siteId: string, text: string, attachments?: string[]): Promise<{ error?: string }>
+    send(siteId: string, text: string): Promise<{ error?: string }>
     onReply(cb: (payload: { siteId: string; result: AutomationResult }) => void): () => void
     onQuotaExhausted(cb: (siteId: string) => void): () => void
     /** M11: Switch the AI site to a different model. Equivalent to starting a new conversation. */

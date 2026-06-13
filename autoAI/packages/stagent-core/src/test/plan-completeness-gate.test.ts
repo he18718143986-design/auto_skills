@@ -55,7 +55,9 @@ test('完整计划：有 main + test_run → 无 issue', () => {
     impl('stage_impl_prototype_main', 'main.py'),
     testRun('stage_test_run_prototype_pipeline', 'python main.py --mock && python -c "assert 1"'),
   ]);
-  assert.deepEqual(lintPlanCompleteness(w), []);
+  const issues = lintPlanCompleteness(w);
+  assert.ok(!issues.some((i) => i.type === 'missing-verification-stage'));
+  assert.ok(!issues.some((i) => i.type === 'missing-main-assembly'));
 });
 
 test('单文件 spike 豁免（仅 1 个代码实现）', () => {
@@ -82,7 +84,9 @@ test('2 个代码实现但有 test_run：不报 verification；<3 不报 main-as
     impl('stage_impl_prototype_writer', 'writer.py'),
     testRun('stage_test_run_x', 'python -c "import reader; assert reader"'),
   ]);
-  assert.deepEqual(lintPlanCompleteness(w), []);
+  const issues = lintPlanCompleteness(w);
+  assert.ok(!issues.some((i) => i.type === 'missing-verification-stage'));
+  assert.ok(!issues.some((i) => i.type === 'missing-main-assembly'));
 });
 
 test('hasExecutableVerificationStage / hasMainAssemblyStage', () => {

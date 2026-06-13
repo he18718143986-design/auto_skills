@@ -4,6 +4,10 @@ import { confirmStore } from './stores';
 import { getOutboundSessionId } from './session';
 import { registerInputView, syncInputActionsVisibility } from './view-input';
 import { registerConfirmView } from './view-confirm';
+import { registerTaskTypeClassificationControls } from './confirm-renderers/TaskTypeClassificationRenderer';
+import { buildFrontloadResolutionsForStart } from './confirm-renderers/DecisionBoardRenderer';
+import { renderExecCockpit } from './view-exec-cockpit';
+import { renderExecCockpit } from './view-exec-cockpit';
 import { registerExecView, renderExecTimeline, resetExecUi } from './view-exec';
 import { registerMessageHandler } from './messages';
 import {
@@ -29,13 +33,16 @@ export function bootstrapMainWebview(): void {
     if ((document.getElementById('btn-start') as HTMLButtonElement).disabled) return;
     show('exec');
     const sessionId = getOutboundSessionId();
+    const frontloadResolutions = buildFrontloadResolutionsForStart();
     vscode.postMessage({
       type: FRONTEND_MSG_START_EXECUTION,
       workflow: confirmStore.workflowDef,
       ...(sessionId ? { sessionId } : {}),
+      ...(frontloadResolutions.length > 0 ? { frontloadResolutions } : {}),
     });
     resetExecUi();
     renderExecTimeline();
+    renderExecCockpit();
   };
   document.querySelectorAll('.workflow-step').forEach((btn) => {
     btn.addEventListener('click', () => {
@@ -53,6 +60,7 @@ export function bootstrapMainWebview(): void {
   syncWorkflowSteps('input');
   registerInputView();
   registerConfirmView();
+  registerTaskTypeClassificationControls();
   registerExecView();
   registerMessageHandler();
   syncInputActionsVisibility();

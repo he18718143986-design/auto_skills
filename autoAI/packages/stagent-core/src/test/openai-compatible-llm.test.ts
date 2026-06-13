@@ -60,6 +60,28 @@ test('parseSseDeltaStream fires onActivity for reasoning-only deltas (no content
   assert.ok(activity >= 3, `onActivity 应在每个流量块触发，实际 ${activity}`);
 });
 
+test('parseSseDeltaStream surfaces usage chunk via onUsage', async () => {
+  // stream_options.include_usage 下，厂商在末尾 chunk（choices 为空）下发 usage。
+  const body = sseBody([
+    'data: {"choices":[{"delta":{"content":"hi"}}]}\n\n',
+    'data: {"choices":[],"usage":{"prompt_tokens":120,"completion_tokens":34,"total_tokens":154}}\n\n',
+    'data: [DONE]\n\n',
+  ]);
+  const parts: string[] = [];
+  const usages: { prompt_tokens?: number; completion_tokens?: number; total_tokens?: number }[] =
+    [];
+  for await (const d of parseSseDeltaStream(body, new AbortController().signal, undefined, (u) => {
+    usages.push(u);
+  })) {
+    parts.push(d);
+  }
+  assert.deepEqual(parts, ['hi']);
+  assert.equal(usages.length, 1, 'usage 应被回调一次');
+  assert.equal(usages[0].prompt_tokens, 120);
+  assert.equal(usages[0].completion_tokens, 34);
+  assert.equal(usages[0].total_tokens, 154);
+});
+
 test('parseSseDeltaStream fires onActivity on keepalive comment lines', async () => {
   // SSE keepalive（`: ping`）也算连接存活，应重置空闲计时器，即使不含正文。
   const body = sseBody([': ping\n', ': ping\n', 'data: {"choices":[{"delta":{"content":"ok"}}]}\n\n']);

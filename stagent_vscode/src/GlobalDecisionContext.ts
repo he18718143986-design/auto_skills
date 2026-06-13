@@ -1,3 +1,5 @@
+import { formatCommitmentIndex, COMMITMENT_SNAPSHOT_OUTPUT_KEY } from './commitment';
+import type { CommitmentSnapshot } from './commitment';
 import { PRIMARY_DECISION_OUTPUT_KEY } from './WorkflowOutputKeys';
 import { isLlmTextTool } from './workflow/StageToolKinds';
 import type { GlobalDecisionInjectMode, InputSource, Stage, StageRuntime, WorkflowDefinition } from './WorkflowDefinition';
@@ -125,6 +127,33 @@ export function formatGlobalDecisionContextBlock(
   return `${heading}\n\n${parts.join('\n\n---\n\n')}`;
 }
 
+export function collectCommitmentIndexBlocks(
+  definition: WorkflowDefinition,
+  runtimes: StageRuntime[],
+  currentStageId: string,
+): string[] {
+  const blocks: string[] = [];
+  for (let i = 0; i < definition.stages.length; i++) {
+    const stage = definition.stages[i]!;
+    if (stage.id === currentStageId || stage.isDecisionStage !== true) {
+      continue;
+    }
+    const rt = runtimes[i];
+    if (rt?.status !== 'done') {
+      continue;
+    }
+    const raw = rt.outputs[COMMITMENT_SNAPSHOT_OUTPUT_KEY];
+    if (!raw || typeof raw !== 'object') {
+      continue;
+    }
+    const index = formatCommitmentIndex(raw as CommitmentSnapshot);
+    if (index) {
+      blocks.push(index);
+    }
+  }
+  return blocks;
+}
+
 /** 拼入 llm-text 的 systemPrompt 末尾（不修改 stage 定义 JSON） */
 export function appendGlobalDecisionContextToSystemPrompt(
   systemPrompt: string,
@@ -156,6 +185,11 @@ export function buildGlobalDecisionSystemPromptBlock(
     collectApprovedDecisionSnippets(definition, runtimes, stage.id),
     stage.input.sources,
   );
-  const block = formatGlobalDecisionContextBlock(snippets, options.mode);
+  let block = formatGlobalDecisionContextBlock(snippets, options.mode);
+  const commitmentBlocks = collectCommitmentIndexBlocks(definition, runtimes, stage.id);
+  if (commitmentBlocks.length > 0) {
+    const extra = commitmentBlocks.join('\n\n');
+    block = block ? `${block}\n\n---\n\n${extra}` : extra;
+  }
   return block || null;
 }

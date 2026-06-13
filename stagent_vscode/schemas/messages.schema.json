@@ -183,6 +183,48 @@
         {
           "type": "object",
           "required": [
+            "type",
+            "kind",
+            "text"
+          ],
+          "properties": {
+            "type": {
+              "const": "engineActivity"
+            },
+            "seq": {
+              "type": "number",
+              "description": "Monotonic backend message sequence assigned by WorkflowUiBridge"
+            },
+            "uiEpoch": {
+              "type": "number",
+              "description": "UI resync generation; incremented by WorkflowUiBridge.beginUiResync"
+            },
+            "instanceKey": {
+              "type": "string",
+              "description": "Workflow instance key; injected by WorkflowUiBridge for execution-scoped messages"
+            },
+            "sessionId": {
+              "type": "string",
+              "description": "M44 session pointer (same value as instanceKey when bound)"
+            },
+            "kind": {
+              "description": "EngineActivityKind"
+            },
+            "text": {
+              "type": "string"
+            },
+            "stageId": {
+              "type": "string"
+            },
+            "timestamp": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": true
+        },
+        {
+          "type": "object",
+          "required": [
             "type"
           ],
           "properties": {
@@ -619,6 +661,9 @@
               "items": {
                 "type": "string"
               }
+            },
+            "diagnosticRoute": {
+              "description": "DiagnosticRoute"
             }
           },
           "additionalProperties": true
@@ -754,6 +799,9 @@
             },
             "retryDisabled": {
               "type": "boolean"
+            },
+            "execSemantic": {
+              "description": "StageExecSemantic | null"
             }
           },
           "additionalProperties": true
@@ -867,7 +915,9 @@
         {
           "type": "object",
           "required": [
-            "type"
+            "type",
+            "text",
+            "polishedAt"
           ],
           "properties": {
             "type": {
@@ -882,12 +932,25 @@
               "description": "UI resync generation; incremented by WorkflowUiBridge.beginUiResync"
             },
             "instanceKey": {
-              "type": "string",
-              "description": "Workflow instance key; injected by WorkflowUiBridge for execution-scoped messages"
+              "type": "string"
             },
             "sessionId": {
-              "type": "string",
-              "description": "M44 session pointer (same value as instanceKey when bound)"
+              "type": "string"
+            },
+            "text": {
+              "type": "string"
+            },
+            "polishedAt": {
+              "type": "string"
+            },
+            "fromCache": {
+              "type": "boolean"
+            },
+            "polishTierUsed": {
+              "enum": [
+                "light",
+                "standard"
+              ]
             }
           },
           "additionalProperties": true
@@ -916,6 +979,56 @@
             "sessionId": {
               "type": "string",
               "description": "M44 session pointer (same value as instanceKey when bound)"
+            }
+          },
+          "additionalProperties": true
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "stageId",
+            "issues",
+            "choices"
+          ],
+          "properties": {
+            "type": {
+              "const": "workflowEscalation"
+            },
+            "seq": {
+              "type": "number",
+              "description": "Monotonic backend message sequence assigned by WorkflowUiBridge"
+            },
+            "uiEpoch": {
+              "type": "number",
+              "description": "UI resync generation; incremented by WorkflowUiBridge.beginUiResync"
+            },
+            "instanceKey": {
+              "type": "string",
+              "description": "Workflow instance key; injected by WorkflowUiBridge for execution-scoped messages"
+            },
+            "sessionId": {
+              "type": "string",
+              "description": "M44 session pointer (same value as instanceKey when bound)"
+            },
+            "stageId": {
+              "type": "string"
+            },
+            "issues": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "choices": {
+              "enum": [
+                "confirm",
+                "reopen_decision",
+                "abort"
+              ]
+            },
+            "reopenDecisionStageId": {
+              "type": "string"
             }
           },
           "additionalProperties": true
@@ -1053,6 +1166,15 @@
               "items": {
                 "type": "string"
               }
+            },
+            "decisionBoard": {
+              "description": "DecisionBoardPayload"
+            },
+            "decisionMode": {
+              "description": "HITLDecisionMode"
+            },
+            "taskTypeClassification": {
+              "description": "TaskTypeClassificationInfo"
             }
           },
           "additionalProperties": true
@@ -1225,6 +1347,48 @@
         {
           "type": "object",
           "required": [
+            "type",
+            "kind",
+            "text"
+          ],
+          "properties": {
+            "type": {
+              "const": "engineActivity"
+            },
+            "seq": {
+              "type": "number",
+              "description": "Monotonic backend message sequence assigned by WorkflowUiBridge"
+            },
+            "uiEpoch": {
+              "type": "number",
+              "description": "UI resync generation; incremented by WorkflowUiBridge.beginUiResync"
+            },
+            "instanceKey": {
+              "type": "string",
+              "description": "Workflow instance key; injected by WorkflowUiBridge for execution-scoped messages"
+            },
+            "sessionId": {
+              "type": "string",
+              "description": "M44 session pointer (same value as instanceKey when bound)"
+            },
+            "kind": {
+              "description": "EngineActivityKind"
+            },
+            "text": {
+              "type": "string"
+            },
+            "stageId": {
+              "type": "string"
+            },
+            "timestamp": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": true
+        },
+        {
+          "type": "object",
+          "required": [
             "type"
           ],
           "properties": {
@@ -1661,6 +1825,9 @@
               "items": {
                 "type": "string"
               }
+            },
+            "diagnosticRoute": {
+              "description": "DiagnosticRoute"
             }
           },
           "additionalProperties": true
@@ -1796,6 +1963,9 @@
             },
             "retryDisabled": {
               "type": "boolean"
+            },
+            "execSemantic": {
+              "description": "StageExecSemantic | null"
             }
           },
           "additionalProperties": true
@@ -1909,7 +2079,9 @@
         {
           "type": "object",
           "required": [
-            "type"
+            "type",
+            "text",
+            "polishedAt"
           ],
           "properties": {
             "type": {
@@ -1924,12 +2096,25 @@
               "description": "UI resync generation; incremented by WorkflowUiBridge.beginUiResync"
             },
             "instanceKey": {
-              "type": "string",
-              "description": "Workflow instance key; injected by WorkflowUiBridge for execution-scoped messages"
+              "type": "string"
             },
             "sessionId": {
-              "type": "string",
-              "description": "M44 session pointer (same value as instanceKey when bound)"
+              "type": "string"
+            },
+            "text": {
+              "type": "string"
+            },
+            "polishedAt": {
+              "type": "string"
+            },
+            "fromCache": {
+              "type": "boolean"
+            },
+            "polishTierUsed": {
+              "enum": [
+                "light",
+                "standard"
+              ]
             }
           },
           "additionalProperties": true
@@ -1958,6 +2143,56 @@
             "sessionId": {
               "type": "string",
               "description": "M44 session pointer (same value as instanceKey when bound)"
+            }
+          },
+          "additionalProperties": true
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "stageId",
+            "issues",
+            "choices"
+          ],
+          "properties": {
+            "type": {
+              "const": "workflowEscalation"
+            },
+            "seq": {
+              "type": "number",
+              "description": "Monotonic backend message sequence assigned by WorkflowUiBridge"
+            },
+            "uiEpoch": {
+              "type": "number",
+              "description": "UI resync generation; incremented by WorkflowUiBridge.beginUiResync"
+            },
+            "instanceKey": {
+              "type": "string",
+              "description": "Workflow instance key; injected by WorkflowUiBridge for execution-scoped messages"
+            },
+            "sessionId": {
+              "type": "string",
+              "description": "M44 session pointer (same value as instanceKey when bound)"
+            },
+            "stageId": {
+              "type": "string"
+            },
+            "issues": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "choices": {
+              "enum": [
+                "confirm",
+                "reopen_decision",
+                "abort"
+              ]
+            },
+            "reopenDecisionStageId": {
+              "type": "string"
             }
           },
           "additionalProperties": true
@@ -2095,6 +2330,15 @@
               "items": {
                 "type": "string"
               }
+            },
+            "decisionBoard": {
+              "description": "DecisionBoardPayload"
+            },
+            "decisionMode": {
+              "description": "HITLDecisionMode"
+            },
+            "taskTypeClassification": {
+              "description": "TaskTypeClassificationInfo"
             }
           },
           "additionalProperties": true

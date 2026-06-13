@@ -6,6 +6,9 @@ import type { StartExecutionHost } from './WorkflowStartCoordinator';
 import { ERROR_TYPE_INVARIANT_VIOLATION } from './WorkflowStageErrorHelpers';
 import { DEBUG_EVENT_RUN_START } from './DebugLogEvents';
 import { WORKFLOW_LEVEL_STAGE_ID } from './workflow/WorkflowLevelIds';
+import type { FrontloadDecisionResolution } from './decision-frontload/DecisionFrontloadTypes';
+import { applyFrontloadDecisionsToRuntimes } from './decision-frontload/applyFrontloadDecisions';
+import { pinTaskWorkspacePathAbsolute } from './WorkflowPathResolver';
 
 export type RuntimeBootstrapResult =
   | { ok: false }
@@ -23,6 +26,7 @@ export function bootstrapWorkflowRuntime(
   panel: vscode.WebviewPanel,
   wf: WorkflowDefinition,
   instanceKey?: string,
+  frontloadResolutions?: FrontloadDecisionResolution[],
 ): RuntimeBootstrapResult {
   const { reuse, existing, instanceId } = host.resolveReuseInstance(
     instanceKey ?? host.getCurrentInstanceKey(),
@@ -67,12 +71,25 @@ export function bootstrapWorkflowRuntime(
     taskDir = taskDirRes.dir;
   }
 
+  const pinnedWorkspace = pinTaskWorkspacePathAbsolute(wf.meta?.taskWorkspacePath, taskDir);
+  if (pinnedWorkspace) {
+    wf = {
+      ...wf,
+      meta: { ...wf.meta, taskWorkspacePath: pinnedWorkspace },
+    };
+  }
+
   const runtimes: StageRuntime[] = wf.stages.map((s) => ({
     stageId: s.id,
     status: 'pending',
     outputs: {},
     retryCount: 0,
   }));
+
+  const frontloadedStageIds =
+    frontloadResolutions && frontloadResolutions.length > 0
+      ? applyFrontloadDecisionsToRuntimes(runtimes, frontloadResolutions)
+      : [];
 
   host.setInstance({
     traceId: existing?.traceId ?? `trace_${crypto.randomUUID()}`,
@@ -92,7 +109,12 @@ export function bootstrapWorkflowRuntime(
     stageCount: wf.stages.length,
     reusedInstance: reuse,
     reusedFromStatus: existing?.status,
+    frontloadedDecisionStages: frontloadedStageIds,
   });
+
+  for (const stageId of frontloadedStageIds) {
+    host.postMessage(panel, { type: 'stageStatusUpdate', stageId, status: 'done' });
+  }
 
   return { ok: true, wf, instanceId, taskDir, reuse, existing };
 }

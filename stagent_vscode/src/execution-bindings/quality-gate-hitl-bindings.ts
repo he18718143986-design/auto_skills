@@ -3,13 +3,21 @@ import type { ExecuteNextStageLoopParams } from '../WorkflowExecutor';
 import { readGrillAdaptiveModeForStage } from '../GrillAdaptiveFlow';
 import { getStagentConfiguration } from '../settings/getStagentConfiguration';
 import { tryAnswerFromCodeExplore } from '../GrillCodeExplore';
+import { tryCharterAnswerForQuestion } from '../charter/CharterGrillRuntime';
 import { buildHITLPolicy } from '../AdaptiveHITLPolicy';
 import type { WorkflowEngineExecutionHost } from './types';
 import { qualityGateSettingsReaders } from './quality-gate-settings';
 
 export function buildQualityGateHitlBindings(
   engine: WorkflowEngineExecutionHost,
-): Pick<ExecuteNextStageLoopParams, 'confidencePauseThreshold' | 'hitlPolicy' | 'isAdaptiveGrillForStage' | 'tryGrillCodeExplore'> {
+): Pick<
+  ExecuteNextStageLoopParams,
+  | 'confidencePauseThreshold'
+  | 'hitlPolicy'
+  | 'isAdaptiveGrillForStage'
+  | 'tryGrillCodeExplore'
+  | 'tryCharterGrillAutoAnswer'
+> {
   const readers = qualityGateSettingsReaders;
   const e = engine;
   return {
@@ -18,6 +26,8 @@ export function buildQualityGateHitlBindings(
       confidencePauseThreshold: readers.readConfidencePauseThreshold(),
       contractNodePauseThreshold: readers.readContractNodePauseThreshold(),
       pauseContractNodesBelowThreshold: readers.readPauseContractNodesEnabled(),
+      charterAutoAnswerMode: readers.readCharterAutoAnswerMode(),
+      decisionMode: readers.readHitlDecisionMode(),
     }),
     isAdaptiveGrillForStage: (stage) => {
       if (!e.instance) {
@@ -33,5 +43,7 @@ export function buildQualityGateHitlBindings(
     },
     tryGrillCodeExplore: async (question) =>
       tryAnswerFromCodeExplore(question, e.getWorkspaceRootAbsolute()),
+    tryCharterGrillAutoAnswer: (question) =>
+      tryCharterAnswerForQuestion(question, e.getWorkspaceRootAbsolute()),
   };
 }

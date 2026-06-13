@@ -1,1 +1,30 @@
 .DS_Store
+
+# dependencies & build outputs
+node_modules/
+dist/
+out/
+coverage/
+*.tsbuildinfo
+
+# logs & test/run products
+*.log
+e2e-report/
+test-results/
+playwright-report/
+.test-tmp/
+artifacts/
+
+# secrets
+.env
+.env.*
+*.local
+!.env.example
+
+# engine runtime state & live iteration workspaces (regenerated per run)
+.stagent/
+.pr-worktrees/
+global/
+T4/
+test/
+task/

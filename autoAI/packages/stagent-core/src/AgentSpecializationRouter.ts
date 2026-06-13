@@ -2,6 +2,14 @@ import type { Stage } from './WorkflowDefinition';
 
 export type AgentRole = 'decision' | 'implementation' | 'test-write' | 'lightweight' | 'default';
 
+export const AGENT_ROLES: readonly AgentRole[] = [
+  'decision',
+  'implementation',
+  'test-write',
+  'lightweight',
+  'default',
+];
+
 export interface AgentSelectionConfig {
   preferredModelByRole?: Partial<Record<AgentRole, string>>;
   fallbackToDefault: boolean;
@@ -13,20 +21,46 @@ export interface LanguageModelLike {
   id: string;
 }
 
+/**
+ * 仅凭 stage(trace) id 前缀分类角色（执行链只持有 traceStageId 字符串时使用）。
+ * trace id 可能带组合后缀（如 `stage_test_run_x:gate-repair`），前缀匹配天然兼容——
+ * 非 test_write / impl 前缀（含 test_run 派生的 fix/gate-repair 调用）一律走 default，
+ * 即沿用全局 preferredModelFamily，不会误用 test-write 专属模型。
+ */
+export function classifyStageRoleFromId(stageId: string): AgentRole {
+  if (/^stage_decide_/.test(stageId)) {
+    return 'decision';
+  }
+  if (/^stage_test_write_/.test(stageId)) {
+    return 'test-write';
+  }
+  if (/^stage_impl_/.test(stageId)) {
+    return 'implementation';
+  }
+  if (/^stage_(zoom|doc|polish|summary)/.test(stageId)) {
+    return 'lightweight';
+  }
+  return 'default';
+}
+
 export function classifyStageRole(stage: Stage): AgentRole {
   if (stage.isDecisionStage) {
     return 'decision';
   }
-  if (/^stage_test_write_/.test(stage.id)) {
-    return 'test-write';
-  }
-  if (/^stage_impl_/.test(stage.id)) {
-    return 'implementation';
-  }
-  if (/^stage_(zoom|doc|polish|summary)/.test(stage.id)) {
-    return 'lightweight';
-  }
-  return 'default';
+  return classifyStageRoleFromId(stage.id);
+}
+
+/**
+ * 由 stage(trace) id + 角色覆盖表解析模型 family hint。
+ * 未配置该角色（或值为空）返回 undefined → 调用方回退全局 preferredModelFamily。
+ */
+export function modelFamilyHintForStageId(
+  stageId: string,
+  overrides: Partial<Record<AgentRole, string>>,
+): string | undefined {
+  const role = classifyStageRoleFromId(stageId);
+  const v = overrides[role]?.trim();
+  return v || undefined;
 }
 
 function resolveModelFamilyOverride(
@@ -85,7 +119,7 @@ export function buildAgentSelectionConfig(
   fallbackToDefault = true,
 ): AgentSelectionConfig {
   const preferredModelByRole: Partial<Record<AgentRole, string>> = {};
-  for (const role of ['decision', 'implementation', 'test-write', 'lightweight', 'default'] as AgentRole[]) {
+  for (const role of AGENT_ROLES) {
     const v = overrides[role]?.trim();
     if (v) {
       preferredModelByRole[role] = v;

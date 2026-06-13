@@ -11,7 +11,8 @@ Stage 必须包含：id, title, description?, tool, toolConfig, input, outputs, 
 aiTip（可选 string，≤120 字）：确认页展示的本阶段审核提示——决策阶段写模块边界/接口合约；stage_test_run_* 写 venv/落盘路径/import 对齐；impl 写落盘文件名与上游 decisionRecord 关系；code-runner 失败时的常见原因一句即可。
 tool 取值：常用 llm-text；凡阶段 id 匹配 /^stage_test_run_/ 时必须为 code-runner（见 Rule 20-H）。
 llm-text 的 toolConfig: { "type":"llm-text", "systemPrompt": string, "writeOutputToFile"?: string, "writePathBase"?: "instance"|"workspace" }
-code-runner 的 toolConfig: { "type":"code-runner", "command": string, "captureOutput": boolean, "workingDir"?: string, "pathBase"?: "instance"|"workspace", "timeout"?: number }（timeout 通常省略；引擎按命令类别解析，仅超长安装可显式加大）
+code-runner 的 toolConfig: { "type":"code-runner", "command": string, "captureOutput": boolean, "workingDir"?: string, "pathBase"?: "instance"|"workspace", "timeout"?: number, "serve"?: boolean, "readyProbe"?: string, "graceMs"?: number, "readyTimeoutMs"?: number }（timeout 通常省略；引擎按命令类别解析，仅超长安装可显式加大）
+  · serve=true：command 为**长驻进程**（如 `npm start`/`node dist/index.js`/`uvicorn`）时必须设；引擎以「后台起→探活/grace→收进程树」有界执行，**不要**给长驻命令用普通 code-runner（会卡住）。readyProbe=就绪探活命令（shell，exit 0 即就绪，如 `curl -fsS http://127.0.0.1:3000/health`）；无 HTTP 端点可省 readyProbe 并设 graceMs（进程稳定存活这么久即通过）。
 file-write 的 toolConfig: { "type":"file-write", "filePath": string, "sourceOutputKey": string, "sourceStageId"?: string, "pathBase"?: "instance"|"workspace" }
 input: { "sources": InputSource[], "mergeStrategy": "concat"|"template"|"object", "mergeTemplate"?": string }
 InputSource: user-input | constant | stage-output（引用前置阶段的输出）。

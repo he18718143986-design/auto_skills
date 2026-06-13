@@ -15,6 +15,7 @@ import {
   resolveContractNodePauseThreshold,
 } from './StagentSettingsDefaults';
 import { DEFAULT_RED_GREEN_MODE, resolveRedGreenMode, type RedGreenMode } from './RedGreenGate';
+import { AGENT_ROLES, type AgentRole } from './AgentSpecializationRouter';
 
 export {
   DEFAULT_CONFIDENCE_PAUSE_THRESHOLD,
@@ -216,6 +217,30 @@ export function readLlmMaxOutputTokens(cfg: ConfigPort): number {
     return resolveLlmMaxOutputTokens(c.get('llmMaxOutputTokens'));
   } catch {
     return resolveLlmMaxOutputTokens(undefined);
+  }
+}
+
+/**
+ * vscode `stagent.llmModelByRole`；按 Agent 角色覆盖模型 family
+ * （如 `{ "test-write": "direct:glm-4" }`，让写测试与写实现用异族模型）。
+ * 默认 `{}` = 全部角色沿用全局 preferredModelFamily（行为与历史一致）。
+ */
+export function readPreferredModelByRole(cfg: ConfigPort): Partial<Record<AgentRole, string>> {
+  try {
+    const raw = cfg.get<Record<string, unknown>>('llmModelByRole');
+    if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
+      return {};
+    }
+    const out: Partial<Record<AgentRole, string>> = {};
+    for (const role of AGENT_ROLES) {
+      const v = (raw as Record<string, unknown>)[role];
+      if (typeof v === 'string' && v.trim()) {
+        out[role] = v.trim();
+      }
+    }
+    return out;
+  } catch {
+    return {};
   }
 }
 

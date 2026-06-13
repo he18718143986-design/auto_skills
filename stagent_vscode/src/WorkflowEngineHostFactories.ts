@@ -13,6 +13,7 @@ import type { GenerationRunnerHost } from './WorkflowGenerationRunner';
 import type { StartExecutionHost } from './WorkflowStartCoordinator';
 import type { ArtifactUiHost } from './WorkflowArtifactUi';
 import { writeWorkflowProcessDocs } from './WorkflowStartCoordinator';
+import { readContractCommitmentsEnabled } from './settings/readers/contract';
 import {
   readEngineDecisionContentLintEnabled,
   readEngineGenerationGates,
@@ -20,6 +21,8 @@ import {
   readEngineMaxManualStageRetries,
   readEngineRuntimeRule20VerifyEnabled,
   readEngineSdkPathContractLintMode,
+  readEnginePythonExportContractLintMode,
+  readEnginePythonPypiSymbolLintMode,
 } from './WorkflowEngineSettingsReaders';
 import type { ResumeCoordinatorHost } from './WorkflowInstanceResumeCoordinator';
 import type { MessagingHost } from './WorkflowEngineMessaging';
@@ -100,6 +103,8 @@ export function buildWorkspaceLintContext(deps: EngineHostFactoryDeps) {
     workspaceRootAbsolute: deps.getWorkspaceRootAbsolute(),
     glossaryEnabled: readEngineGlossaryEnabled(),
     sdkPathContractLintMode: readEngineSdkPathContractLintMode(),
+    pythonExportContractLintMode: readEnginePythonExportContractLintMode(),
+    pythonPypiSymbolLintMode: readEnginePythonPypiSymbolLintMode(),
   };
 }
 
@@ -159,6 +164,7 @@ export function buildHitlHost(
     ensureInstanceBound,
     rejectApproveDecision: (panel, stageId, reason) => deps.rejectApproveDecision(panel, stageId, reason),
     isDecisionContentLintVscodeDefault: () => readEngineDecisionContentLintEnabled(),
+    isContractCommitmentsEnabled: () => readContractCommitmentsEnabled(),
     getMaxManualStageRetries: () => readEngineMaxManualStageRetries(),
     getWorkspaceRootAbsolute: () => deps.getWorkspaceRootAbsolute(),
     debugLog: (stageId, event, attempt, payload) => deps.debugLog(stageId, event, attempt, payload),
@@ -192,7 +198,7 @@ export function buildPreGenerationHost(deps: EngineHostFactoryDeps): PreGenerati
     postGenerationProgress: (panel, operation, phase, message, detail) =>
       deps.postGenerationProgress(panel, operation, phase, message, detail),
     ensurePreExecDraftShell: (opts) => deps.ensurePreExecDraftShell(opts),
-    polishCacheKey: (draft, taskType) => deps.polishCacheKey(draft, taskType),
+    polishCacheKey: (draft, taskType, polishTier) => deps.polishCacheKey(draft, taskType, polishTier),
     getPolishCacheHit: (cacheKey) => deps.getPolishCache().get(cacheKey),
     rememberPolishCache: (cacheKey, text, polishedAt) =>
       deps.rememberPolishCache(cacheKey, text, polishedAt),

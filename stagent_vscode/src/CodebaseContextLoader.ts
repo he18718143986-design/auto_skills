@@ -1,3 +1,4 @@
+import type { CodebaseSnapshot } from './CodebaseContextProvider';
 import { buildGeneratorCodebaseContextBlock } from './WorkflowGeneration';
 import { HOST_INPUT_PAGE_BUSY_TITLES as INPUT_PAGE_BUSY_TITLES } from './WebviewInputGenerationUiHost';
 import type { GenerationRunnerHost, RunWorkflowGenerationParams } from './WorkflowGenerationRunner';
@@ -9,6 +10,7 @@ import { GENERATION_OPERATION_WORKFLOW } from './generation/GenerationOperationI
 export type CodebaseContextLoadResult = {
   taskWorkspaceAbs: string;
   codebaseContext: string;
+  codebaseSnapshot?: CodebaseSnapshot;
   complexity: ReturnType<typeof buildGeneratorCodebaseContextBlock>['complexity'];
   depGraph: ReturnType<typeof buildGeneratorCodebaseContextBlock>['depGraph'];
 };
@@ -46,7 +48,7 @@ export function loadCodebaseContext(
     '扫描代码库快照、依赖图、复杂度与经验库…',
   );
 
-  const { codebaseContext, complexity, depGraph } = buildGeneratorCodebaseContextBlock({
+  const { codebaseContext, codebaseSnapshot, complexity, depGraph } = buildGeneratorCodebaseContextBlock({
     taskWorkspaceAbs,
     userInput,
     codebaseSnapshotEnabled: readCodebaseContextEnabled,
@@ -57,5 +59,5 @@ export function loadCodebaseContext(
     onDegraded: (reason, context) => host.degraded(reason, context),
   });
 
-  return { taskWorkspaceAbs, codebaseContext, complexity, depGraph };
+  return { taskWorkspaceAbs, codebaseContext, codebaseSnapshot, complexity, depGraph };
 }

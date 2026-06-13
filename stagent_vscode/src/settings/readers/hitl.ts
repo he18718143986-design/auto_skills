@@ -1,5 +1,6 @@
 import type * as vscode from 'vscode';
 import type { GlobalDecisionInjectMode } from '../../WorkflowDefinition';
+import type { HITLDecisionMode } from '../../AdaptiveHITLPolicy';
 import {
   DEFAULT_CONFIDENCE_PAUSE_THRESHOLD,
   DEFAULT_CONTRACT_NODE_PAUSE_THRESHOLD,
@@ -11,6 +12,9 @@ import {
   readConfigResolved,
   readConfigStringEnum,
 } from './readConfigHelpers';
+import { readAfkEnabled, settingExplicitlyConfigured } from './afk';
+
+const AFK_CONFIDENCE_PAUSE_THRESHOLD = 0.35;
 
 /** vscode `stagent.hitl.contractNodePauseThreshold`；M21.4，默认 0.75 */
 export function readContractNodePauseThreshold(cfg?: vscode.WorkspaceConfiguration): number {
@@ -29,6 +33,9 @@ export function readPauseContractNodesEnabled(cfg?: vscode.WorkspaceConfiguratio
 
 /** vscode `stagent.confidence.pauseThreshold`；M16.2 AdaptiveHITL 将消费，M15.7 仅引擎读取并写 debug 日志 */
 export function readConfidencePauseThreshold(cfg?: vscode.WorkspaceConfiguration): number {
+  if (readAfkEnabled(cfg) && !settingExplicitlyConfigured(cfg, 'confidence.pauseThreshold')) {
+    return AFK_CONFIDENCE_PAUSE_THRESHOLD;
+  }
   return readConfigResolved(
     cfg,
     'confidence.pauseThreshold',
@@ -52,4 +59,9 @@ export function readGlobalDecisionInjectMode(
   cfg?: vscode.WorkspaceConfiguration,
 ): GlobalDecisionInjectMode {
   return readConfigStringEnum(cfg, 'globalDecisionInjectMode', ['full', 'summary'] as const, 'summary');
+}
+
+/** vscode `stagent.hitl.decisionMode`；默认 inline-pause（B-R2 决策前置为 frontloaded） */
+export function readHitlDecisionMode(cfg?: vscode.WorkspaceConfiguration): HITLDecisionMode {
+  return readConfigStringEnum(cfg, 'hitl.decisionMode', ['inline-pause', 'frontloaded'] as const, 'inline-pause');
 }

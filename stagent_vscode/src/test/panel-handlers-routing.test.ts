@@ -171,6 +171,14 @@ test('polishUserTask defaults taskType and omits non-string workspace path', asy
   assert.equal(calls[0].method, 'polishUserTask');
   assert.equal(calls[0].args[1], 'auto');
   assert.equal(calls[0].args[3], undefined);
+  assert.equal(calls[0].args[4], undefined);
+});
+
+test('polishUserTask forwards polishTier', async () => {
+  const { engine, calls } = makeEngine();
+  const { panel } = makePanel();
+  await route(engine, panel, { type: 'polishUserTask', draft: 'd', polishTier: 'light' });
+  assert.equal(calls[0].args[4], 'light');
 });
 
 test('clarifyStart rejects when workspace path is missing', async () => {

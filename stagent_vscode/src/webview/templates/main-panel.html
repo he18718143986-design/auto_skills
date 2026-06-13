@@ -25,6 +25,7 @@
   <section id="view-input" class="view active input-chat-layout">
     <div id="input-chat-shell" class="input-chat-shell">
       <div id="input-view-scroll" class="view-scroll input-view-scroll">
+      <p id="input-primary-hint" class="muted input-primary-hint" data-i18n-key="stagent.webview.main.inputPrimaryHint"></p>
       <p id="polish-hint" class="muted polish-hint-banner" style="display:none"></p>
       <div id="chat-history" class="chat-history" style="display:none" role="log" aria-live="polite">
         <div class="chat-row-user">
@@ -68,9 +69,20 @@
             <button type="button" id="btn-pick-workspace" class="secondary" style="padding:6px 10px;font-size:0.82rem;" data-i18n-key="stagent.webview.main.browseFolder"></button>
           </div>
         </div>
-        <div id="input-actions" class="composer-actions">
-          <button type="button" id="btn-polish" class="secondary" data-i18n-key="stagent.webview.main.btnPolish"></button>
+        <div id="input-actions" class="composer-actions input-primary-actions">
           <button type="button" id="btn-gen" class="dock-primary" data-i18n-key="stagent.webview.main.btnGenWorkflow"></button>
+          <button type="button" id="btn-toggle-polish-tools" class="secondary polish-tools-toggle" data-i18n-key="stagent.webview.main.btnTogglePolishTools" aria-expanded="false" aria-controls="polish-optional-tools"></button>
+        </div>
+        <div id="polish-optional-tools" class="polish-optional-tools" style="display:none" aria-hidden="true">
+          <p class="polish-optional-hint muted" data-i18n-key="stagent.webview.main.polishOptionalHint"></p>
+          <div class="polish-optional-actions">
+            <div id="polish-tier-group" class="polish-tier-group" role="group" aria-label="Polish tier">
+              <button type="button" id="polish-tier-auto" class="polish-tier-btn active" data-tier="auto" data-i18n-key="stagent.webview.main.polishTierAuto"></button>
+              <button type="button" id="polish-tier-light" class="polish-tier-btn" data-tier="light" data-i18n-key="stagent.webview.main.polishTierLight"></button>
+              <button type="button" id="polish-tier-standard" class="polish-tier-btn" data-tier="standard" data-i18n-key="stagent.webview.main.polishTierStandard"></button>
+            </div>
+            <button type="button" id="btn-polish" class="secondary" data-i18n-key="stagent.webview.main.btnPolish"></button>
+          </div>
         </div>
         <div id="polish-actions" class="composer-actions polish-actions" style="display:none">
           <span id="polish-dock-hint" class="dock-hint" data-i18n-key="stagent.webview.main.polishDockHint"></span>
@@ -99,6 +111,32 @@
         <ul id="timeline"></ul>
       </div>
       <div id="confirm-main">
+        <details class="confirm-section confirm-section-primary" id="section-task-type-classification" open hidden>
+          <summary data-i18n-key="stagent.webview.main.taskTypeClassification"></summary>
+          <div class="plan-panel-body task-type-classification-body">
+            <div id="task-type-rationale" class="task-type-rationale muted"></div>
+            <div class="task-type-controls">
+              <label class="task-type-field">
+                <span data-i18n-key="stagent.webview.confirm.taskTypeSelectLabel"></span>
+                <select id="task-type-select"></select>
+              </label>
+              <label class="task-type-field task-type-greenfield">
+                <input type="checkbox" id="task-type-greenfield" />
+                <span data-i18n-key="stagent.webview.confirm.greenfieldLabel"></span>
+              </label>
+              <label class="task-type-field task-type-lock">
+                <input type="checkbox" id="task-type-lock" />
+                <span data-i18n-key="stagent.webview.confirm.taskTypeLockLabel"></span>
+              </label>
+            </div>
+            <label class="task-type-field">
+              <span data-i18n-key="stagent.webview.confirm.workflowTemplateSelectLabel"></span>
+              <select id="workflow-template-select"></select>
+            </label>
+            <div id="task-type-path" class="task-type-path muted"></div>
+            <div id="task-type-effective" class="task-type-effective muted"></div>
+          </div>
+        </details>
         <details class="confirm-section" id="section-plan-summary" hidden>
           <summary data-i18n-key="stagent.webview.main.planSummary"></summary>
           <div id="plan-summary" class="plan-panel-body plan-summary"></div>
@@ -114,6 +152,14 @@
         <details class="confirm-section" id="section-plan-artifacts" hidden>
           <summary data-i18n-key="stagent.webview.main.artifactFiles"></summary>
           <div id="plan-artifacts" class="plan-panel-body plan-artifacts"></div>
+        </details>
+        <details class="confirm-section confirm-section-primary" id="section-decision-board" hidden>
+          <summary data-i18n-key="stagent.webview.main.decisionBoard"></summary>
+          <div class="plan-panel-body decision-board-body">
+            <div id="decision-board-summary" class="decision-board-summary"></div>
+            <div id="decision-board-hint" class="decision-board-hint muted"></div>
+            <div id="decision-board-list" class="decision-board-list"></div>
+          </div>
         </details>
         <details class="confirm-section confirm-section-primary" id="section-stage-cards" open>
           <summary data-i18n-key="stagent.webview.main.stageList"></summary>
@@ -139,9 +185,15 @@
 
   <section id="view-exec" class="view">
     <div class="view-scroll exec-view-scroll">
+    <div id="exec-cockpit-header" class="exec-cockpit-header">
+      <div id="engine-activity-feed" class="engine-activity-feed"></div>
+      <div id="exec-deferred-callout" class="exec-deferred-callout" hidden></div>
+    </div>
+    <div id="exec-cockpit-body" class="exec-cockpit-body">
     <div class="row exec-row">
+      <div id="slice-health-panel" class="exec-slice-col"></div>
       <div class="exec-timeline-col">
-        <strong data-i18n-key="stagent.webview.main.execProgress"></strong>
+        <strong data-i18n-key="stagent.webview.cockpit.timelineTitle"></strong>
         <ul id="timeline-exec"></ul>
       </div>
       <div id="exec-main">
@@ -163,6 +215,8 @@
         <div id="downstream-reset-panel" style="display:none"></div>
       </div>
     </div>
+    </div>
+    <div id="quality-report-panel" class="quality-report-panel" hidden></div>
     <div id="llm-usage-footer" class="muted" style="display:none;font-size:0.8rem;padding:4px 8px"></div>
     <div id="done-banner" style="display:none" class="banner" data-i18n-key="stagent.webview.main.workflowComplete"></div>
     <div id="fail-banner" style="display:none" class="banner error"></div>

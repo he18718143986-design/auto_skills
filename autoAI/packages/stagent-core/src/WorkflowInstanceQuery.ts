@@ -60,12 +60,17 @@ export interface TaskListItem {
   taskWorkspacePath?: string;
 }
 
-const COMPLETED_STAGE_STATUSES = new Set(['done', 'approved', 'skipped']);
+export const COMPLETED_STAGE_STATUSES = new Set(['done', 'approved', 'skipped']);
+
+export function countCompletedStages(inst: WorkflowInstance): number {
+  const runtimes = Array.isArray(inst.stageRuntimes) ? inst.stageRuntimes : [];
+  return runtimes.filter((rt) => COMPLETED_STAGE_STATUSES.has(rt.status)).length;
+}
 
 /** 将运行时实例映射为轻量任务列表项（含 globalState 实例键，供恢复/删除使用）。 */
 export function buildTaskListItem(instanceKey: string, inst: WorkflowInstance): TaskListItem {
+  const completedStages = countCompletedStages(inst);
   const stageRuntimes = Array.isArray(inst.stageRuntimes) ? inst.stageRuntimes : [];
-  const completedStages = stageRuntimes.filter((rt) => COMPLETED_STAGE_STATUSES.has(rt.status)).length;
   return {
     instanceKey,
     title: inst.definition?.meta?.title ?? inst.definition?.id ?? instanceKey,

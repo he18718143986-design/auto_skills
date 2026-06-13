@@ -1,3 +1,7 @@
+/**
+ * 执行链 shim：当前为内联 linear/DAG 循环（与 stagent_vscode WorkflowExecutorLoop 行为对齐中）。
+ * 模块化路径 `WorkflowExecutorLoop` + `executor-loop/` 已落盘，待 tsconfig 逐目录启用后切换。
+ */
 import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -40,6 +44,7 @@ import {
 } from './AdaptiveHITLPolicy';
 import { isContractNode } from './HITLContractNodePolicy';
 import type { ConfidenceResult } from './ConfidenceScorer';
+import { buildQualityReportPayload } from './quality-report/buildQualityReportPayload';
 
 type StageErrorMessage = Extract<BackendMessage, { type: 'stageError' }>;
 export type StageStepOutcome = 'continue' | 'halt' | 'failed';
@@ -128,62 +133,8 @@ export interface NonLlmToolExecutionParams {
   trackPersistedFile?: ExecuteNextStageLoopParams['trackPersistedFile'];
 }
 
-export interface ExecuteNextStageLoopParams {
-  instance: WorkflowInstance;
-  panel: PanelLike;
-  currentInstanceKey: string | undefined;
-  setCurrentInstanceKey: (instanceKey: string) => void;
-  evaluateSkipCondition: (condition: SkipCondition, runtimes: StageRuntime[]) => boolean;
-  postMessage: (panel: PanelLike, msg: BackendMessage) => void;
-  scheduleSave: () => void;
-  debugLog: (stageId: string, event: string, attempt: number, payload?: unknown) => void;
-  debugLogLlmPreview?: (
-    stageId: string,
-    attempt: number,
-    preview: { chars: number; head: string; tail: string },
-  ) => void;
-  primaryOutputKey: (stage: Stage) => string;
-  ensureTaskDir: (instanceKey: string) => void;
-  resolveInput: (stage: Stage, runtime: StageRuntime, panel: PanelLike) => Promise<string>;
-  executeLlmText: (stageId: string, systemPrompt: string, userContent: string, panel: PanelLike) => Promise<string>;
-  applyPatchInstructions: (
-    instanceKey: string,
-    instructions: PatchInstruction[],
-    runtime: StageRuntime,
-    outKey: string,
-    pathBase?: ToolPathBase,
-  ) => void;
-  resolveTaskFilePath: (instanceKey: string, relativePath: string) => string;
-  resolveOutputPath: (instanceKey: string, relativePath: string, base?: ToolPathBase) => string;
-  resolveReadableFilePath?: (instanceKey: string, relativePath: string) => string;
-  runCodeRunner: (cfg: CodeRunnerConfig, instanceKey: string, stageId: string) => Promise<CodeRunnerResult>;
-  isCancellationError: (error: unknown) => boolean;
-  enableDagScheduler?: boolean;
-  /** DAG 并行度；未设时由 workflow globalConfig / vscode 默认 1 */
-  dagMaxParallelism?: number;
-  /** M14.3：可追溯事件回调（kind 例：`stage_skipped` / `llm_stream_summary` / `stage_error`）。可选以兼容旧调用方。 */
-  logUserAction?: (kind: string, detail: Record<string, unknown>) => void;
-  /** M15.4：落盘追踪（file-write / writeOutputToFile） */
-  trackPersistedFile?: (input: {
-    stageId: string;
-    outputKey: string;
-    filePath: string;
-    content: string;
-    existedBefore: boolean;
-    priorContent?: string;
-  }) => void;
-  /** M15.7：vscode `stagent.confidence.pauseThreshold`；仅写 debug 日志，M16.2 才驱动 HITL */
-  confidencePauseThreshold?: number;
-  /** M16.2：自适应 HITL 策略 */
-  hitlPolicy?: HITLPolicy;
-  /** M17.7：DAG 并行波次监控 */
-  onDagParallelWaveStart?: (stageIds: string[]) => number;
-  onDagParallelWaveComplete?: (waveIndex: number) => Record<string, unknown>;
-  /** M18.2：stage_impl_* 完成后静态分析（warning-only） */
-  postImplStaticAnalysis?: (stage: Stage) => Promise<string[]>;
-  /** M21.1b / M24 / M26：run_end 前跨文件键名一致性 + 测试质量 lint（warning-only） */
-  preRunEndContractLint?: () => Promise<string[]>;
-}
+export type { ExecuteNextStageLoopParams } from './WorkflowExecutorTypes';
+import type { ExecuteNextStageLoopParams } from './WorkflowExecutorTypes';
 
 export async function executeNonLlmTool(params: NonLlmToolExecutionParams): Promise<boolean> {
   const {
@@ -216,6 +167,11 @@ export async function executeNonLlmTool(params: NonLlmToolExecutionParams): Prom
       );
     }
     const content = String(sourceRt.outputs[cfg.sourceOutputKey] ?? '');
+    if (!content.trim()) {
+      throw new Error(
+        `file-write empty content: stage=${stage.id} sourceKey=${cfg.sourceOutputKey} target=${cfg.filePath}`,
+      );
+    }
     const targetPath = resolveOutputPath(instanceKey, cfg.filePath, cfg.pathBase ?? DEFAULT_TOOL_PATH_BASE);
     const prior = readPriorFileContent(targetPath);
     fs.mkdirSync(path.dirname(targetPath), { recursive: true });
@@ -294,14 +250,6 @@ export async function executeNonLlmTool(params: NonLlmToolExecutionParams): Prom
   return false;
 }
 
-export async function executeNextStageLoop(params: ExecuteNextStageLoopParams): Promise<void> {
-  if (params.enableDagScheduler) {
-    await executeNextStageLoopDag(params);
-    return;
-  }
-  await executeNextStageLoopLinear(params);
-}
-
 async function executeNextStageLoopLinear(params: ExecuteNextStageLoopParams): Promise<void> {
   const { instance, scheduleSave, debugLog, postMessage, panel } = params;
   const { definition, stageRuntimes } = instance;
@@ -335,7 +283,10 @@ async function executeNextStageLoopLinear(params: ExecuteNextStageLoopParams): P
   instance.status = 'completed';
   instance.completedAt = new Date().toISOString();
   debugLog('workflow', 'run_end', 0, { status: 'completed' });
-  postMessage(panel, { type: 'workflowCompleted' });
+  postMessage(panel, {
+    type: 'workflowCompleted',
+    qualityReport: buildQualityReportPayload(instance),
+  });
   scheduleSave();
 }
 
@@ -561,7 +512,7 @@ async function executeStageStep(
             rawOutput: text,
           }, scheduleSave);
         }
-        applyPatchInstructions(instanceKey, instructions, runtime, outKey, tc.writePathBase ?? DEFAULT_TOOL_PATH_BASE);
+        await applyPatchInstructions(instanceKey, instructions, runtime, outKey);
       }
 
       const quality = scoreStatically(
@@ -766,7 +717,10 @@ async function executeNextStageLoopDag(params: ExecuteNextStageLoopParams): Prom
       instance.status = 'completed';
       instance.completedAt = new Date().toISOString();
       params.debugLog('workflow', 'run_end', 0, { status: 'completed', mode: 'dag', maxParallel });
-      params.postMessage(params.panel, { type: 'workflowCompleted' });
+      params.postMessage(params.panel, {
+        type: 'workflowCompleted',
+        qualityReport: buildQualityReportPayload(instance),
+      });
       params.scheduleSave();
       return;
     }
@@ -840,6 +794,8 @@ function findStageRuntimeByOutputKey(instance: WorkflowInstance, outputKey: stri
   }
   return undefined;
 }
+
+export { executeNextStageLoop } from './engine-wiring/coreExecutionBridge';
 
 function findFileWriteSourceRuntime(instance: WorkflowInstance, cfg: FileWriteConfig): StageRuntime | undefined {
   if (cfg.sourceStageId?.trim()) {

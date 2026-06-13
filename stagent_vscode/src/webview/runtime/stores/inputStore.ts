@@ -8,6 +8,9 @@ export const inputStore: InputState = {
   genStatusDetailBase: '',
   lastPolishContext: null,
   polishOriginalDraft: '',
+  polishTier: 'auto',
+  lastPolishTierUsed: null,
+  polishToolsExpanded: false,
 };
 
 export function resetInputStore(): void {
@@ -18,4 +21,7 @@ export function resetInputStore(): void {
   inputStore.genStatusDetailBase = '';
   inputStore.lastPolishContext = null;
   inputStore.polishOriginalDraft = '';
+  inputStore.polishTier = 'auto';
+  inputStore.lastPolishTierUsed = null;
+  inputStore.polishToolsExpanded = false;
 }

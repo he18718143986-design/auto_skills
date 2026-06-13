@@ -132,6 +132,55 @@ test('applySoftwareDiskPipeline composes init + bundle + test_run pathBase', () 
   assert.equal((run!.toolConfig as { pathBase?: string }).pathBase, 'workspace');
 });
 
+test('applySoftwareDiskPipeline strips npm bootstrap for express+python pytest plan', () => {
+  const wf = minimalSoftwareWf([
+    {
+      id: STAGE_INIT_NPM_WORKSPACE_ID,
+      title: 'init npm',
+      tool: 'code-runner',
+      toolConfig: { type: 'code-runner', command: 'npm init -y', captureOutput: true },
+      input: { sources: [{ type: 'user-input', label: 'u' }], mergeStrategy: 'concat' },
+      outputs: [{ key: 'npmInitLog', format: 'text' }],
+      pauseAfter: false,
+    },
+    {
+      id: 'stage_impl_slice_main',
+      title: 'impl',
+      tool: 'llm-text',
+      toolConfig: { type: 'llm-text', systemPrompt: 's' },
+      input: { sources: [], mergeStrategy: 'concat' },
+      outputs: [{ key: 'implementation', format: 'text' }],
+      pauseAfter: false,
+    },
+    {
+      id: 'stage_npm_install_server',
+      title: 'npm install',
+      tool: 'code-runner',
+      toolConfig: { type: 'code-runner', command: 'cd server && npm install', captureOutput: true },
+      input: { sources: [], mergeStrategy: 'concat' },
+      outputs: [{ key: 'verifyOut', format: 'text' }],
+      pauseAfter: false,
+    },
+    {
+      id: 'stage_test_run_slice_main',
+      title: 'pytest',
+      tool: 'code-runner',
+      toolConfig: { type: 'code-runner', command: 'python -m pytest tests/ -v', captureOutput: true },
+      input: { sources: [], mergeStrategy: 'concat' },
+      outputs: [{ key: 'testResults', format: 'json' }],
+      pauseAfter: false,
+    },
+  ]);
+  wf.globalConfig = { language: 'python' };
+  const next = applySoftwareDiskPipeline(wf);
+  assert.ok(!next.stages.some((s) => s.id === STAGE_INIT_NPM_WORKSPACE_ID));
+  assert.ok(!next.stages.some((s) => s.id === 'stage_npm_install_server'));
+  const run = next.stages.find((s) => s.id === 'stage_test_run_slice_main');
+  assert.ok(run);
+  const cmd = (run!.toolConfig as { command?: string }).command ?? '';
+  assert.match(cmd, /\.venv\/bin\/python -m pytest/);
+});
+
 test('applySoftwareDiskPipeline handles undefined stages without throwing', () => {
   const wf = {
     id: 'wf_missing',

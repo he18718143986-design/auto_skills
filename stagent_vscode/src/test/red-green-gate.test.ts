@@ -45,12 +45,13 @@ function wf(stages: Stage[], taskType: WorkflowDefinition['meta']['taskType'] = 
   };
 }
 
-test('resolveRedGreenMode 仅接受 off/warn/hard，其余回落默认 warn', () => {
+test('resolveRedGreenMode 仅接受 off/warn/hard，其余回落默认 hard', () => {
   assert.equal(resolveRedGreenMode('off'), 'off');
   assert.equal(resolveRedGreenMode('hard'), 'hard');
   assert.equal(resolveRedGreenMode('warn'), 'warn');
   assert.equal(resolveRedGreenMode(undefined), DEFAULT_RED_GREEN_MODE);
-  assert.equal(resolveRedGreenMode('weird'), 'warn');
+  assert.equal(DEFAULT_RED_GREEN_MODE, 'hard');
+  assert.equal(resolveRedGreenMode('weird'), 'hard');
 });
 
 test('semanticOfStage 提取切片名', () => {

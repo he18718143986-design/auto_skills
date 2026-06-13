@@ -16,19 +16,39 @@ import { lintWorkflowMultiFilePromptMismatches } from './multiFileImplChecks';
 import { lintTestStackNestJsMismatch } from './testStackChecks';
 import { lintWorkflowUpstreamFixRouting } from './upstreamFixPlanChecks';
 import { lintTestWriteImportPathsInPlan } from './testWriteImportChecks';
+import { lintPythonTestInfraInPlan } from './pythonTestInfraChecks';
+import { lintMissingTestRunPairs, lintSoftwareRequiresVerification } from './tddChainChecks';
+import { lintTemplateStageCap } from '../path-router/templateStageCap';
+import { isWorkflowTemplate } from '../path-router/WorkflowTemplateTypes';
 import type { PlanCompletenessIssue } from './planCompletenessTypes';
 
 export function lintPlanCompleteness(wf: WorkflowDefinition): PlanCompletenessIssue[] {
   if (!isSoftwareOrPrototypeTaskType(wf.meta?.taskType)) {
+    const capMsg = lintTemplateStageCap(wf);
+    if (capMsg) {
+      return [{ type: 'template-stage-cap-exceeded', message: planCompletenessMsg('template-stage-cap-exceeded', capMsg) }];
+    }
     return [];
   }
   const codeImpls = codeImplStages(wf);
   const issues: PlanCompletenessIssue[] = [];
+  const isExpressPath = isWorkflowTemplate(wf.meta?.workflowTemplate) && wf.meta.workflowTemplate === 'express';
+  const capMsg = lintTemplateStageCap(wf);
+  if (capMsg) {
+    pushTypedMessageIssue(issues, 'template-stage-cap-exceeded', planCompletenessMsg('template-stage-cap-exceeded', capMsg));
+  }
+  const softwareVerify = lintSoftwareRequiresVerification(wf);
+  if (softwareVerify) {
+    pushTypedMessageIssue(issues, softwareVerify.type, softwareVerify.message);
+  }
+  for (const pair of lintMissingTestRunPairs(wf)) {
+    pushTypedMessageIssue(issues, pair.type, pair.message);
+  }
   if (codeImpls.length >= 2) {
     if (!hasExecutableVerificationStage(wf)) {
       pushTypedMessageIssue(issues, 'missing-verification-stage', planCompletenessMsg('missing-verification-stage'));
     }
-    if (codeImpls.length >= 3 && !hasMainAssemblyStage(wf)) {
+    if (codeImpls.length >= 3 && !hasMainAssemblyStage(wf) && !isExpressPath) {
       pushTypedMessageIssue(issues, 'missing-main-assembly', planCompletenessMsg('missing-main-assembly'));
     }
   }
@@ -66,6 +86,9 @@ export function lintPlanCompleteness(wf: WorkflowDefinition): PlanCompletenessIs
   }
   for (const tw of lintTestWriteImportPathsInPlan(wf)) {
     pushTypedMessageIssue(issues, tw.type, tw.message);
+  }
+  for (const py of lintPythonTestInfraInPlan(wf)) {
+    pushTypedMessageIssue(issues, py.type, py.message);
   }
   return issues;
 }

@@ -2,7 +2,7 @@ import { executeImplWithHollowGuard } from '../ImplOutputExecution';
 import { applyPreStageQualityGates } from '../WorkflowStagePreGates';
 import type { ToolPathBase } from '../WorkflowDefinition';
 import type { PanelLike } from '../WorkflowExecutorTypes';
-import { isImplStageId } from '../workflow/StageIdPatterns';
+import { isImplStageId, isTestWriteStageId } from '../workflow/StageIdPatterns';
 import { resolveEffectiveRetryComment } from '../retry/FailureSnapshot';
 import { StageAlreadyHandledError } from './StageControlSignals';
 import type { StageStepContext } from './StageStepContext';
@@ -12,8 +12,8 @@ import {
   WRITE_INTEGRITY_RETRY_USER_APPEND,
 } from './llm-persist/writeOutputIntegrityAssess';
 import { buildWriteOutputPromptSuffix } from './llm-persist/writeOutputPromptSuffix';
+import { buildApiAlignPromptSuffix } from './llm-persist/decisionApiAlignPromptSuffix';
 import { buildTestWriteImportPromptSuffix } from './llm-persist/testWriteImportPromptSuffix';
-import { isTestWriteStageId } from '../workflow/StageIdPatterns';
 
 export type InvokeLlmTextOptions = {
   writeIntegrityRetry?: boolean;
@@ -33,7 +33,7 @@ export async function invokeLlmTextForStage(
     writeOutputToFile?: string;
     writePathBase?: ToolPathBase;
   };
-  let sys = tc.systemPrompt;
+  let sys = tc.systemPrompt ?? '';
   if (tc.writeOutputToFile?.trim()) {
     sys += `\n\n${buildWriteOutputPromptSuffix(tc.writeOutputToFile.trim())}`;
   }
@@ -41,6 +41,16 @@ export async function invokeLlmTextForStage(
     const importSuffix = buildTestWriteImportPromptSuffix(ctx.instance.definition, stage);
     if (importSuffix) {
       sys += `\n\n${importSuffix}`;
+    }
+  }
+  if (isTestWriteStageId(stage.id) || isImplStageId(stage.id)) {
+    const apiSuffix = buildApiAlignPromptSuffix(
+      ctx.instance.definition,
+      ctx.instance.stageRuntimes,
+      stage,
+    );
+    if (apiSuffix) {
+      sys += `\n\n${apiSuffix}`;
     }
   }
   // 自动重试上下文只注入 system prompt，不写 runtime.retryComment（RedGreen FSM 仍只看用户 comment）。

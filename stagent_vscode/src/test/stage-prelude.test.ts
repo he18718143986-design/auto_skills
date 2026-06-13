@@ -1,3 +1,4 @@
+import './install-vscode-stub';
 import * as assert from 'node:assert/strict';
 import { test } from 'node:test';
 import type { Stage, WorkflowDefinition, WorkflowInstance } from '../WorkflowDefinition';

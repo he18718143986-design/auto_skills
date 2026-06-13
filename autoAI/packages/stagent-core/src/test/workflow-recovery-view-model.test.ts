@@ -46,8 +46,11 @@ test('buildExecutionRecoveryMessages emits instanceResumed and replay messages',
   instance.status = 'running';
   const msgs = buildExecutionRecoveryMessages(instance, 'key-1');
   assert.equal(msgs[0].type, 'instanceResumed');
-  assert.equal((msgs[0] as Extract<BackendMessage, { type: 'instanceResumed' }>).instanceKey, 'key-1');
-  assert.equal(msgs.some((m: BackendMessage) => m.type === 'stageStatusUpdate'), true);
+  const resumed = msgs[0] as Extract<BackendMessage, { type: 'instanceResumed' }>;
+  assert.equal(resumed.instanceKey, 'key-1');
+  assert.equal(resumed.resync, true);
+  assert.deepEqual(resumed.stageStatuses, { stage_decide_a: 'paused' });
+  assert.equal(msgs.some((m: BackendMessage) => m.type === 'stageStatusUpdate'), false);
   assert.equal(msgs.some((m: BackendMessage) => m.type === 'stageOutputUpdate'), true);
   assert.equal(msgs.some((m: BackendMessage) => m.type === 'stageQuestions'), true);
   assert.ok(!msgs.some((m: BackendMessage) => m.type === 'workflowGenerated'));
@@ -83,7 +86,12 @@ test('buildExecutionRecoveryMessages 首条 instanceResumed 并重放 lastError'
     assert.equal(msgs[0].instanceStatus, 'failed');
     assert.equal(msgs[0].failedStageId, 'stage_decide_a');
   }
-  assert.ok(msgs.some((m) => m.type === 'stageError'));
+  const err = msgs.find((m) => m.type === 'stageError');
+  assert.ok(err && err.type === 'stageError');
+  if (err && err.type === 'stageError') {
+    assert.equal(err.error, 'boom');
+    assert.ok(typeof err.userTitle === 'string' && err.userTitle.length > 0);
+  }
   assert.ok(!msgs.some((m) => m.type === 'workflowGenerated'));
 });
 

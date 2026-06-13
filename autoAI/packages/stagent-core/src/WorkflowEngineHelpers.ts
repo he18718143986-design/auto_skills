@@ -1,6 +1,10 @@
-import type { ToolPathBase, WorkflowDefinition } from './WorkflowDefinition';
-import { applySoftwareDiskPipeline } from './WorkflowDiskBootstrap';
+import { DEFAULT_TOOL_PATH_BASE, type ToolPathBase, type WorkflowDefinition } from './WorkflowDefinition';
+import { applySoftwareDiskPipeline } from './disk-bootstrap';
+import { applyPrototypeDiskPipeline } from './disk-bootstrap/applyPrototypePipeline';
+import { isSoftwareTaskType, isPrototypeTaskType } from './workflow/TaskType';
+import { isLlmTextTool } from './workflow/StageToolKinds';
 import { validateGeneratedWorkflow } from './WorkflowValidation';
+import { lintArtifactGraphHard } from './plan-preflight/artifactGraphPreflight';
 
 export interface GeneratedWorkflowPreparationResult {
   workflow: WorkflowDefinition;
@@ -35,7 +39,7 @@ export function isRenderableWorkflowForConfirm(wf: WorkflowDefinition | undefine
  */
 export function hoistStageWriteOutputToToolConfig(wf: WorkflowDefinition): WorkflowDefinition {
   for (const stage of wf.stages ?? []) {
-    if (stage.tool !== 'llm-text') {
+    if (!isLlmTextTool(stage.tool)) {
       continue;
     }
     const top = stage as unknown as { writeOutputToFile?: unknown; writePathBase?: unknown };
@@ -56,22 +60,52 @@ export function hoistStageWriteOutputToToolConfig(wf: WorkflowDefinition): Workf
       }
       delete top.writePathBase;
     }
+    if (tc.writeOutputToFile?.trim() && !tc.writePathBase) {
+      tc.writePathBase = DEFAULT_TOOL_PATH_BASE;
+    }
   }
   return wf;
+}
+
+/** 仅校验 Workflow Plan Contract（不含 disk-bootstrap）。 */
+export function validateWorkflowContract(wf: WorkflowDefinition): GeneratedWorkflowPreparationResult {
+  const errors = validateGeneratedWorkflow(wf);
+  return { workflow: wf, errors };
+}
+
+/** 幂等应用 disk-bootstrap（software / prototype / other）。 */
+export function applyDiskBootstrap(wf: WorkflowDefinition, taskType: string): WorkflowDefinition {
+  const effectiveType = wf.meta?.taskType ?? taskType;
+  if (isSoftwareTaskType(effectiveType)) {
+    return applySoftwareDiskPipeline(wf);
+  }
+  if (isPrototypeTaskType(effectiveType) || effectiveType === 'other') {
+    return applyPrototypeDiskPipeline(wf);
+  }
+  return wf;
+}
+
+/** start 入场：重新应用 disk-bootstrap，避免复用实例携带旧版残缺计划。 */
+export function reapplyDiskBootstrap(wf: WorkflowDefinition): WorkflowDefinition {
+  const taskType = wf.meta?.taskType ?? 'software';
+  return applyDiskBootstrap(wf, taskType);
 }
 
 export function validateAndPrepareGeneratedWorkflow(
   wf: WorkflowDefinition,
   taskType: string,
 ): GeneratedWorkflowPreparationResult {
-  const errors = validateGeneratedWorkflow(wf);
-  if (errors.length > 0) {
-    return { workflow: wf, errors };
+  const contract = validateWorkflowContract(wf);
+  if (contract.errors.length > 0) {
+    return contract;
   }
-
-  if ((wf.meta?.taskType ?? taskType) === 'software') {
-    return { workflow: applySoftwareDiskPipeline(wf), errors: [] };
+  const bootstrapped = applyDiskBootstrap(wf, taskType);
+  const artifactIssues = lintArtifactGraphHard(bootstrapped);
+  if (artifactIssues.length > 0) {
+    return {
+      workflow: bootstrapped,
+      errors: artifactIssues.map((i) => i.message),
+    };
   }
-
-  return { workflow: wf, errors: [] };
+  return { workflow: bootstrapped, errors: [] };
 }

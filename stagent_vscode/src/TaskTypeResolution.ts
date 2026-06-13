@@ -1,3 +1,10 @@
+import { humanizeJargon } from './friendly/TranslationGlossary';
+import { plainTaskTypeLabel } from './friendly/toPlainLanguage';
+import {
+  plainWorkflowTemplateLabel,
+  type WorkflowTemplate,
+} from './path-router/WorkflowTemplateTypes';
+
 /** UI / 消息协议：由模型在 generateWorkflow 同次调用中决定 meta.taskType */
 export const AUTO_TASK_TYPE = 'auto';
 
@@ -52,6 +59,94 @@ export function resolveGeneratedTaskType(
     return fromMeta as KnownTaskType;
   }
   return 'other';
+}
+
+/** B-R1：确认页展示的场景判别摘要（G1 可解释性）。 */
+export interface TaskTypeClassificationInfo {
+  uiTaskType: string;
+  modelTaskType?: string;
+  effectiveTaskType: KnownTaskType;
+  /** B-R3：effectiveTaskType 的白话标签 */
+  effectiveTaskTypePlain?: string;
+  isGreenfield?: boolean;
+  hasZoomOutStage: boolean;
+  /** Path Router 判定的主路径模板。 */
+  workflowTemplate?: WorkflowTemplate;
+  workflowTemplatePlain?: string;
+  /** 路由建议（用户可在确认页覆盖 meta.workflowTemplate）。 */
+  suggestedWorkflowTemplate?: WorkflowTemplate;
+  suggestedWorkflowTemplatePlain?: string;
+  rationaleLines: string[];
+}
+
+const ZOOM_OUT_STAGE_ID = 'stage_zoom_out';
+
+export function workflowHasZoomOutStage(stages: { id: string }[] | undefined): boolean {
+  return (stages ?? []).some((s) => s.id === ZOOM_OUT_STAGE_ID);
+}
+
+/** 生成确认页可读的 taskType / isGreenfield 判别依据。 */
+export function buildTaskTypeClassificationInfo(params: {
+  uiTaskType: string;
+  modelTaskType?: string;
+  effectiveType: KnownTaskType;
+  isGreenfield?: boolean;
+  hasZoomOutStage?: boolean;
+  workflowTemplate?: WorkflowTemplate;
+  suggestedWorkflowTemplate?: WorkflowTemplate;
+  pathRouterRationaleLines?: string[];
+}): TaskTypeClassificationInfo {
+  const lines: string[] = [];
+  const ui = params.uiTaskType?.trim() || AUTO_TASK_TYPE;
+  const model = params.modelTaskType?.trim().toLowerCase();
+
+  const plainEffective = plainTaskTypeLabel(params.effectiveType);
+  const plainModel = model ? plainTaskTypeLabel(model) : undefined;
+
+  if (!isAutoTaskType(ui)) {
+    lines.push(`您在输入页选了「${plainTaskTypeLabel(ui)}」，已覆盖模型建议。`);
+  } else if (model && isKnownTaskType(model)) {
+    lines.push(`模型根据需求与工作区扫描，判别为「${plainModel}」。`);
+  } else if (model) {
+    lines.push(`模型返回了非标准类型「${model}」，已回退为「${plainEffective}」。`);
+  } else {
+    lines.push(`模型未返回任务类型，已回退为「${plainEffective}」。`);
+  }
+
+  if (params.isGreenfield === true) {
+    lines.push('判别为全新项目：可跳过「工作区全景扫描」门禁。');
+  } else if (params.isGreenfield === false) {
+    lines.push('判别为在已有代码上改动：工作区里已有实质代码。');
+  }
+
+  if (params.hasZoomOutStage) {
+    lines.push('计划含工作区全景扫描：实现前会先产出模块地图。');
+  }
+
+  const template = params.workflowTemplate;
+  if (params.pathRouterRationaleLines?.length) {
+    for (const line of params.pathRouterRationaleLines) {
+      lines.push(line);
+    }
+  } else if (template) {
+    lines.push(`工作流路径：${plainWorkflowTemplateLabel(template)}。`);
+  }
+
+  return {
+    uiTaskType: ui,
+    modelTaskType: model || undefined,
+    effectiveTaskType: params.effectiveType,
+    effectiveTaskTypePlain: plainEffective,
+    isGreenfield: params.isGreenfield,
+    hasZoomOutStage: !!params.hasZoomOutStage,
+    workflowTemplate: template,
+    workflowTemplatePlain: template ? plainWorkflowTemplateLabel(template) : undefined,
+    suggestedWorkflowTemplate: params.suggestedWorkflowTemplate,
+    suggestedWorkflowTemplatePlain: params.suggestedWorkflowTemplate
+      ? plainWorkflowTemplateLabel(params.suggestedWorkflowTemplate)
+      : undefined,
+    rationaleLines: lines.map((l) => humanizeJargon(l)),
+  };
 }
 
 export function buildTaskTypeOverrideWarning(

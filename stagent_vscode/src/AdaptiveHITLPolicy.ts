@@ -1,3 +1,5 @@
+import { mustPauseForCharterProvenance } from './charter/CharterAnswerRouter';
+import type { CharterAutoAnswerMode } from './charter/CharterTypes';
 import type { Stage, StageRuntime } from './WorkflowDefinition';
 import type { ConfidenceResult } from './ConfidenceScorer';
 import { hitlMsg } from './l10n/hitlMsg';
@@ -7,6 +9,8 @@ import {
   DEFAULT_CONTRACT_NODE_PAUSE_THRESHOLD,
   shouldEscalateContractNodePause,
 } from './HITLContractNodePolicy';
+
+export type HITLDecisionMode = 'inline-pause' | 'frontloaded';
 
 export type HITLDecision =
   | { action: 'auto-advance' }
@@ -22,6 +26,10 @@ export interface HITLPolicy {
   contractNodePauseThreshold: number;
   /** M21.4 总开关；false 退回纯 confidencePauseThreshold 行为 */
   pauseContractNodesBelowThreshold: boolean;
+  /** B-R2：Charter 自动应答模式；影响 charter_inferred 是否强制暂停 */
+  charterAutoAnswerMode: CharterAutoAnswerMode;
+  /** B-R2：inline-pause=执行中逐决策暂停；frontloaded=确认页前置批准后放行 */
+  decisionMode: HITLDecisionMode;
 }
 
 export const DEFAULT_HITL_POLICY: HITLPolicy = {
@@ -31,7 +39,17 @@ export const DEFAULT_HITL_POLICY: HITLPolicy = {
   pauseOnNoHistoricalData: false,
   contractNodePauseThreshold: DEFAULT_CONTRACT_NODE_PAUSE_THRESHOLD,
   pauseContractNodesBelowThreshold: true,
+  charterAutoAnswerMode: 'off',
+  decisionMode: 'inline-pause',
 };
+
+function isFrontloadApprovedDecision(runtime: StageRuntime, policy: HITLPolicy): boolean {
+  return (
+    policy.decisionMode === 'frontloaded' &&
+    !!runtime.approvedDecisionRecord &&
+    runtime.decisionSource === 'frontload'
+  );
+}
 
 export function buildHITLPolicy(partial?: Partial<HITLPolicy>): HITLPolicy {
   return { ...DEFAULT_HITL_POLICY, ...partial };
@@ -51,6 +69,24 @@ export function evaluateHITL(
     return { action: 'pause', reason: 'stage.pauseAfter=true', priority: 'low' };
   }
   if (stage.isDecisionStage && policy.alwaysPauseDecisionStages) {
+    if (isFrontloadApprovedDecision(runtime, policy)) {
+      return { action: 'auto-advance' };
+    }
+    if (mustPauseForCharterProvenance(runtime.decisionProvenance, policy.charterAutoAnswerMode)) {
+      return {
+        action: 'pause',
+        reason: hitlMsg('reason.charterProvenanceReview', runtime.decisionProvenance ?? 'unknown'),
+        priority: 'high',
+      };
+    }
+    if (
+      policy.charterAutoAnswerMode === 'auto-with-escalation' &&
+      runtime.decisionProvenance &&
+      runtime.decisionProvenance !== 'human' &&
+      runtime.decisionProvenance !== 'escalated'
+    ) {
+      return { action: 'auto-advance' };
+    }
     return {
       action: 'pause',
       reason: hitlMsg('reason.decisionStageRequired'),
@@ -107,6 +143,20 @@ export function shouldPauseAfterStage(
     return true;
   }
   if (stage.isDecisionStage && policy.alwaysPauseDecisionStages) {
+    if (isFrontloadApprovedDecision(runtime, policy)) {
+      return false;
+    }
+    if (mustPauseForCharterProvenance(runtime.decisionProvenance, policy.charterAutoAnswerMode)) {
+      return true;
+    }
+    if (
+      policy.charterAutoAnswerMode === 'auto-with-escalation' &&
+      runtime.decisionProvenance &&
+      runtime.decisionProvenance !== 'human' &&
+      runtime.decisionProvenance !== 'escalated'
+    ) {
+      return false;
+    }
     return true;
   }
   if (!confidence) {

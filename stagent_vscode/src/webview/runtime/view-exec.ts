@@ -53,6 +53,8 @@ import {
   syncPauseBarVisibility,
   clearExecOutputPin as clearPinBase,
 } from './view-exec-output-panel';
+import { resetExecCockpit, renderExecCockpit } from './view-exec-cockpit';
+import { renderQualityReport } from './view-quality-report';
 import { renderExecTimeline } from './view-exec-stage-list';
 
 export function clearExecOutputPin() {
@@ -63,10 +65,13 @@ export function clearExecOutputPin() {
 export function resetExecUi() {
   resetExecStore();
   resetStageStatusSeqState();
+  resetExecCockpit();
   resetExecDomChrome();
   syncFollowLiveButton();
   syncPauseBarVisibility();
   syncOutputVisibility();
+  renderExecCockpit();
+  renderQualityReport();
 }
 
 function resetExecDomChrome(): void {
@@ -80,6 +85,16 @@ function resetExecDomChrome(): void {
   fb.className = 'banner error';
   clearExecStageErrorUi();
   document.getElementById('output')!.textContent = '';
+  const qr = document.getElementById('quality-report-panel');
+  if (qr) {
+    qr.hidden = true;
+    qr.style.display = 'none';
+    qr.innerHTML = '';
+  }
+  const execBody = document.getElementById('exec-cockpit-body');
+  if (execBody) {
+    execBody.style.display = '';
+  }
 }
 
 export function registerExecView(): void {

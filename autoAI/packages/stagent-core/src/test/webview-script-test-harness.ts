@@ -98,6 +98,10 @@ export class MiniElement {
   }
 
   querySelector(selector: string): MiniElement | null {
+    if (selector.startsWith('.') && selector.length > 1) {
+      const cls = selector.slice(1);
+      return this.findFirst((node) => node.className.split(/\s+/).includes(cls));
+    }
     if (selector === '.q-panel') {
       return this.findFirst((node) => node.className.split(' ').includes('q-panel'));
     }

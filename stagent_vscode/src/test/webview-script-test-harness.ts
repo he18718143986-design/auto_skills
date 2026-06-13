@@ -182,6 +182,10 @@ export class MiniElement {
       const id = selector.slice(1);
       return this.findFirst((node) => node.id === id);
     }
+    if (selector.startsWith('.') && selector.length > 1 && selector !== '.q-panel') {
+      const cls = selector.slice(1);
+      return this.findFirst((node) => node.className.split(/\s+/).includes(cls));
+    }
     if (selector === '.q-panel') {
       return this.findFirst((node) => node.className.split(' ').includes('q-panel'));
     }
@@ -457,7 +461,14 @@ export function setupWebviewScriptRuntime(confirmResult: boolean) {
     'view-exec',
     'user-input',
     'polish-hint',
+    'input-primary-hint',
     'btn-polish',
+    'btn-toggle-polish-tools',
+    'polish-optional-tools',
+    'polish-tier-group',
+    'polish-tier-auto',
+    'polish-tier-light',
+    'polish-tier-standard',
     'task-workspace-path',
     'btn-pick-workspace',
     'btn-gen',
@@ -498,6 +509,14 @@ export function setupWebviewScriptRuntime(confirmResult: boolean) {
     'confirm-stats',
     'confirm-main',
     'confirm-dock-hint',
+    'section-task-type-classification',
+    'task-type-rationale',
+    'task-type-path',
+    'task-type-effective',
+    'section-decision-board',
+    'decision-board-summary',
+    'decision-board-hint',
+    'decision-board-list',
     'confirm-actions',
     'input-view-scroll',
     'timeline-exec',
@@ -517,6 +536,14 @@ export function setupWebviewScriptRuntime(confirmResult: boolean) {
   document.register(new MiniElement('button'), 'btn-start');
   document.register(new MiniElement('button'), 'btn-back-input');
   document.register(new MiniElement('button'), 'btn-regenerate');
+  document.register(new MiniElement('select'), 'task-type-select');
+  document.register(new MiniElement('select'), 'workflow-template-select');
+  const greenfieldCb = new MiniElement('input');
+  greenfieldCb.type = 'checkbox';
+  document.register(greenfieldCb, 'task-type-greenfield');
+  const lockCb = new MiniElement('input');
+  lockCb.type = 'checkbox';
+  document.register(lockCb, 'task-type-lock');
 
   for (const [id, step] of [
     ['step-nav-input', 'input'],

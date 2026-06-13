@@ -23,6 +23,25 @@ export function collectAnswersFromQuestionFields(fields) {
   return answers;
 }
 
+function questionHasCharterSuggest(q) {
+  return !!String(q?.suggestedAnswer ?? '').trim();
+}
+
+function appendQuestionProvenanceBadge(block, provenance, ruleRefs) {
+  if (!provenance) {
+    return;
+  }
+  const refs = Array.isArray(ruleRefs) && ruleRefs.length > 0 ? ' · R#' + ruleRefs.join(',R#') : '';
+  const key = 'stagent.webview.confirm.decisionProvenance.' + provenance;
+  const label = wMsg(key);
+  const text = label !== key ? label : provenance;
+  const badge = document.createElement('span');
+  badge.className = 'question-provenance-badge decision-provenance-badge';
+  badge.dataset.provenance = provenance;
+  badge.textContent = text + refs;
+  block.appendChild(badge);
+}
+
 export function applyQuestionValidationUi(bar, questions, missingIds, fields) {
   let banner = bar.querySelector('#question-validation-banner');
   if (!banner) {
@@ -88,10 +107,16 @@ export function renderQuestionsFormInPauseBar(opts) {
     block.className = 'question-field';
     block.style.marginTop = '10px';
     block.dataset.qid = qId;
+    if (q.provenance === 'charter_inferred') {
+      block.classList.add('question-field-charter-inferred');
+    } else if (q.provenance === 'charter_direct') {
+      block.classList.add('question-field-charter-direct');
+    }
 
     const qTitle = document.createElement('div');
     qTitle.textContent = wMsg('stagent.webview.exec.questionTitle', idx + 1, qText) + (q.required === false ? '' : ' *');
     block.appendChild(qTitle);
+    appendQuestionProvenanceBadge(block, q.provenance, q.ruleRefs);
 
     if (q.hint) {
       const hint = document.createElement('div');
@@ -103,6 +128,10 @@ export function renderQuestionsFormInPauseBar(opts) {
     const input = document.createElement('input');
     input.type = 'text';
     input.placeholder = q.hint || wMsg('stagent.webview.exec.answerPlaceholder');
+    const suggested = String(q.suggestedAnswer ?? '').trim();
+    if (suggested) {
+      input.value = suggested;
+    }
     block.appendChild(input);
     scroll.appendChild(block);
     fields.push({ qId, block, input });
@@ -153,11 +182,14 @@ export function renderAfterQuestionsCard(stageId, questions) {
 }
 
 export function renderBeforeQuestionsCard(stageId, questions) {
+  const hasSuggest = (questions || []).some(questionHasCharterSuggest);
   renderQuestionsFormInPauseBar({
     stageId,
     questions,
     outputLabel: wMsg('stagent.webview.exec.outputBeforeLabel', stageId),
-    introText: wMsg('stagent.webview.exec.beforeIntro'),
+    introText: hasSuggest
+      ? wMsg('stagent.webview.exec.beforeIntroSuggest')
+      : wMsg('stagent.webview.exec.beforeIntro'),
     submitLabel: wMsg('stagent.webview.exec.beforeSubmit'),
     idFallbackPrefix: 'before_q_',
     buildSubmitMessage: buildAnswerQuestionsBeforeMessage,

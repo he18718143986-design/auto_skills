@@ -23,6 +23,8 @@ export {
 const maps = execStore.stageMaps;
 
 function buildDefaultDeps(): UiRefreshDeps {
+  const { renderExecCockpit } = require('./view-exec-cockpit') as typeof import('./view-exec-cockpit');
+  const { renderQualityReport } = require('./view-quality-report') as typeof import('./view-quality-report');
   const { renderExecTimeline, selectExecTimelineStage } =
     require('./view-exec-stage-list') as typeof import('./view-exec-stage-list');
   const { renderExecDagGraph } = require('./view-exec-dag-graph') as typeof import('./view-exec-dag-graph');
@@ -60,6 +62,8 @@ function buildDefaultDeps(): UiRefreshDeps {
     renderPauseBar,
     refreshExecOutputPanel,
     selectExecTimelineStage,
+    renderExecCockpit,
+    renderQualityReport,
   };
 }
 

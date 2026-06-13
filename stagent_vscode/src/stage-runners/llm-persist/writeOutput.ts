@@ -1,4 +1,4 @@
-import type { PatchInstruction, ToolPathBase } from '../../WorkflowDefinition';
+import { DEFAULT_TOOL_PATH_BASE, type PatchInstruction, type ToolPathBase } from '../../WorkflowDefinition';
 import { normalizeLlmOutputForWritePath } from '../../WriteOutputNormalize';
 import { readPriorFileContentAsync } from '../../ArtifactLifecycleManager';
 import {
@@ -37,7 +37,7 @@ export async function writeLlmOutputToFile(
   const { postMessage, scheduleSave, debugLog, resolveOutputPath, trackPersistedFile } = params;
   const { definition } = instance;
 
-  const base: ToolPathBase = tc.writePathBase ?? 'instance';
+  const base: ToolPathBase = tc.writePathBase ?? DEFAULT_TOOL_PATH_BASE;
   const absPath = resolveOutputPath(instanceKey, tc.writeOutputToFile!, base);
   const reuse = definition.meta.reuseStrategy ?? 'regenerate';
   const fileExists = await pathExists(absPath);

@@ -228,6 +228,17 @@
           "order": 52,
           "markdownDescription": "契约节点暂停阈值（0-1）。契约节点置信度低于此值即暂停（默认 0.75）。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
         },
+        "stagent.hitl.decisionMode": {
+          "type": "string",
+          "enum": [
+            "inline-pause",
+            "frontloaded"
+          ],
+          "default": "inline-pause",
+          "description": "决策 HITL 模式：inline-pause=执行中逐决策暂停（默认）；frontloaded=确认页决策板一次性批准后开始执行。",
+          "order": 53,
+          "markdownDescription": "决策 HITL 模式：`inline-pause`（默认）= 执行中逐决策暂停；`frontloaded` = 生成后在确认页展示全部 Charter 代答与 provenance 徽章，用户处理升级项后「批准全部并开始执行」。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+        },
         "stagent.plan.requireCompleteness": {
           "type": "boolean",
           "default": true,
@@ -245,6 +256,55 @@
           "description": "计划完整性门禁命中后，对 missing-verification-stage / missing-test-infrastructure / missing-self-heal-chain 做确定性阶段插入（标有「[系统插入]」），再 normalize 并重跑校验。不修 missing-main-assembly。auto 启用；off 仅阻断（默认）。",
           "order": 23,
           "markdownDescription": "计划完整性门禁命中后，对 missing-verification-stage / missing-test-infrastructure / missing-self-heal-chain 做确定性阶段插入（标有「[系统插入]」），再 normalize 并重跑校验。不修 missing-main-assembly。auto 启用；off 仅阻断（默认）。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+        },
+        "stagent.contract.infraChainV2": {
+          "type": "boolean",
+          "default": true,
+          "description": "InfraChain SSOT：统一 venv/verify/conftest 的 lint、inject、audit 判定。",
+          "order": 24.1,
+          "markdownDescription": "Contract-First P0：统一 Python venv 链、verify 脚本、conftest 在 plan lint / self-heal inject / audit 三路径的判定（默认开启）。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+        },
+        "stagent.contract.planPreflightV2": {
+          "type": "boolean",
+          "default": false,
+          "description": "生成期 Plan Preflight 编排：raw 计划 lint → disk-bootstrap → final lint。",
+          "order": 24.2,
+          "markdownDescription": "Contract-First P1：显式 Workflow Plan Contract → Plan Preflight → 确认页单入口；start 路径重跑 disk-bootstrap。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+        },
+        "stagent.contract.commitments": {
+          "type": "boolean",
+          "default": false,
+          "description": "approveDecision 后提取 CommitmentSnapshot 机读承诺。",
+          "order": 24.3,
+          "markdownDescription": "Contract-First P2：决策批准后混合提取 file_path / api_signature / sdk_family 等承诺，供下游 lint 与 impl 窄写入消费。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+        },
+        "stagent.contract.commitmentsLlmFallback": {
+          "type": "boolean",
+          "default": false,
+          "description": "Commitment 规则解析有缺口时可选 LLM 补全。",
+          "order": 24.31,
+          "markdownDescription": "Contract-First P2 可选：parserWarnings 非空时轻量 LLM 补全 Commitment 并与规则结果 merge。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+        },
+        "stagent.contract.runtimePreflightV2": {
+          "type": "boolean",
+          "default": false,
+          "description": "运行期三层 Runtime Preflight 统一路由（plan/decision/disk）。",
+          "order": 24.4,
+          "markdownDescription": "Contract-First P3：执行前 plan/decision/disk 对盘；可修复走 bootstrap/replan，不可修复走 escalation UI。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+        },
+        "stagent.contract.boundExecution": {
+          "type": "boolean",
+          "default": false,
+          "description": "impl 窄写入 gate + deterministic 阶段跳过多余 HITL。",
+          "order": 24.5,
+          "markdownDescription": "Contract-First P4：impl writeOutputToFile 须在 CommitmentSnapshot 声明；venv/conftest 等 deterministic 阶段跳过 confidence HITL pause。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+        },
+        "stagent.contract.diagnosticRouter": {
+          "type": "boolean",
+          "default": false,
+          "description": "失败诊断统一路由 config/symbol/assertion/semantic。",
+          "order": 24.6,
+          "markdownDescription": "Contract-First P5：stage error 与 gate block 附加 diagnosticRoute；质量报告展示路由历史。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
         },
         "stagent.execution.testRunPreflight": {
           "type": "boolean",
@@ -294,7 +354,7 @@
           "order": 32,
           "markdownDescription": "stage_test_run_* 失败时根据 stderr 分类生成可读修复 playbook，替换裸 tool-execution-failed。设为 false 关闭。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
         },
-        "stagent.execution.sdkPathContractLint": {
+        "stagent.python.exportContractLint": {
           "type": "string",
           "enum": [
             "off",
@@ -302,9 +362,43 @@
             "hard"
           ],
           "default": "warn",
-          "description": "DecisionRecord ↔ impl ↔ test SDK/路径契约 lint。warn=写 warning 日志（默认）；hard=stage_test_run_* 前阻断；off=关闭。",
+          "description": "Python test/impl 导出契约 lint（from mod import Symbol 须在 impl 导出）。warn=日志；hard=test_run 前阻断；off=关闭。AFK 未显式配置时默认 hard。",
+          "order": 32.5
+        },
+        "stagent.python.pypiSymbolLint": {
+          "type": "string",
+          "enum": [
+            "off",
+            "warn",
+            "hard"
+          ],
+          "default": "warn",
+          "description": "Python 第三方 API 幻觉符号 lint（如 ctpbee MdApi）。warn=日志；hard=test_run 前阻断；off=关闭。AFK 未显式配置时默认 hard。",
+          "order": 32.6
+        },
+        "stagent.execution.gateAutoRepair": {
+          "type": "boolean",
+          "default": true,
+          "description": "test_run 前 export-contract / pypi-symbol gate 阻断时，自动 LLM gate-repair 一次并重试 gate。AFK 默认开启。",
+          "order": 32.7
+        },
+        "stagent.execution.runtimeReplan": {
+          "type": "boolean",
+          "default": true,
+          "description": "gate-repair 仍失败时运行时插入 replan stage（P3b）并跳转执行，无需整单重生成。AFK 默认开启。",
+          "order": 32.8
+        },
+        "stagent.execution.sdkPathContractLint": {
+          "type": "string",
+          "enum": [
+            "off",
+            "warn",
+            "hard"
+          ],
+          "default": "hard",
+          "description": "DecisionRecord ↔ impl ↔ test SDK/路径契约 lint。warn=写 warning 日志；hard=stage_test_run_* 前阻断（默认）；off=关闭。",
           "order": 33,
-          "markdownDescription": "DecisionRecord ↔ impl ↔ test SDK/路径契约 lint。warn=写 warning 日志（默认）；hard=stage_test_run_* 前阻断；off=关闭。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+          "markdownDescription": "DecisionRecord ↔ impl ↔ test SDK/路径契约 lint。warn=写 warning 日志；hard=stage_test_run_* 前阻断（默认）；off=关闭。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
         },
         "stagent.execution.dangerousCommandLint": {
           "type": "string",
@@ -332,10 +426,10 @@
             "warn",
             "hard"
           ],
-          "default": "warn",
-          "description": "红绿门：impl 执行前要求配对测试处于 RED。off=关闭；warn=仅写日志/告警（默认）；hard=在 impl 前运行配对测试，若已 GREEN 则阻断。",
+          "default": "hard",
+          "description": "红绿门：impl 执行前要求配对测试处于 RED。off=关闭；warn=仅写日志/告警；hard=在 impl 前运行配对测试，若已 GREEN 则阻断（默认）。",
           "order": 40,
-          "markdownDescription": "红绿门：impl 执行前要求配对测试处于 RED。off=关闭；warn=仅写日志/告警（默认）；hard=在 impl 前运行配对测试，若已 GREEN 则阻断。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+          "markdownDescription": "红绿门：impl 执行前要求配对测试处于 RED。off=关闭；warn=仅写日志/告警；hard=在 impl 前运行配对测试，若已 GREEN 则阻断（默认）。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
         },
         "stagent.debug.requireFeedbackLoop": {
           "type": "string",
@@ -362,6 +456,91 @@
           "description": "决策阶段且含 questionBefore 时，对契约节点或高复杂度任务自动启用 adaptive grill（一次一问 + code-explore）。设为 false 回退批量追问表单。",
           "order": 61,
           "markdownDescription": "决策阶段且含 questionBefore 时，对契约节点或高复杂度任务自动启用 adaptive grill（一次一问 + code-explore）。设为 false 回退批量追问表单。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+        },
+        "stagent.charter.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "为 true 时从工作区加载 docs/agents/charter.md（或 charter.path），将 avoid/constraint 规则全量注入每个 llm-text 阶段的 systemPrompt。",
+          "order": 62,
+          "markdownDescription": "为 true 时从工作区加载 Charter markdown，将 avoid/constraint 规则全量注入 llm-text systemPrompt（与 DecisionRecord 注入块并存）。无文件时不注入。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+        },
+        "stagent.charter.autoAnswerMode": {
+          "type": "string",
+          "enum": [
+            "off",
+            "suggest",
+            "auto-with-escalation"
+          ],
+          "default": "off",
+          "description": "Charter 自动应答：off=仅背景参考；suggest=代答须人确认（charter_inferred 强制暂停）；auto-with-escalation=自动答+升级闸门。",
+          "order": 63,
+          "markdownDescription": "Charter 自动应答模式（对齐 WORKFLOW §5.5.3）。suggest 下 charter_direct/inferred 均须人工 approveDecision。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+        },
+        "stagent.charter.feedbackEnabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "工作流完成后，若有可回写的普适决策，提示用户确认写入 Charter（B-R2γ 反馈环）。",
+          "order": 64,
+          "markdownDescription": "工作流 `workflowCompleted` 后，从人工/升级决策收集候选并提示回写 `charter.path`；用户多选确认后追加规则并 bump `charterVersion`。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+        },
+        "stagent.charter.feedbackCooldownDays": {
+          "type": "number",
+          "default": 0,
+          "minimum": 0,
+          "description": "Charter 反馈提示冷却天数；0=每次有候选即提示。",
+          "order": 64.5,
+          "markdownDescription": "Charter 反馈环提示冷却（天）。`0` 表示不冷却；与 `feedback.cooldownDays`（产品体验问卷）独立。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+        },
+        "stagent.charter.feedbackAutoWrite": {
+          "type": "boolean",
+          "default": false,
+          "description": "B-R4：工作流完成后自动将 human/escalated 决策回写 Charter（不经 QuickPick）；charter_inferred 仍须人工确认。",
+          "order": 64.6,
+          "markdownDescription": "真无人值守 Charter 反馈：会话结束自动追加人工/升级决策到 `charter.path`；`charter_inferred` 候选仍走 `feedbackEnabled` 提示。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+        },
+        "stagent.friendly.milestoneVerifyHint": {
+          "type": "boolean",
+          "default": true,
+          "description": "B-R3：工作流完成后弹出白话「如何验收」提示（复测命令 / smoke 通过）。",
+          "order": 65,
+          "markdownDescription": "里程碑演示（G4）：`workflowCompleted` 后展示最后通过的 test_run 命令与 smoke 状态。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+        },
+        "stagent.verification.flakyRerunCount": {
+          "type": "number",
+          "default": 1,
+          "minimum": 1,
+          "maximum": 5,
+          "description": "B-Q3：test_run/smoke 验证阶段连续运行次数（全部通过才算稳定；出现 pass/fail 交替则判 flaky）。",
+          "order": 66,
+          "markdownDescription": "同一验证命令多跑取稳定信号。AFK 模式默认 3；出现 flaky 时 stage 失败且置信度降权。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+        },
+        "stagent.verification.deterministic": {
+          "type": "boolean",
+          "default": true,
+          "description": "B-Q3：验证阶段钉版本（npm ci / frozen lockfile）并注入 UTC/CI/PYTHONHASHSEED 环境。",
+          "order": 66.5,
+          "markdownDescription": "仅作用于 `stage_test_run_*` 与 `stage_smoke_run`。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+        },
+        "stagent.sandbox.verificationOnly": {
+          "type": "boolean",
+          "default": false,
+          "description": "B-Q2：sandbox.enabled 时仅对 test_run/smoke 走沙箱（安装/实现阶段仍直跑本机）。",
+          "order": 67,
+          "markdownDescription": "降低沙箱开销；AFK 模式默认 true。须同时开启 `sandbox.enabled`。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+        },
+        "stagent.afk.enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "B-R4：真无人值守预设（Charter auto-with-escalation + 自动回写 + 低暂停阈值 + 验证多跑 + 验收门）。",
+          "order": 68,
+          "markdownDescription": "一键合并：`charter.autoAnswerMode=auto-with-escalation`、`charter.feedbackAutoWrite=true`、`confidence.pauseThreshold=0.35`、`verification.flakyRerunCount=3`、`sandbox.verificationOnly=true`（显式配置项优先）。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
+        },
+        "stagent.charter.path": {
+          "type": "string",
+          "default": "docs/agents/charter.md",
+          "description": "决策主旨（Charter）markdown 相对工作区根的路径。",
+          "order": 64,
+          "markdownDescription": "决策主旨（Charter）持久化路径（Layer 5）。默认 docs/agents/charter.md。\n\n详见 [配置文档](https://github.com/he18718143986-design/stagent/blob/main/docs/settings/README.md)。"
         },
         "stagent.glossary.enabled": {
           "type": "boolean",

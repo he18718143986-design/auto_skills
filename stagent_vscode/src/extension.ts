@@ -12,8 +12,10 @@ import {
 import { createExtensionRuntime } from './extension/ExtensionRuntime';
 import { WorkflowEngine } from './WorkflowEngine';
 import { createWorkflowPanelFactory } from './WorkflowPanelFactory';
+import { setExtensionRootForScripts } from './contract-infra';
 
 export function activate(context: vscode.ExtensionContext): void {
+  setExtensionRootForScripts(context.extensionPath);
   registerBuiltinQualityGates(undefined, (reason, ctx) =>
     console.warn(`[Stagent] ${reason}: ${JSON.stringify(ctx ?? {})}`),
   );

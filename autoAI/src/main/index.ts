@@ -156,6 +156,7 @@ const IPC_CHANNELS = [
   'site:get-runtime-stats',
   'site:clear-runtime-stats',
   'chat:send', 'chat:switch-model', 'chat:list-models',
+  'chat:list-tools', 'chat:toggle-tool',
   'adapter:get-info',
   'calibrate:start', 'calibrate:cancel',
 ] as const

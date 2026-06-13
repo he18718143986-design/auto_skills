@@ -9,9 +9,10 @@ import type {
   ToolPathBase,
   WorkflowInstance,
 } from '../WorkflowDefinition';
+import type { CharterGrillAnswerAttempt } from '../charter/CharterGrillAutoAnswer';
 import type { HITLPolicy } from '../AdaptiveHITLPolicy';
 
-export type StageStepOutcome = 'continue' | 'halt' | 'failed';
+export type StageStepOutcome = 'continue' | 'halt' | 'failed' | 'replan';
 export type CodeRunnerResult = { exitCode: number; stdout: string; stderr: string };
 export type PanelLike = unknown;
 
@@ -53,7 +54,12 @@ export interface ExecutionPathSlice {
   resolveTaskFilePath: (instanceKey: string, relativePath: string) => string;
   resolveOutputPath: (instanceKey: string, relativePath: string, base?: ToolPathBase) => string;
   resolveReadableFilePath?: (instanceKey: string, relativePath: string) => string;
-  runCodeRunner: (cfg: CodeRunnerConfig, instanceKey: string, stageId: string) => Promise<CodeRunnerResult>;
+  runCodeRunner: (
+    cfg: CodeRunnerConfig,
+    instanceKey: string,
+    stageId: string,
+    opts?: { deterministic?: boolean },
+  ) => Promise<CodeRunnerResult>;
   trackPersistedFile?: (input: {
     stageId: string;
     outputKey: string;
@@ -82,6 +88,12 @@ export interface ExecutionQualitySlice {
   testRunFailurePlaybookEnabled?: boolean;
   isAdaptiveGrillForStage?: (stage: Stage) => boolean;
   tryGrillCodeExplore?: (question: { id: string; text: string; hint?: string }) => Promise<string | undefined>;
+  /** B-R2：grill 前依 Charter 代答单题（同步；未命中返回 filled:false）。 */
+  tryCharterGrillAutoAnswer?: (question: {
+    id: string;
+    text: string;
+    hint?: string;
+  }) => CharterGrillAnswerAttempt | null;
   qualityGateExecutionHost?: QualityGateExecutionHost;
   getWorkspaceRoot?: () => string | undefined;
   memoryExperienceEnabled?: boolean;
@@ -101,6 +113,7 @@ export interface NonLlmToolExecutionParams {
     cfg: CodeRunnerConfig,
     instanceKey: string,
     stageId: string,
+    opts?: { deterministic?: boolean },
   ) => Promise<CodeRunnerResult>;
   stageIndex: number;
   trackPersistedFile?: ExecutionPathSlice['trackPersistedFile'];

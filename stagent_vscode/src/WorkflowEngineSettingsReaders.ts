@@ -27,7 +27,10 @@ import {
   readStaticAnalysisEnabled,
   readGlossaryEnabled,
   readSdkPathContractLintMode,
+  readPythonExportContractLintMode,
+  readPythonPypiSymbolLintMode,
   readSandboxEnabled,
+  readSandboxVerificationOnly,
   readAutoInsertGlobalArchitectureDecisionEnabled,
   readSplitTestRunBundledCommandsEnabled,
   readCodebaseContextEnabled,
@@ -38,6 +41,7 @@ import {
   readMemoryMaxExperienceEntries,
   readMaxWorkflowParseRetries,
 } from './StagentSettings';
+import { readContractPlanPreflightV2Enabled } from './settings/readers/contract';
 
 export function readEngineDebugVerbose(): boolean {
   return readDebugVerbose();
@@ -80,8 +84,22 @@ export function readEngineSdkPathContractLintMode(): ReturnType<typeof readSdkPa
   return readSdkPathContractLintMode();
 }
 
+export function readEnginePythonExportContractLintMode(): ReturnType<
+  typeof readPythonExportContractLintMode
+> {
+  return readPythonExportContractLintMode();
+}
+
+export function readEnginePythonPypiSymbolLintMode(): ReturnType<typeof readPythonPypiSymbolLintMode> {
+  return readPythonPypiSymbolLintMode();
+}
+
 export function readEngineSandboxEnabled(): boolean {
   return readSandboxEnabled();
+}
+
+export function readEngineSandboxVerificationOnly(): boolean {
+  return readSandboxVerificationOnly();
 }
 
 export function readEngineAutoInsertGlobalArchitectureDecision(cfg?: vscode.WorkspaceConfiguration): boolean {
@@ -100,6 +118,7 @@ export function readEngineGenerationGates(cfg?: vscode.WorkspaceConfiguration): 
     planCompletenessEnabled: readPlanCompletenessGateEnabled(c),
     planStructuralRepairMode: readPlanStructuralRepairMode(c),
     staticAnalysisEnabled: readStaticAnalysisEnabled(c),
+    contractPlanPreflightV2: readContractPlanPreflightV2Enabled(c),
   };
 }
 

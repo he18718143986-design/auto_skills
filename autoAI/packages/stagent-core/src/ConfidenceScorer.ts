@@ -50,6 +50,7 @@ export function buildConfidenceSignals(
   actualOutputKey: string,
   outputText: string,
   qualityScore?: QualityScore,
+  opts?: { priorFailurePattern?: string },
 ): ConfidenceSignals {
   const expectedPrimary = stage.outputs[0]?.key;
   const text = typeof outputText === 'string' ? outputText : String(outputText ?? '');
@@ -61,7 +62,7 @@ export function buildConfidenceSignals(
     hasCodeBlock: /```/.test(text),
     matchesExpectedOutputKey: expectedPrimary === undefined || actualOutputKey === expectedPrimary,
     isNonCodeArtifact: isNonCodeArtifactStage(stage),
-    priorFailurePattern: undefined,
+    priorFailurePattern: opts?.priorFailurePattern,
   };
 }
 

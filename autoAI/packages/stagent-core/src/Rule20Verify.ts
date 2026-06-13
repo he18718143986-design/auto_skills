@@ -4,6 +4,19 @@ import { collectWorkflowArtifacts } from './WorkflowArtifactRegistry';
 import { detectPythonImportLintIssues } from './CodeRunnerImportLint';
 import { isHorizontalTddPlan } from './RedGreenGate';
 import { isSkillNativeWorkflow } from './SkillToolKinds';
+import { isGlobalArchitectureDecideStageId } from './workflow/StageIdPatterns';
+import { isStagentBundleWriteStage } from './disk-bootstrap/constants';
+import { STAGE_IMPL_CONFTEST_ID } from './disk-bootstrap/pythonConftestStage';
+
+function isSoftwareSliceImplStage(stage: { id: string }): boolean {
+  if (!/^stage_impl_/.test(stage.id)) {
+    return false;
+  }
+  if (isStagentBundleWriteStage(stage) || stage.id === STAGE_IMPL_CONFTEST_ID) {
+    return false;
+  }
+  return true;
+}
 
 export type ViolationType =
   | 'missing-decision-stage'
@@ -34,7 +47,8 @@ export type WarningType =
   | 'horizontal-tdd'
   | 'debug-feedback-loop-not-first'
   | 'dag-unreachable-from-entry'
-  | 'dag-dependency-cycle-hint';
+  | 'dag-dependency-cycle-hint'
+  | 'global-architecture-decision-auto-inserted';
 
 export interface VerifyIssue {
   type: ViolationType | WarningType;
@@ -178,7 +192,7 @@ export function verifyRule20(workflow: WorkflowDefinition): VerifyResult {
   }
   const isSoftware = workflow.meta?.taskType === 'software';
 
-  const implStages = workflow.stages.filter((s) => /^stage_impl_/.test(s.id));
+  const implStages = workflow.stages.filter(isSoftwareSliceImplStage);
   const decideStages = workflow.stages.filter((s) => s.isDecisionStage && /^stage_decide_/.test(s.id));
 
   if (workflow.globalConfig?.modelOverrides?.decisionStage) {
@@ -211,6 +225,9 @@ export function verifyRule20(workflow: WorkflowDefinition): VerifyResult {
     }
 
     for (const dec of decideStages) {
+      if (isGlobalArchitectureDecideStageId(dec.id)) {
+        continue;
+      }
       const semanticName = dec.id.replace(/^stage_decide_/, '');
       const hasPaired = workflow.stages.some(
         (s) => s.id === `stage_impl_${semanticName}` || s.id === `stage_${semanticName}`,
@@ -538,3 +555,5 @@ export function verifyRule20(workflow: WorkflowDefinition): VerifyResult {
 
   return { passed: violations.length === 0, violations, warnings };
 }
+
+export { shouldWarnSoftwareMissingGlobalArchitectureDecision } from './rule20/architecture';

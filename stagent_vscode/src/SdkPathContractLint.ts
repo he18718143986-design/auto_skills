@@ -23,6 +23,8 @@ import { pushCodedLintIssue } from './lint/CodedLintIssue';
 import { writeOutputToFileOf } from './workflow/StageToolConfigAccess';
 import { importPathCoveredByArtifacts } from './artifact-registry/importPathCoverage';
 import { extractRelativeImportSpecs } from './ImportExtract';
+import { isExternalPythonModuleRoot } from './python-contract/pythonExternalModules';
+import type { CommitmentSnapshot } from './commitment';
 
 export type SdkFamily = 'firebase-web' | 'firebase-rn' | 'expo' | 'supabase' | 'clerk';
 
@@ -38,6 +40,8 @@ export interface SdkPathContractIssue {
 }
 
 const TS_JS_EXT = /\.(ts|tsx|js|jsx|mjs|cjs)$/i;
+const PY_EXT = /\.py$/i;
+const PY_FROM_IMPORT_RE = /^\s*from\s+([a-zA-Z_][\w.]*)\s+import\s+/gm;
 const TEST_PATH_HINT = /(^|\/)(__tests__|tests?)(\/|$)|\.(test|spec)\.(ts|tsx|js|jsx)$/i;
 
 const FIREBASE_WEB_MARKERS: RegExp[] = [
@@ -86,7 +90,7 @@ function extractRelativeImports(content: string): string[] {
   return extractRelativeImportSpecs(content);
 }
 
-function detectSdkFamilies(text: string): Set<SdkFamily> {
+export function detectSdkFamilies(text: string): Set<SdkFamily> {
   const families = new Set<SdkFamily>();
   if (FIREBASE_WEB_MARKERS.some((re) => re.test(text))) {
     families.add('firebase-web');
@@ -144,19 +148,53 @@ function firebaseFamiliesConflict(a: Set<SdkFamily>, b: Set<SdkFamily>): boolean
   return (aWeb && bRn) || (aRn && bWeb);
 }
 
+function collectFamiliesFromCommitments(
+  snapshots: Array<{ stageId: string; snapshot: CommitmentSnapshot }>,
+): Set<SdkFamily> {
+  const families = new Set<SdkFamily>();
+  for (const { snapshot } of snapshots) {
+    for (const c of snapshot.commitments) {
+      if (c.kind === 'sdk_family' && isSdkFamily(c.subject)) {
+        families.add(c.subject);
+      }
+    }
+  }
+  return families;
+}
+
+function isSdkFamily(subject: string): subject is SdkFamily {
+  return (
+    subject === 'firebase-web' ||
+    subject === 'firebase-rn' ||
+    subject === 'expo' ||
+    subject === 'supabase' ||
+    subject === 'clerk'
+  );
+}
+
 export function lintSdkPathContract(input: {
   workflow: WorkflowDefinition;
   files: ProjectFile[];
   decisionRecords: Array<{ stageId: string; text: string }>;
+  commitmentSnapshots?: Array<{ stageId: string; snapshot: CommitmentSnapshot }>;
   registry: WorkflowArtifactRegistry;
 }): SdkPathContractIssue[] {
-  const { workflow, files, decisionRecords, registry } = input;
+  const { workflow, files, decisionRecords, commitmentSnapshots, registry } = input;
   const issues: SdkPathContractIssue[] = [];
 
   const decisionFamilies = new Set<SdkFamily>();
-  for (const dr of decisionRecords) {
-    for (const f of detectSdkFamilies(dr.text)) {
-      decisionFamilies.add(f);
+  const fromCommitments =
+    commitmentSnapshots && commitmentSnapshots.length > 0
+      ? collectFamiliesFromCommitments(commitmentSnapshots)
+      : new Set<SdkFamily>();
+  for (const f of fromCommitments) {
+    decisionFamilies.add(f);
+  }
+  if (decisionFamilies.size === 0) {
+    for (const dr of decisionRecords) {
+      for (const f of detectSdkFamilies(dr.text)) {
+        decisionFamilies.add(f);
+      }
     }
   }
 
@@ -166,7 +204,7 @@ export function lintSdkPathContract(input: {
   const testFiles: ProjectFile[] = [];
 
   for (const file of files) {
-    if (!TS_JS_EXT.test(file.path)) {
+    if (!TS_JS_EXT.test(file.path) && !PY_EXT.test(file.path)) {
       continue;
     }
     const role = classifyFileRole(file.path, workflow);
@@ -226,6 +264,26 @@ export function lintSdkPathContract(input: {
         'test-import-path-not-in-plan',
         lintMsg('stagent.lint.testImportPathNotInPlan', tf.path, imp),
       );
+    }
+    if (PY_EXT.test(tf.path)) {
+      PY_FROM_IMPORT_RE.lastIndex = 0;
+      let m: RegExpExecArray | null;
+      while ((m = PY_FROM_IMPORT_RE.exec(tf.content)) !== null) {
+        const mod = m[1]!.split('.')[0]!;
+        if (mod.startsWith('.') || isExternalPythonModuleRoot(mod)) {
+          continue;
+        }
+        const covered = registry.paths.some(
+          (p) => p.replace(/\\/g, '/') === `${mod}.py` || p.endsWith(`/${mod}.py`),
+        );
+        if (!covered) {
+          pushCodedLintIssue(
+            issues,
+            'test-import-path-not-in-plan',
+            lintMsg('stagent.lint.testImportPathNotInPlan', tf.path, mod),
+          );
+        }
+      }
     }
   }
 

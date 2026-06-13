@@ -104,6 +104,61 @@ test('M39.2: test mocks firebase/app but impl uses RN firebase → impl-test-sdk
   assert.ok(issues.some((i) => i.code === 'impl-test-sdk-mismatch'));
 });
 
+test('M39.2: Python test unittest.mock import does not false-positive', () => {
+  const wf: WorkflowDefinition = {
+    id: 'wf_py',
+    version: '2.0',
+    meta: META,
+    stages: [
+      {
+        id: 'stage_impl_market_connector',
+        title: 'impl',
+        tool: 'llm-text',
+        toolConfig: {
+          type: 'llm-text',
+          systemPrompt: 'x',
+          writeOutputToFile: 'market_connector.py',
+        },
+        input: { sources: [], mergeStrategy: 'concat' },
+        outputs: [{ key: 'out', format: 'text' }],
+        pauseAfter: false,
+      },
+      {
+        id: 'stage_test_write_market_connector',
+        title: 'test write',
+        tool: 'llm-text',
+        toolConfig: {
+          type: 'llm-text',
+          systemPrompt: 'x',
+          writeOutputToFile: 'tests/test_market_connector.py',
+        },
+        input: { sources: [], mergeStrategy: 'concat' },
+        outputs: [{ key: 'out', format: 'text' }],
+        pauseAfter: false,
+      },
+    ],
+  };
+  const registry = collectWorkflowArtifacts(wf);
+  const issues = lintSdkPathContract({
+    workflow: wf,
+    registry,
+    decisionRecords: [],
+    files: [
+      {
+        path: 'tests/test_market_connector.py',
+        content: [
+          'import pytest',
+          'import asyncio',
+          'from unittest.mock import MagicMock, patch',
+          'from market_connector import MarketGateway',
+        ].join('\n'),
+      },
+      { path: 'market_connector.py', content: 'class MarketGateway: pass\n' },
+    ],
+  });
+  assert.ok(!issues.some((i) => i.code === 'test-import-path-not-in-plan' && /unittest/.test(i.message)));
+});
+
 test('M39.2: test relative import not in artifact registry', () => {
   const wf = wfWithPaths();
   const registry = collectWorkflowArtifacts(wf);

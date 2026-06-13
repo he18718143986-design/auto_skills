@@ -1,8 +1,15 @@
 import type * as vscode from 'vscode';
 import { resolveVscodeMergedExecEnv } from './adapters/vscodeShellEnvironment';
 import type { BackendMessage, CodeRunnerConfig } from './WorkflowDefinition';
-import { resolveCodeRunnerCwd, runCodeRunnerCommand } from './WorkflowCodeRunnerHost';
-import { readEngineSandboxEnabled } from './WorkflowEngineSettingsReaders';
+import {
+  resolveCodeRunnerCwd,
+  runCodeRunnerCommand,
+  type CodeRunnerExecutionOptions,
+} from './WorkflowCodeRunnerHost';
+import {
+  readEngineSandboxEnabled,
+  readEngineSandboxVerificationOnly,
+} from './WorkflowEngineSettingsReaders';
 import { showSandboxSoftConstraintPrompt } from './adapters/showSandboxSoftConstraintPrompt';
 import type { WorkflowEnginePathHost } from './WorkflowEnginePathHost';
 
@@ -24,8 +31,9 @@ export class StageCodeRunnerService {
     instanceKey: string,
     stageId: string,
     panel?: vscode.WebviewPanel,
+    opts?: CodeRunnerExecutionOptions,
   ): Promise<{ exitCode: number; stdout: string; stderr: string }> {
-    return runCodeRunnerCommand(this.codeRunnerDeps(panel), cfg, instanceKey, stageId);
+    return runCodeRunnerCommand(this.codeRunnerDeps(panel), cfg, instanceKey, stageId, opts);
   }
 
   private codeRunnerDeps(panel?: vscode.WebviewPanel) {
@@ -43,6 +51,7 @@ export class StageCodeRunnerService {
       },
       warn: (msg: string) => this.deps.warn(msg),
       sandboxEnabled: readEngineSandboxEnabled(),
+      sandboxVerificationOnly: readEngineSandboxVerificationOnly(),
       confirmSoftConstraintSandbox: showSandboxSoftConstraintPrompt,
       resolveExecEnv: () => resolveVscodeMergedExecEnv(),
     };

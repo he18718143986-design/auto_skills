@@ -1,5 +1,6 @@
-import type { BackendMessage, WorkflowInstance } from './WorkflowDefinition';
+import type { BackendMessage, StageStatus, WorkflowInstance } from './WorkflowDefinition';
 import { syncDagCurrentStageIndex } from './WorkflowDag';
+import { enrichStageErrorPayload } from './WorkflowStageErrorHelpers';
 
 /** 首个 status=error 的阶段 id（用于 instanceResumed.failedStageId）。 */
 export function findFirstFailedStage(instance: WorkflowInstance): string | undefined {
@@ -23,12 +24,18 @@ export function buildExecutionRecoveryMessages(
   const failedRt = failedStageId
     ? instance.stageRuntimes.find((r) => r.stageId === failedStageId)
     : undefined;
+  const stageStatuses: Record<string, StageStatus> = {};
+  for (const rt of instance.stageRuntimes) {
+    stageStatuses[rt.stageId] = rt.status;
+  }
   const messages: BackendMessage[] = [
     {
       type: 'instanceResumed',
+      resync: true,
       instanceKey,
       workflow: instance.definition,
       instanceStatus: instance.status,
+      stageStatuses,
       ...(failedStageId ? { failedStageId } : {}),
       ...(instance.status === 'failed' && failedRt?.lastError
         ? {
@@ -47,20 +54,25 @@ export function buildExecutionRecoveryMessages(
           : {}),
     },
   ];
-  messages.push(...buildStageReplayMessages(instance));
+  messages.push(...buildStageReplayMessages(instance, stageStatuses));
   return messages;
 }
 
-function buildStageReplayMessages(instance: WorkflowInstance): BackendMessage[] {
+function buildStageReplayMessages(
+  instance: WorkflowInstance,
+  stageStatuses: Record<string, StageStatus>,
+): BackendMessage[] {
   const messages: BackendMessage[] = [];
   for (const rt of instance.stageRuntimes) {
     const stage = instance.definition.stages.find((s) => s.id === rt.stageId);
-    messages.push({
-      type: 'stageStatusUpdate',
-      stageId: rt.stageId,
-      status: rt.status,
-      isDecisionStage: stage?.isDecisionStage,
-    });
+    if (stageStatuses[rt.stageId] !== rt.status) {
+      messages.push({
+        type: 'stageStatusUpdate',
+        stageId: rt.stageId,
+        status: rt.status,
+        isDecisionStage: stage?.isDecisionStage,
+      });
+    }
     for (const [outputKey, content] of Object.entries(rt.outputs)) {
       messages.push({ type: 'stageOutputUpdate', stageId: rt.stageId, outputKey, content });
     }
@@ -71,14 +83,16 @@ function buildStageReplayMessages(instance: WorkflowInstance): BackendMessage[] 
         questions: stage.questionAfter,
       });
     }
-    if (rt.lastError) {
+    if (rt.status === 'error' && rt.lastError) {
       messages.push({
         type: 'stageError',
-        stageId: rt.stageId,
-        error: rt.lastError.error,
-        errorType: rt.lastError.errorType,
-        stdout: rt.lastError.stdout,
-        stderr: rt.lastError.stderr,
+        ...enrichStageErrorPayload({
+          stageId: rt.stageId,
+          error: rt.lastError.error,
+          errorType: rt.lastError.errorType,
+          stdout: rt.lastError.stdout,
+          stderr: rt.lastError.stderr,
+        }),
       });
     }
   }

@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="100%" viewBox="0 0 1040 960" role="img" xmlns="http://www.w3.org/2000/svg">
+  <title>Stagent · Agent 在 autoAI 中做什么</title>
+  <desc>引擎调度下，LLM Agent 仅在 llm-text stage 与工作计划生成期被调用。含 fix 上限、runtime-replan、上下文降级。详见 STAGENT-PRD.md §11</desc>
+
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <style>
+      .t-title { font: 600 15px system-ui, -apple-system, sans-serif; fill: #1f1e1d; }
+      .t-sub { font: 400 11px system-ui, -apple-system, sans-serif; fill: #5f5e5a; }
+      .t-label { font: 500 13px system-ui, -apple-system, sans-serif; }
+      .t-desc { font: 400 11px system-ui, -apple-system, sans-serif; }
+      .t-note { font: 400 11px system-ui, -apple-system, sans-serif; fill: #3d3d3a; }
+      .t-col-h { font: 600 12px system-ui, -apple-system, sans-serif; fill: #3d3d3a; }
+      .t-engine { font: 500 12px system-ui, -apple-system, sans-serif; fill: #5f5e5a; }
+      .stroke-main { stroke: #73726c; stroke-width: 1.5; fill: none; }
+      .stroke-dash { stroke: #73726c; stroke-width: 1; fill: none; stroke-dasharray: 4 3; }
+    </style>
+  </defs>
+
+  <text x="520" y="28" text-anchor="middle" class="t-title">Stagent · Agent 在 autoAI 中做什么</text>
+  <text x="520" y="48" text-anchor="middle" class="t-sub">引擎当工头（调度 / Gate / 命令）· Agent 当技工（只在 llm-text 与计划生成时被调用）</text>
+
+  <rect x="240" y="62" width="140" height="34" rx="8" fill="#f5f4ed" stroke="#1f1e1d" stroke-opacity="0.25"/>
+  <text x="310" y="83" text-anchor="middle" class="t-sub">几句话需求</text>
+  <text x="400" y="83" text-anchor="middle" class="t-sub">+</text>
+  <rect x="420" y="62" width="120" height="34" rx="8" fill="#f5f4ed" stroke="#1f1e1d" stroke-opacity="0.25"/>
+  <text x="480" y="83" text-anchor="middle" class="t-sub">Charter</text>
+  <text x="560" y="83" text-anchor="middle" class="t-sub">+</text>
+  <rect x="580" y="62" width="160" height="34" rx="8" fill="#f5f4ed" stroke="#1f1e1d" stroke-opacity="0.25"/>
+  <text x="660" y="83" text-anchor="middle" class="t-sub">仓库 / CONTEXT</text>
+  <line x1="520" y1="96" x2="520" y2="118" class="stroke-main" marker-end="url(#arrow)"/>
+
+  <rect x="300" y="120" width="440" height="36" rx="8" fill="#f5f4ed" stroke="#73726c" stroke-width="1" stroke-dasharray="5 3"/>
+  <text x="520" y="142" text-anchor="middle" class="t-engine">引擎 · Path Router → workflowTemplate（greenfield_full / express / debug）</text>
+  <line x1="520" y1="156" x2="520" y2="178" class="stroke-main" marker-end="url(#arrow)"/>
+
+  <text x="200" y="196" text-anchor="middle" class="t-col-h">Phase A · 工作计划生成</text>
+  <text x="520" y="196" text-anchor="middle" class="t-col-h">Phase B · 按 stage 执行（每模块 / slice 重复）</text>
+  <text x="860" y="196" text-anchor="middle" class="t-col-h">每次 Agent 调用前 · 引擎注入与降级</text>
+
+  <g>
+    <rect x="50" y="208" width="300" height="44" rx="8" fill="#e1f5ee" stroke="#0f6e56" stroke-width="0.5"/>
+    <text x="200" y="226" text-anchor="middle" class="t-label" fill="#085041">Agent · polish / clarify</text>
+    <text x="200" y="242" text-anchor="middle" class="t-desc" fill="#0f6e56">整理需求 · 可选多轮澄清</text>
+    <text x="330" y="222" class="t-note">可选</text>
+    <line x1="200" y1="252" x2="200" y2="268" class="stroke-dash" marker-end="url(#arrow)"/>
+
+    <rect x="50" y="270" width="300" height="72" rx="8" fill="#eeedfe" stroke="#534ab7" stroke-width="0.5"/>
+    <text x="200" y="290" text-anchor="middle" class="t-label" fill="#3c3489">Agent · 生成 ExecutionPlan</text>
+    <text x="200" y="306" text-anchor="middle" class="t-desc" fill="#534ab7">stages[] · dependsOn · outputs</text>
+    <text x="200" y="320" text-anchor="middle" class="t-desc" fill="#534ab7">taskType · systemPrompt · tool 声明</text>
+    <text x="200" y="334" text-anchor="middle" class="t-desc" fill="#534ab7">≈ Skills 链展开成机器可读 DAG</text>
+    <line x1="200" y1="342" x2="200" y2="358" class="stroke-main" marker-end="url(#arrow)"/>
+
+    <rect x="50" y="360" width="300" height="56" rx="8" fill="#e6f1fb" stroke="#185fa5" stroke-width="0.5"/>
+    <text x="200" y="380" text-anchor="middle" class="t-label" fill="#0c447c">Agent · continue / repair</text>
+    <text x="200" y="396" text-anchor="middle" class="t-desc" fill="#185fa5">JSON 截断或 parse 失败时续写</text>
+    <text x="200" y="410" text-anchor="middle" class="t-desc" fill="#185fa5">修引用与结构（仍受 plan lint 约束）</text>
+    <line x1="200" y1="416" x2="200" y2="432" class="stroke-dash" marker-end="url(#arrow)"/>
+
+    <rect x="50" y="434" width="300" height="52" rx="8" fill="#f5f4ed" stroke="#73726c" stroke-width="1" stroke-dasharray="5 3"/>
+    <text x="200" y="454" text-anchor="middle" class="t-engine">引擎 · Plan Compiler</text>
+    <text x="200" y="470" text-anchor="middle" class="t-desc" fill="#5f5e5a">补 venv / delivery 标准步 · 删重复</text>
+    <text x="200" y="482" text-anchor="middle" class="t-desc" fill="#5f5e5a">artifact-graph lint · plan completeness</text>
+    <line x1="200" y1="486" x2="200" y2="502" class="stroke-main" marker-end="url(#arrow)"/>
+
+    <rect x="50" y="504" width="300" height="56" rx="8" fill="#f5f4ed" stroke="#73726c" stroke-width="1" stroke-dasharray="5 3"/>
+    <text x="200" y="522" text-anchor="middle" class="t-engine">引擎 · autoApprovePlan</text>
+    <text x="200" y="538" text-anchor="middle" class="t-desc" fill="#5f5e5a">lint 全绿 · 无 MustEscalateToHuman → 开跑</text>
+    <text x="200" y="552" text-anchor="middle" class="t-desc" fill="#5f5e5a">大规模计划 → 人工审批（路线图）</text>
+
+    <rect x="50" y="572" width="300" height="36" rx="8" fill="#e6f1fb" stroke="#185fa5" stroke-width="0.75" stroke-dasharray="4 2"/>
+    <text x="200" y="590" text-anchor="middle" class="t-label" fill="#0c447c">路线图 · 骨架模板</text>
+    <text x="200" y="602" text-anchor="middle" class="t-desc" fill="#185fa5">系统展开 DAG · Agent 只填说明</text>
+
+    <line x1="350" y1="540" x2="360" y2="540" class="stroke-main" marker-end="url(#arrow)"/>
+  </g>
+
+  <g>
+    <rect x="360" y="208" width="320" height="56" rx="8" fill="#e1f5ee" stroke="#0f6e56" stroke-width="0.5"/>
+    <text x="520" y="228" text-anchor="middle" class="t-label" fill="#085041">Agent · stage_decide_*</text>
+    <text x="520" y="244" text-anchor="middle" class="t-desc" fill="#0f6e56">DecisionRecord · 架构取舍</text>
+    <text x="520" y="258" text-anchor="middle" class="t-desc" fill="#0f6e56">语义 ≈ /grill-with-docs · Charter 可代答</text>
+    <line x1="520" y1="264" x2="520" y2="280" class="stroke-main" marker-end="url(#arrow)"/>
+
+    <rect x="360" y="282" width="320" height="48" rx="8" fill="#faece7" stroke="#993c1d" stroke-width="0.5"/>
+    <text x="520" y="302" text-anchor="middle" class="t-label" fill="#712b13">Agent · stage_test_write_*</text>
+    <text x="520" y="318" text-anchor="middle" class="t-desc" fill="#993c1d">写 pytest · RED 阶段 · 测行为不测实现</text>
+    <line x1="520" y1="330" x2="520" y2="346" class="stroke-main" marker-end="url(#arrow)"/>
+
+    <rect x="360" y="348" width="320" height="48" rx="8" fill="#f5f4ed" stroke="#73726c" stroke-width="1" stroke-dasharray="5 3"/>
+    <text x="520" y="366" text-anchor="middle" class="t-engine">引擎 · verify_imports · code-runner</text>
+    <text x="520" y="380" text-anchor="middle" class="t-desc" fill="#5f5e5a">校验测试 import 路径在工作区存在</text>
+    <text x="520" y="392" text-anchor="middle" class="t-desc" fill="#5f5e5a">RED 先于 impl：项目模块须已存在或约定 stub 策略</text>
+    <line x1="520" y1="396" x2="520" y2="412" class="stroke-main" marker-end="url(#arrow)"/>
+
+    <rect x="360" y="414" width="320" height="48" rx="8" fill="#faece7" stroke="#993c1d" stroke-width="0.5"/>
+    <text x="520" y="434" text-anchor="middle" class="t-label" fill="#712b13">Agent · stage_impl_*</text>
+    <text x="520" y="450" text-anchor="middle" class="t-desc" fill="#993c1d">写模块源码 · GREEN 阶段</text>
+    <line x1="520" y1="462" x2="520" y2="478" class="stroke-main" marker-end="url(#arrow)"/>
+
+    <rect x="360" y="480" width="320" height="48" rx="8" fill="#f5f4ed" stroke="#73726c" stroke-width="1" stroke-dasharray="5 3"/>
+    <text x="520" y="500" text-anchor="middle" class="t-engine">引擎 · test_run · RedGreenGate</text>
+    <text x="520" y="516" text-anchor="middle" class="t-desc" fill="#5f5e5a">pytest 退出码 · 失败阻断 delivery</text>
+    <line x1="520" y1="528" x2="520" y2="544" class="stroke-dash" marker-end="url(#arrow)"/>
+
+    <rect x="360" y="546" width="320" height="56" rx="8" fill="#e6f1fb" stroke="#185fa5" stroke-width="0.5"/>
+    <text x="520" y="566" text-anchor="middle" class="t-label" fill="#0c447c">Agent · stage_fix_if_failed_*</text>
+    <text x="520" y="582" text-anchor="middle" class="t-desc" fill="#185fa5">仅测试红时 · 根据日志改码</text>
+    <text x="520" y="596" text-anchor="middle" class="t-desc" fill="#185fa5">fix 链计数 · maxAttempts ≤ 2（默认）</text>
+
+    <path d="M680 572 C740 572 740 504 680 504" class="stroke-dash" marker-end="url(#arrow)"/>
+    <text x="748" y="532" class="t-note">attempts</text>
+    <text x="748" y="546" class="t-note">&lt; 2 重跑</text>
+    <text x="748" y="560" class="t-note">test_run</text>
+
+    <line x1="680" y1="574" x2="700" y2="574" class="stroke-dash" marker-end="url(#arrow)"/>
+    <rect x="702" y="548" width="148" height="52" rx="8" fill="#faeeda" stroke="#854f0b" stroke-width="0.75"/>
+    <text x="776" y="568" text-anchor="middle" class="t-engine">引擎 · runtime-replan</text>
+    <text x="776" y="582" text-anchor="middle" class="t-desc" fill="#854f0b">fix-exhausted · 插入升级修复 stage</text>
+    <text x="776" y="594" text-anchor="middle" class="t-desc" fill="#854f0b">仍红 → MustEscalateToHuman</text>
+    <text x="692" y="562" class="t-note">≥2</text>
+
+    <line x1="520" y1="602" x2="520" y2="618" class="stroke-main" marker-end="url(#arrow)"/>
+
+    <rect x="360" y="620" width="320" height="40" rx="8" fill="#f5f4ed" stroke="#73726c" stroke-width="1" stroke-dasharray="5 3"/>
+    <text x="520" y="638" text-anchor="middle" class="t-engine">引擎 · file-write · stage_write_config</text>
+    <text x="520" y="652" text-anchor="middle" class="t-desc" fill="#5f5e5a">路径与引用已定 · 从 decisionArtifacts 落盘</text>
+    <line x1="520" y1="660" x2="520" y2="676" class="stroke-main" marker-end="url(#arrow)"/>
+
+    <rect x="360" y="678" width="320" height="48" rx="8" fill="#eaf3de" stroke="#3b6d11" stroke-width="0.5"/>
+    <text x="520" y="698" text-anchor="middle" class="t-label" fill="#27500a">Agent · stage_delivery_wrapup</text>
+    <text x="520" y="714" text-anchor="middle" class="t-desc" fill="#3b6d11">写 DELIVERY.md · 使用说明与验收摘要</text>
+    <line x1="520" y1="726" x2="520" y2="742" class="stroke-main" marker-end="url(#arrow)"/>
+
+    <rect x="360" y="744" width="320" height="44" rx="8" fill="#f5f4ed" stroke="#73726c" stroke-width="1" stroke-dasharray="5 3"/>
+    <text x="520" y="764" text-anchor="middle" class="t-engine">引擎 · strict MVP 验收</text>
+    <text x="520" y="780" text-anchor="middle" class="t-desc" fill="#5f5e5a">pytest 绿 · traceability · headless assertStrictMvpPass</text>
+
+    <path d="M360 440 C300 440 300 240 360 240" class="stroke-dash" marker-end="url(#arrow)"/>
+    <text x="268" y="340" class="t-note">下一模块</text>
+    <text x="268" y="354" class="t-note">indicators →</text>
+    <text x="268" y="368" class="t-note">signals → …</text>
+  </g>
+
+  <g>
+    <rect x="720" y="208" width="280" height="40" rx="8" fill="#f1efe8" stroke="#5f5e5a" stroke-width="0.5"/>
+    <text x="860" y="226" text-anchor="middle" class="t-label" fill="#444441">上游 stage outputs</text>
+    <text x="860" y="240" text-anchor="middle" class="t-desc" fill="#5f5e5a">需求 · 决策 · 已有代码</text>
+    <line x1="860" y1="248" x2="860" y2="264" class="stroke-dash" marker-end="url(#arrow)"/>
+
+    <rect x="720" y="266" width="280" height="48" rx="8" fill="#f1efe8" stroke="#5f5e5a" stroke-width="0.5"/>
+    <text x="860" y="284" text-anchor="middle" class="t-label" fill="#444441">GlobalDecisionContext</text>
+    <text x="860" y="298" text-anchor="middle" class="t-desc" fill="#5f5e5a">已批准 DecisionRecord · summary 模式</text>
+    <text x="860" y="310" text-anchor="middle" class="t-desc" fill="#5f5e5a">单条默认 ≤1200 字符截断</text>
+    <line x1="860" y1="314" x2="860" y2="330" class="stroke-dash" marker-end="url(#arrow)"/>
+
+    <rect x="720" y="332" width="280" height="40" rx="8" fill="#f1efe8" stroke="#5f5e5a" stroke-width="0.5"/>
+    <text x="860" y="350" text-anchor="middle" class="t-label" fill="#444441">Charter constraints</text>
+    <text x="860" y="364" text-anchor="middle" class="t-desc" fill="#5f5e5a">[R#n] 结构化 prefer / avoid / constraint</text>
+    <line x1="860" y1="372" x2="860" y2="388" class="stroke-dash" marker-end="url(#arrow)"/>
+
+    <rect x="720" y="390" width="280" height="44" rx="8" fill="#f1efe8" stroke="#5f5e5a" stroke-width="0.5"/>
+    <text x="860" y="408" text-anchor="middle" class="t-label" fill="#444441">Skill 语义后缀</text>
+    <text x="860" y="422" text-anchor="middle" class="t-desc" fill="#5f5e5a">systemPrompt 内嵌 grill / tdd 规范</text>
+    <line x1="860" y1="434" x2="860" y2="450" class="stroke-dash" marker-end="url(#arrow)"/>
+
+    <rect x="720" y="452" width="280" height="56" rx="8" fill="#f5f4ed" stroke="#73726c" stroke-width="1" stroke-dasharray="5 3"/>
+    <text x="860" y="472" text-anchor="middle" class="t-engine">引擎 · 上下文降级</text>
+    <text x="860" y="486" text-anchor="middle" class="t-desc" fill="#5f5e5a">单源 truncate 3k · 总量上限 12k tokens</text>
+    <text x="860" y="500" text-anchor="middle" class="t-desc" fill="#5f5e5a">超限 → summary 模式 · input-degrade 日志</text>
+
+    <line x1="720" y1="280" x2="682" y2="280" class="stroke-dash"/>
+    <line x1="720" y1="350" x2="682" y2="350" class="stroke-dash"/>
+    <line x1="720" y1="410" x2="682" y2="410" class="stroke-dash"/>
+    <line x1="720" y1="478" x2="682" y2="478" class="stroke-dash"/>
+
+    <rect x="720" y="520" width="280" height="120" rx="10" fill="none" stroke="#993c1d" stroke-width="1" stroke-dasharray="6 4"/>
+    <text x="860" y="542" text-anchor="middle" class="t-col-h" fill="#712b13">Agent 明确不做</text>
+    <text x="740" y="562" class="t-note">× 编排 DAG · 不决定下一步跑谁</text>
+    <text x="740" y="578" class="t-note">× 跑 pytest / venv / pip</text>
+    <text x="740" y="594" class="t-note">× 判 Gate 通过 / 失败</text>
+    <text x="740" y="610" class="t-note">× 复制 prompt 到 Cursor 手点 Skill</text>
+    <text x="740" y="626" class="t-note">× 替 Plan Compiler 修计划结构</text>
+  </g>
+
+  <rect x="40" y="812" width="960" height="56" rx="10" fill="none" stroke="#73726c" stroke-width="1" stroke-dasharray="6 4"/>
+  <text x="520" y="832" text-anchor="middle" class="t-col-h">Agent 产出语义 ↔ mattpocock/skills（引擎内嵌，非手动调用）</text>
+
+  <rect x="60" y="842" width="118" height="22" rx="6" fill="#eeedfe" stroke="#534ab7" stroke-width="0.5"/>
+  <text x="119" y="857" text-anchor="middle" class="t-desc" fill="#3c3489">生成计划 ≈ to-issues</text>
+  <rect x="190" y="842" width="118" height="22" rx="6" fill="#e1f5ee" stroke="#0f6e56" stroke-width="0.5"/>
+  <text x="249" y="857" text-anchor="middle" class="t-desc" fill="#085041">decide ≈ grill</text>
+  <rect x="320" y="842" width="118" height="22" rx="6" fill="#faece7" stroke="#993c1d" stroke-width="0.5"/>
+  <text x="379" y="857" text-anchor="middle" class="t-desc" fill="#712b13">test+impl ≈ tdd</text>
+  <rect x="450" y="842" width="118" height="22" rx="6" fill="#e6f1fb" stroke="#185fa5" stroke-width="0.5"/>
+  <text x="509" y="857" text-anchor="middle" class="t-desc" fill="#0c447c">fix ≈ diagnose 片段</text>
+  <rect x="580" y="842" width="118" height="22" rx="6" fill="#eaf3de" stroke="#3b6d11" stroke-width="0.5"/>
+  <text x="639" y="857" text-anchor="middle" class="t-desc" fill="#27500a">delivery ≈ handoff 文案</text>
+  <text x="760" y="857" class="t-note">对比全量 Skill 流程见 mattpocock_skills_ai_dev_flow.svg</text>
+
+  <rect x="40" y="882" width="14" height="14" rx="3" fill="#eeedfe" stroke="#534ab7"/>
+  <text x="62" y="894" class="t-note">Agent · 计划</text>
+  <rect x="140" y="882" width="14" height="14" rx="3" fill="#e1f5ee" stroke="#0f6e56"/>
+  <text x="162" y="894" class="t-note">Agent · 决策</text>
+  <rect x="240" y="882" width="14" height="14" rx="3" fill="#faece7" stroke="#993c1d"/>
+  <text x="262" y="894" class="t-note">Agent · TDD 写码</text>
+  <rect x="360" y="882" width="14" height="14" rx="3" fill="#e6f1fb" stroke="#185fa5"/>
+  <text x="382" y="894" class="t-note">Agent · 按需</text>
+  <rect x="450" y="882" width="14" height="14" rx="3" fill="#eaf3de" stroke="#3b6d11"/>
+  <text x="472" y="894" class="t-note">Agent · 交付</text>
+  <rect x="540" y="882" width="14" height="14" rx="3" fill="#faeeda" stroke="#854f0b"/>
+  <text x="562" y="894" class="t-note">引擎 · replan</text>
+  <rect x="660" y="882" width="14" height="14" rx="3" fill="#f5f4ed" stroke="#73726c" stroke-dasharray="3 2"/>
+  <text x="682" y="894" class="t-note">引擎（无 LLM）</text>
+  <text x="800" y="894" class="t-note">实线主链 · 虚线可选/条件</text>
+  <text x="800" y="908" class="t-note">fix≥2 → replan · 上下文降级见右列</text>
+
+  <text x="520" y="938" text-anchor="middle" class="t-note">代码锚点：DEFAULT_FIX_EXHAUSTED_MAX_ATTEMPTS=2 · runtime-replan/constants.ts · GlobalDecisionContext.ts · InputTokenBudgets.ts</text>
+
+</svg>

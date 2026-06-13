@@ -10,9 +10,14 @@ import {
 import { confirmStore, inputStore } from '../stores';
 import { show } from '../shell';
 import { renderConfirmBlock } from '../confirm-renderers/ConfirmBlockRenderer';
+import { applyDecisionBoardFromMessage, renderDecisionBoard } from '../confirm-renderers/DecisionBoardRenderer';
 import { renderRepairInfo } from '../confirm-renderers/RepairInfoRenderer';
 import { renderWorkflowWarnings } from '../confirm-renderers/WorkflowWarningsRenderer';
 import { renderPlanSummaryAndDiff } from '../confirm-renderers/PlanSummaryRenderer';
+import {
+  applyTaskTypeClassificationFromMessage,
+  renderTaskTypeClassification,
+} from '../confirm-renderers/TaskTypeClassificationRenderer';
 import { applySessionFromBackend } from '../session';
 import {
   clearInputPageBusy,
@@ -50,8 +55,12 @@ function handleWorkflowGenerated(msg: Extract<BackendMessage, { type: 'workflowG
   confirmStore.experienceReferencesUsed =
     typeof msg.experienceReferencesUsed === 'number' ? msg.experienceReferencesUsed : 0;
   confirmStore.selectedStageId = confirmStore.workflowDef?.stages?.[0]?.id ?? null;
+  applyDecisionBoardFromMessage(msg);
+  applyTaskTypeClassificationFromMessage(msg);
 
   renderConfirmBlock(msg);
+  renderTaskTypeClassification();
+  renderDecisionBoard();
   renderRepairInfo(msg);
   renderWorkflowWarnings(msg);
   renderPlanSummaryAndDiff(msg);
@@ -109,7 +118,7 @@ function handleUserTaskPolished(msg: Extract<BackendMessage, { type: 'userTaskPo
   if (msg.instanceKey || msg.sessionId) {
     applySessionFromBackend(msg as { instanceKey?: string; sessionId?: string });
   }
-  showPolishResult(msg.text || '', !!msg.fromCache);
+  showPolishResult(msg.text || '', !!msg.fromCache, msg.polishTierUsed);
 }
 
 function handleGenerationStreamChunk(msg: Extract<BackendMessage, { type: 'streamChunk' }>): void {

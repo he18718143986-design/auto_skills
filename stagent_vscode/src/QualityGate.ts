@@ -62,12 +62,20 @@ export interface QualityGateExecutionHost {
   ): Promise<{ exitCode: number; stdout: string; stderr: string }>;
   runWorkspaceContractLint(): Promise<string[]>;
   runSdkPathContractHardGate(): Promise<import('./SdkPathContractLint').SdkPathContractIssue | null>;
+  runPythonExportContractHardGate(): Promise<
+    import('./python-contract/PythonExportContractLint').PythonExportContractIssue | null
+  >;
+  runPythonPypiSymbolHardGate(): Promise<
+    import('./python-contract/PythonPypiSymbolLint').PythonPypiSymbolIssue | null
+  >;
   runPostImplStaticAnalysis(): Promise<string[]>;
   readRedGreenGateMode(): 'off' | 'warn' | 'hard';
   readDebugFeedbackLoopRuntimeHard(): boolean;
   readTestRunPreflightEnabled(): boolean;
   readTestRunAutoNpmInstallEnabled(): boolean;
   readSdkPathContractLintMode(): 'off' | 'warn' | 'hard';
+  readPythonExportContractLintMode(): 'off' | 'warn' | 'hard';
+  readPythonPypiSymbolLintMode(): 'off' | 'warn' | 'hard';
   readStaticAnalysisEnabled(): boolean;
 }
 

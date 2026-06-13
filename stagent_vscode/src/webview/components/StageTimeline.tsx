@@ -8,6 +8,7 @@ import {
   type StageTimelineItem,
 } from '../shared/execTimelineModel';
 import { confidenceLabel } from '../shared/execTimelineConfidence';
+import { cockpitRoleLabel } from '../shared/stageCockpitRole';
 import { execStore } from '../runtime/stores';
 
 export type { StageTimelineItem };
@@ -20,7 +21,13 @@ export interface StageTimelineProps {
   viewStageId?: string | null;
 }
 
-function statusIcon(status: string): string {
+function statusIcon(status: string, execSemantic?: string): string {
+  if (execSemantic === 'deferred') {
+    return '◐';
+  }
+  if (execSemantic === 'self-healing') {
+    return '↻';
+  }
   const map: Record<string, string> = {
     pending: '⏳',
     running: '⚡',
@@ -45,10 +52,16 @@ function StageRow(props: {
     conf && typeof conf.score === 'number' && !Number.isNaN(conf.score)
       ? { score: conf.score, level: conf.level || 'medium', reasons: conf.reasons || [] }
       : null;
+  const deferredClass = st.execSemantic === 'deferred' ? 'timeline-deferred' : '';
+  const healingClass = st.execSemantic === 'self-healing' ? 'timeline-healing' : '';
   return (
     <li
       key={st.id}
-      class={[st.selected ? 'selected' : '', nested ? 'timeline-auto-child' : ''].filter(Boolean).join(' ') || undefined}
+      class={
+        [st.selected ? 'selected' : '', nested ? 'timeline-auto-child' : '', deferredClass, healingClass]
+          .filter(Boolean)
+          .join(' ') || undefined
+      }
       data-id={st.id}
       title={wMsg('stagent.webview.exec.stageClickHint')}
       tabIndex={0}
@@ -63,9 +76,11 @@ function StageRow(props: {
         }
       }}
     >
-      <span>
-        {statusIcon(st.status)} {st.title}
+      <span className="timeline-row-main">
+        <span className="timeline-role-pill">{st.role ? cockpitRoleLabel(st.role) : ''}</span>
+        {statusIcon(st.status, st.execSemantic)} {st.title}
         {st.isDecisionStage ? ` [${wMsg('stagent.webview.exec.badgeDecision')}]` : ''}
+        {st.execSemantic === 'deferred' ? ` (${wMsg('stagent.webview.cockpit.deferred')})` : ''}
       </span>
       {confView ? (
         <span

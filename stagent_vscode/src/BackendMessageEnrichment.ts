@@ -2,6 +2,7 @@
  * WorkflowUiBridge / 宿主 postMessage 出站字段注入（traceId、instanceKey）。
  */
 import { withTraceId } from './InstanceSession';
+import { buildQualityReportPayload } from './quality-report/buildQualityReportPayload';
 import type { BackendMessage } from './WorkflowDefinition';
 import type { MessagingHost } from './WorkflowEngineMessaging';
 
@@ -33,14 +34,26 @@ export function enrichBackendMessageInstanceKey(host: MessagingHost, msg: Backen
   return { ...msg, instanceKey: key, sessionId: key };
 }
 
+function enrichWorkflowCompletedQualityReport(host: MessagingHost, msg: BackendMessage): BackendMessage {
+  if (msg.type !== 'workflowCompleted' || msg.qualityReport) {
+    return msg;
+  }
+  const instance = host.getInstance();
+  if (!instance || instance.status !== 'completed') {
+    return msg;
+  }
+  return { ...msg, qualityReport: buildQualityReportPayload(instance) };
+}
+
 export function enrichBackendMessageForWebview(
   host: MessagingHost,
   msg: BackendMessage,
   seq: number,
   uiEpoch: number,
 ): BackendMessage {
-  return enrichBackendMessageInstanceKey(
+  const withSeq = enrichBackendMessageInstanceKey(
     host,
     enrichBackendMessageTraceId(host, { ...msg, seq, uiEpoch }),
   );
+  return enrichWorkflowCompletedQualityReport(host, withSeq);
 }

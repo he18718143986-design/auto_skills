@@ -2,7 +2,7 @@
  * M42：工作流生成服务 — polish / clarify / generate 全链（含 parse / normalize / 序号防覆盖）。
  */
 import * as crypto from 'crypto';
-import type * as vscode from 'vscode';
+import type { WebviewPanel, ExtensionContext, WorkspaceConfiguration } from './platform/HostTypes';
 import type { WorkflowDefinition } from './WorkflowDefinition';
 import {
   normalizeWorkflow as normalizeWorkflowDefinition,
@@ -17,8 +17,9 @@ import { runWorkflowGeneration } from './WorkflowGenerationRunner';
 import {
   buildGenerationRunnerHost,
   buildPreGenerationHost,
-} from './WorkflowEngineHostFactories';
-import type { EngineHostFactoryDeps } from './WorkflowEngineHostFactories';
+} from './engine-wiring/buildGenerationHosts';
+import type { EngineHostFactoryDeps } from './engine-host';
+import type { PolishTierRequest } from './polish/PolishTier';
 import { getStagentConfiguration } from './settings/getStagentConfiguration';
 import {
   readEngineAutoInsertGlobalArchitectureDecision,
@@ -27,24 +28,26 @@ import {
   readEngineSplitTestRunBundledCommands,
 } from './WorkflowEngineSettingsReaders';
 import { confirmLargeProjectGeneration } from './generation/generationGuards';
-import { vscodeConfirmDialog } from './generation/confirmDialogAdapter';
+import type { ConfirmDialog } from './generation/confirmDialogAdapter';
 import {
   readZoomOutGlossaryHint,
   shouldUpgradeZoomOutStage,
 } from './generation/normalizeWorkflowContext';
-import type { WorkflowUiBridge } from './WorkflowUiBridge';
-import type { WorkflowEngineGenerationFacade } from './WorkflowEngineFacades';
+import type { WorkflowEngineGenerationFacade } from './engine-facades/WorkflowEngineFacades';
+import type { GenerationUiPort } from './engine-wiring/GenerationUiPort';
 import { DEBUG_EVENT_GENERATION_SUPERSEDED } from './DebugLogEvents';
 import { WORKFLOW_LEVEL_STAGE_ID } from './workflow/WorkflowLevelIds';
 
 export interface WorkflowGenerationServiceHooks {
-  ui: WorkflowUiBridge;
+  ui: GenerationUiPort;
+  confirmDialog: ConfirmDialog;
   hostFactoryDeps: () => EngineHostFactoryDeps;
   invokeLlmRaw: (
     systemPrompt: string,
     userContent: string,
-    panel: vscode.WebviewPanel,
+    panel: WebviewPanel,
     traceStageId: string,
+    opts?: import('./core/LlmInvokeOpts').LlmInvokeOpts,
   ) => Promise<string>;
   pickZoomOutFilePath: (preferred?: string) => string;
   debugLog: (stageId: string, event: string, attempt: number, payload?: unknown) => void;
@@ -58,7 +61,7 @@ export class WorkflowGenerationService implements WorkflowEngineGenerationFacade
 
   constructor(private readonly hooks: WorkflowGenerationServiceHooks) {}
 
-  setUi(ui: WorkflowUiBridge): void {
+  setUi(ui: GenerationUiPort): void {
     this.hooks.ui = ui;
   }
 
@@ -81,8 +84,8 @@ export class WorkflowGenerationService implements WorkflowEngineGenerationFacade
     return false;
   }
 
-  polishCacheKey(draft: string, taskType: string): string {
-    return crypto.createHash('sha256').update(`${taskType}\n${draft}`, 'utf8').digest('hex');
+  polishCacheKey(draft: string, taskType: string, polishTier: 'light' | 'standard'): string {
+    return crypto.createHash('sha256').update(`${taskType}\n${polishTier}\n${draft}`, 'utf8').digest('hex');
   }
 
   rememberPolishCache(cacheKey: string, text: string, polishedAt: string): void {
@@ -110,17 +113,25 @@ export class WorkflowGenerationService implements WorkflowEngineGenerationFacade
   async polishUserTask(
     draft: string,
     taskType: string,
-    panel: vscode.WebviewPanel,
+    panel: WebviewPanel,
     taskWorkspacePathRaw?: string,
+    polishTier?: PolishTierRequest,
   ): Promise<void> {
-    return handlePolishUserTask(this.preGenerationHost(), draft, taskType, panel, taskWorkspacePathRaw);
+    return handlePolishUserTask(
+      this.preGenerationHost(),
+      draft,
+      taskType,
+      panel,
+      taskWorkspacePathRaw,
+      polishTier ?? 'auto',
+    );
   }
 
   async generateClarifyQuestions(
     userInput: string,
     taskType: string,
     taskWorkspacePathRaw: string,
-    panel: vscode.WebviewPanel,
+    panel: WebviewPanel,
   ): Promise<void> {
     return handleGenerateClarifyQuestions(
       this.preGenerationHost(),
@@ -134,12 +145,12 @@ export class WorkflowGenerationService implements WorkflowEngineGenerationFacade
   async generateWorkflow(
     userInput: string,
     taskType: string,
-    panel: vscode.WebviewPanel,
+    panel: WebviewPanel,
     taskWorkspacePathRaw: string,
     polishContext?: { originalDraft: string; polishedAt: string },
     clarifyAnswers?: Record<string, string>,
   ): Promise<void> {
-    if (!(await confirmLargeProjectGeneration(userInput, vscodeConfirmDialog))) {
+    if (!(await confirmLargeProjectGeneration(userInput, this.hooks.confirmDialog))) {
       this.hooks.ui.postMessage(panel, { type: 'generationCancelled' });
       return;
     }
@@ -158,12 +169,12 @@ export class WorkflowGenerationService implements WorkflowEngineGenerationFacade
 
   async parseWorkflowJson(
     raw: string,
-    panel: vscode.WebviewPanel,
+    panel: WebviewPanel,
     onAuxLlmOutput?: (text: string) => void,
   ): Promise<WorkflowDefinition> {
     return parseWorkflowJsonFromRaw(raw, {
-      invokeLlmRaw: (systemPrompt, userContent, traceStageId) =>
-        this.hooks.invokeLlmRaw(systemPrompt, userContent, panel, traceStageId),
+      invokeLlmRaw: (systemPrompt, userContent, traceStageId, opts) =>
+        this.hooks.invokeLlmRaw(systemPrompt, userContent, panel, traceStageId, opts),
       onAuxLlmOutput,
     });
   }

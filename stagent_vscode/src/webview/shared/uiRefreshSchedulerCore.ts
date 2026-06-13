@@ -9,7 +9,9 @@ export type UiRefreshTarget =
   | 'pauseBar'
   | 'pauseBarVisibility'
   | 'outputVisibility'
-  | 'outputPanel';
+  | 'outputPanel'
+  | 'cockpit'
+  | 'qualityReport';
 
 export interface UiRefreshContext {
   pauseBar?: { stageId: string; uiState: UiRefreshPauseBarState };
@@ -26,6 +28,8 @@ export type UiRefreshDeps = {
   renderPauseBar: (stageId: string, uiState: UiRefreshPauseBarState) => void;
   refreshExecOutputPanel: (stageIdOverride?: string | null) => void;
   selectExecTimelineStage: (stageId: string) => void;
+  renderExecCockpit?: () => void;
+  renderQualityReport?: () => void;
 };
 
 let deps: UiRefreshDeps | null = null;
@@ -96,6 +100,12 @@ function flushUiRefresh(): void {
   }
   if (targets.has('outputPanel')) {
     d.refreshExecOutputPanel(snapshot.outputPanel?.stageId);
+  }
+  if (targets.has('cockpit') && d.renderExecCockpit) {
+    d.renderExecCockpit();
+  }
+  if (targets.has('qualityReport') && d.renderQualityReport) {
+    d.renderQualityReport();
   }
 }
 

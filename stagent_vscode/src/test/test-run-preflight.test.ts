@@ -33,9 +33,10 @@ function withTempDir(fn: (dir: string) => void): void {
   }
 }
 
-test('stageNeedsTestRunPreflight: jest stage yes, pytest stage no', () => {
+test('stageNeedsTestRunPreflight: jest and pytest stages yes', () => {
   assert.equal(stageNeedsTestRunPreflight(testRunStage('npx jest')), true);
-  assert.equal(stageNeedsTestRunPreflight(testRunStage('pytest -q')), false);
+  assert.equal(stageNeedsTestRunPreflight(testRunStage('pytest -q')), true);
+  assert.equal(stageNeedsTestRunPreflight(testRunStage('.venv/bin/pytest tests/ -v')), true);
   assert.equal(
     stageNeedsTestRunPreflight({
       ...testRunStage('npm test'),

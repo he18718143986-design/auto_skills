@@ -90,6 +90,7 @@ function makeHost(opts: MakeHostOptions = {}): { host: HitlCoordinatorHost; call
       calls.rejections.push({ stageId, reason });
     },
     isDecisionContentLintVscodeDefault: () => opts.decisionLintVscodeDefault ?? true,
+    isContractCommitmentsEnabled: () => false,
     getMaxManualStageRetries: () => opts.maxManualStageRetries ?? 3,
     getWorkspaceRootAbsolute: () => opts.workspaceRoot,
     debugLog: () => {},

@@ -21,6 +21,97 @@ const CONFIG_ROOT_VAR_NAMES = ['config', 'cfg', 'conf', 'settings', 'configurati
 
 const YAML_LOAD_RE = /yaml\.(?:safe_load|full_load|load)\s*\(/;
 
+/** main.py 常见幻觉顶层键（T4 Run #43：trade/modules/data_source 等）。 */
+export const FORBIDDEN_INVENTED_CONFIG_TOP_LEVEL_KEYS = [
+  'trade',
+  'modules',
+  'data_source',
+  'paths',
+  'initial_capital',
+  'interval_seconds',
+  'type',
+  'path',
+  'mode',
+  'data',
+] as const;
+
+/** 从 YAML 文本抽取顶层（零缩进）键名。 */
+export function extractYamlTopLevelKeys(yamlText: string): string[] {
+  const keys: string[] = [];
+  for (const rawLine of yamlText.split(/\r?\n/)) {
+    const line = rawLine.replace(/#.*$/, '');
+    const m = /^([A-Za-z_][\w.-]*)\s*:(?:\s|$)/.exec(line);
+    if (m) {
+      keys.push(m[1]);
+    }
+  }
+  return keys;
+}
+
+/** 从 YAML 生成 cfg['a']['b'] 形式访问示例（顶层 + 一层子键，供 main.py prompt SSOT）。 */
+export function buildConfigYamlAccessExamples(yamlText: string): string[] {
+  const examples: string[] = [];
+  const lines = yamlText.split(/\r?\n/);
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].replace(/#.*$/, '');
+    const topM = /^([A-Za-z_][\w.-]*)\s*:/.exec(line);
+    if (!topM) {
+      continue;
+    }
+    const top = topM[1];
+    examples.push(`cfg['${top}']`);
+    for (let j = i + 1; j < lines.length; j++) {
+      const childLine = lines[j].replace(/#.*$/, '');
+      if (/^\S/.test(childLine) && childLine.trim()) {
+        break;
+      }
+      const childM = /^\s{2}([A-Za-z_][\w.-]*)\s*:/.exec(childLine);
+      if (childM) {
+        examples.push(`cfg['${top}']['${childM[1]}']`);
+      }
+    }
+  }
+  return [...new Set(examples)].slice(0, 14);
+}
+
+/** main.py 入口脚本 config 访问指南（嵌套路径 + 禁止幻觉键）。 */
+export function buildConfigYamlAccessGuide(yamlText: string): string {
+  const topKeys = extractYamlTopLevelKeys(yamlText);
+  const examples = buildConfigYamlAccessExamples(yamlText);
+  const forbidden = FORBIDDEN_INVENTED_CONFIG_TOP_LEVEL_KEYS.filter((k) => !topKeys.includes(k));
+  const lines = [
+    '【config 访问模式（main.py 必读）】',
+    `允许顶层键（仅此）：${topKeys.join(', ') || '（见下方 YAML）'}`,
+    `禁止发明下列顶层键：${forbidden.join(', ')}`,
+  ];
+  if (examples.length) {
+    lines.push('推荐访问示例（对齐语义，勿发明新键）：');
+    for (const ex of examples) {
+      lines.push(`- ${ex}`);
+    }
+  }
+  const hints: string[] = [];
+  if (topKeys.includes('risk')) {
+    hints.push('RiskManager 用 cfg["risk"]，勿用 cfg["modules"]["risk"]');
+  }
+  if (topKeys.includes('broker')) {
+    hints.push('SimBroker 初始资金用 cfg["broker"]["sim"]["initial_balance"]，勿用 cfg["trade"]["initial_capital"]');
+  }
+  if (topKeys.includes('signals')) {
+    hints.push('信号参数用 cfg["signals"]，勿用 cfg["modules"]["signals"]');
+  }
+  if (topKeys.includes('logging')) {
+    hints.push('日志用 cfg["logging"]');
+  }
+  if (hints.length) {
+    lines.push('切片对齐：', ...hints.map((h) => `- ${h}`));
+  }
+  lines.push(
+    '模拟 K 线：内置 _DataGenerator（main 模块内，不 export），勿读 cfg["data_source"]；轮询间隔可硬编码常量或读 periods。',
+  );
+  return lines.join('\n');
+}
+
 /** 从 YAML 文本抽取所有出现过的键名（任意嵌套层级）。最小实现，不依赖 YAML 解析库。 */
 export function extractYamlKeyNames(yamlText: string): Set<string> {
   const keys = new Set<string>();
@@ -79,7 +170,44 @@ export function extractConfigKeyAccesses(pyText: string): string[] {
   for (const k of guarded) {
     keys.delete(k);
   }
+  // 4) 排除 config DI 误写：`compute_indicators = config.get("compute_indicators")`（T4 Run #39）。
+  //    变量名与键名相同表示试图从配置注入可调用对象，不是真实配置键。
+  for (const k of extractConfigDependencyInjectionKeys(pyText)) {
+    keys.delete(k);
+  }
   return [...keys];
+}
+
+/** 常见误将模块/函数注入 config 的键名（T4 Run #39）；仅单参 config.get 同名赋值时排除。 */
+const CONFIG_CALLABLE_INJECTION_KEYS = new Set([
+  'compute_indicators',
+  'generate_signals',
+  'apply_risk_control',
+  'risk_manager',
+  'compute_ma',
+  'compute_boll',
+  'compute_vol',
+  'compute_macd',
+  'compute_cci',
+]);
+
+/** `var = config.get("var")` 单参且键名在注入 denylist → 非配置键。 */
+export function extractConfigDependencyInjectionKeys(pyText: string): Set<string> {
+  const di = new Set<string>();
+  for (const v of CONFIG_ROOT_VAR_NAMES) {
+    const re = new RegExp(
+      String.raw`(\b[A-Za-z_]\w*)\s*=\s*${v}\.get\(\s*['"]([^'"]+)['"]\s*\)`,
+      'g',
+    );
+    let m: RegExpExecArray | null;
+    while ((m = re.exec(pyText))) {
+      const key = m[2];
+      if (m[1] === key && CONFIG_CALLABLE_INJECTION_KEYS.has(key)) {
+        di.add(key);
+      }
+    }
+  }
+  return di;
 }
 
 /** 收集被 `'k' in <configvar>` / `'k' not in <configvar>` 成员测试守卫的键名（视为可选键）。 */

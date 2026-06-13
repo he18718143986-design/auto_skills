@@ -6,6 +6,7 @@ import {
   deriveDepsInstallStageId,
   splitBundledInstallAndTestCommand,
   splitBundledTestRunCommands,
+  splitBundledVenvPipImportCommands,
 } from '../TestRunCommandNormalize';
 import { resolveCodeRunnerTimeoutSeconds } from '../CodeRunnerInvokeHelpers';
 import { normalizeWorkflow } from '../WorkflowGeneration';
@@ -125,4 +126,32 @@ test('normalizeWorkflow splitTestRunBundledCommands:false leaves bundled command
     (out.stages[1]!.toolConfig as { command: string }).command,
     'npm install && npx jest',
   );
+});
+
+test('splitBundledVenvPipImportCommands splits stage_venv_init chain', () => {
+  const wf: WorkflowDefinition = {
+    version: '2.0',
+    id: 'wf',
+    meta: { title: 't', taskType: 'software', userInput: 'x', createdAt: '' },
+    stages: [
+      {
+        id: 'stage_venv_init',
+        title: 'venv',
+        tool: 'code-runner',
+        toolConfig: {
+          type: 'code-runner',
+          command:
+            'python3 -m venv .venv && .venv/bin/python -m pip install -r requirements.txt && .venv/bin/python -c "import numpy; print(\'ok\')"',
+          captureOutput: true,
+        },
+        input: { sources: [], mergeStrategy: 'concat' },
+        outputs: [{ key: 'out', format: 'text' }],
+        pauseAfter: false,
+      },
+    ],
+  };
+  const n = splitBundledVenvPipImportCommands(wf);
+  assert.equal(n, 1);
+  const ids = wf.stages!.map((s) => s.id);
+  assert.deepEqual(ids, ['stage_venv_create', 'stage_venv_pip_install', 'stage_venv_import_check']);
 });

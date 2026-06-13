@@ -7,6 +7,7 @@ import {
 import type { BackendMessage, WorkflowDefinition } from './WorkflowDefinition';
 import { emitStageError, ERROR_TYPE_INVARIANT_VIOLATION, invariantStageError } from './WorkflowStageErrorHelpers';
 import { validateGeneratedWorkflow } from './WorkflowValidation';
+import { reapplyDiskBootstrap } from './WorkflowEngineHelpers';
 
 export function validateStartWorkflowPreconditions(
   host: {
@@ -16,7 +17,7 @@ export function validateStartWorkflowPreconditions(
   panel: vscode.WebviewPanel,
   workflowOverride: WorkflowDefinition,
 ): WorkflowDefinition | null {
-  let wf = workflowOverride;
+  let wf = reapplyDiskBootstrap(workflowOverride);
   wf = host.normalizeWorkflow(wf, wf.meta?.userInput ?? '', wf.meta?.taskType ?? 'software');
 
   const invErrors = validateGeneratedWorkflow(wf);

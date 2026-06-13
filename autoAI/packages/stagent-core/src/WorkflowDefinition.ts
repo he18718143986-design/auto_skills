@@ -21,6 +21,9 @@ export interface LlmTextConfig {
   writeOutputToFile?: string;
   /** 写入根目录；默认 workspace（见 DEFAULT_TOOL_PATH_BASE）。无 taskWorkspacePath 时回退 instance。 */
   writePathBase?: ToolPathBase;
+  /** fix 等多目标落盘：LLM 输出使用 --- file: <path> --- 分隔块。 */
+  additionalWriteTargets?: string[];
+  multiFileOutputFormat?: 'delimited';
 }
 
 export interface CodeRunnerConfig {
@@ -31,6 +34,11 @@ export interface CodeRunnerConfig {
   pathBase?: ToolPathBase;
   timeout?: number; // 秒，默认 60
   captureOutput: boolean;
+  /** B-Q1：长驻进程（smoke/e2e）有界运行 */
+  serve?: boolean;
+  readyProbe?: string;
+  graceMs?: number;
+  readyTimeoutMs?: number;
 }
 
 export interface FileWriteConfig {
@@ -70,7 +78,13 @@ export interface StageOutput {
 
 // ─── SkipCondition ─────────────────────────────────────────────
 export interface SkipCondition {
-  type: 'exitCodeZero' | 'exitCodeNonZero' | 'stageSkipped' | 'stageSkippedOrExitCodeZero';
+  type:
+    | 'exitCodeZero'
+    | 'exitCodeNonZero'
+    | 'stageSkipped'
+    | 'stageSkippedOrExitCodeZero'
+    | 'anyTestRunFailed';
+  /** anyTestRunFailed 时忽略；其余类型必填 */
   stageId: string;
   outputKey?: string; // 默认 '_exitCode'
 }
@@ -113,6 +127,10 @@ export interface Question {
   text: string;
   hint?: string;
   required?: boolean; // 默认 true
+  /** stageQuestionsBefore 出站 enrich；不属于持久化 workflow JSON */
+  suggestedAnswer?: string;
+  provenance?: import('./charter/CharterTypes').DecisionProvenance;
+  ruleRefs?: number[];
 }
 
 // ─── Stage ─────────────────────────────────────────────────────
@@ -137,6 +155,8 @@ export interface Stage {
   onError?: ErrorHandling;
   /** 前置 stage id 列表；若声明则每一项必须存在于 workflow 且在本阶段之前（§7.8.3 / SPEC §4.1）。是否按 DAG 执行由 globalConfig.enableDagScheduler 决定。 */
   dependsOn?: string[];
+  /** 引擎注入阶段元数据（如 deterministic conftest / self-heal）。 */
+  meta?: { executionMode?: string; [key: string]: unknown };
 }
 
 // ─── WorkflowDefinition ────────────────────────────────────────
@@ -152,6 +172,10 @@ export interface WorkflowMeta {
    * `\<该路径>/.stagent/instances/<实例 id>/`。若未设置且未打开 VS Code 工作区，开始执行会失败。
    */
   taskWorkspacePath?: string;
+  /** Path Router 选路结果（express / greenfield_full / debug / …） */
+  workflowTemplate?: string;
+  /** 工作计划骨架模板版本（expandGreenfieldPythonSkeleton 写入）。 */
+  skeletonVersion?: string;
   /**
    * 带 writeOutputToFile 的实现阶段在写入已存在文件时的策略：
    * - 'regenerate'（默认）始终覆盖写入
@@ -171,6 +195,10 @@ export interface WorkflowMeta {
     originalDraft: string;
     polishedAt: string;
   };
+  /** Rule20 normalize：引擎自动插入的全局架构决策阶段 id。 */
+  engineAutoInsertedGlobalArchitectureStageId?: string;
+  /** R3b：requirements.txt 上次 pip 安装时的内容快照（pre-test_run pip-resync）。 */
+  _lastRequirementsPipHash?: string;
 }
 
 /** 全局决策注入 systemPrompt 时：summary = 每条截断摘要；full = 全文 */
@@ -197,6 +225,8 @@ export interface WorkflowGlobalConfig {
   /** 全局决策注入模式；未设时用 vscode `stagent.globalDecisionInjectMode`（默认 summary） */
   globalDecisionInjectMode?: GlobalDecisionInjectMode;
   language?: string;
+  /** Plan Compiler：node | python | auto（生成期 Path Router 建议）。 */
+  stackProfile?: 'node' | 'python' | 'auto';
   modelOverrides?: {
     decisionStage?: string;
     implStage?: string;
@@ -231,6 +261,17 @@ export interface StageRuntimeLastError {
   stderr?: string;
 }
 
+/** 智能重试：applyRetryBase 前捕获的失败快照。 */
+export interface StageFailureSnapshot {
+  capturedAt: string;
+  error?: string;
+  errorType?: string;
+  stdout?: string;
+  stderr?: string;
+  exitCode?: number;
+  outputs: Record<string, unknown>;
+}
+
 export interface StageRuntime {
   stageId: string;
   status: StageStatus;
@@ -240,10 +281,20 @@ export interface StageRuntime {
   questionBeforeAnswers?: Record<string, string>;
   questionAnswers?: Record<string, string>;
   approvedDecisionRecord?: string;
+  /** B-R2：决策答案来源（human / charter_direct / charter_inferred / escalated）。 */
+  decisionProvenance?: import('./charter/CharterTypes').DecisionProvenance;
+  /** B-R2：决策批准来源；frontload 表示确认页前置批准。 */
+  decisionSource?: 'inline' | 'frontload';
+  /** B-R2：questionBefore 各题答案来源。 */
+  charterQuestionProvenance?: Record<string, import('./charter/CharterTypes').DecisionProvenance>;
+  /** M23：自适应 grill 当前轮次。 */
+  grillRound?: number;
   startedAt?: string;
   completedAt?: string;
   /** 最近一次 stageError 摘要（重启恢复时可重放）。 */
   lastError?: StageRuntimeLastError;
+  lastFailureSnapshot?: StageFailureSnapshot;
+  redGreenSlice?: { semantic: string; phase: 'red-confirmed' | 'blocked-green' };
 }
 
 // ─── WorkflowInstance ──────────────────────────────────────────
@@ -260,6 +311,10 @@ export interface WorkflowInstance {
   completedAt?: string;
   /** M15.4：file-write / writeOutputToFile 落盘追踪，用于决策重试磁盘回滚 */
   artifactRegistry?: Artifact[];
+  /** 持久化世代号（磁盘与 globalState 对账）。 */
+  persistRevision?: number;
+  /** 最近一次落盘时间（ISO）。 */
+  lastSavedAt?: string;
 }
 
 // ─── PatchInstruction ──────────────────────────────────────────
@@ -289,8 +344,27 @@ export type ErrorType =
   | 'confidence-too-low'
   | 'unknown';
 
+// ─── 引擎活动 / 质量报告（屏 4–5，对齐 stagent_vscode workflow-types） ───
+export type EngineActivityKind =
+  | 'gate'
+  | 'replan'
+  | 'preflight'
+  | 'milestone'
+  | 'info'
+  | 'verify'
+  | 'fix'
+  | 'engine';
+
+import type {
+  QualityReportPayload as EngineQualityReportPayload,
+  QualityReportVerificationRow as EngineQualityReportVerificationRow,
+} from './quality-report/QualityReportTypes';
+
+export type QualityReportPayload = EngineQualityReportPayload;
+export type QualityReportVerificationRow = EngineQualityReportVerificationRow;
+
 // ─── 消息协议（后端 → 前端） ────────────────────────────────────
-export type BackendMessage =
+type BackendMessageInner =
   | {
       type: 'workflowGenerated';
       workflow: WorkflowDefinition;
@@ -304,8 +378,19 @@ export type BackendMessage =
       blockReasons?: string[];
       /** 确认页已持久化的 idle 草稿实例 key；「开始执行」回传以复用、放弃时据此删除 */
       instanceKey?: string;
+      /** Path Router + taskType 判别摘要（确认页决策板） */
+      taskTypeClassification?: import('./TaskTypeResolution').TaskTypeClassificationInfo;
+      /** B-R2：确认页决策板（Charter 代答分类） */
+      decisionBoard?: import('./decision-frontload/DecisionFrontloadTypes').DecisionBoardPayload;
     }
-  | { type: 'stageStatusUpdate'; stageId: string; status: StageStatus; isDecisionStage?: boolean }
+  | {
+      type: 'stageStatusUpdate';
+      stageId: string;
+      status: StageStatus;
+      isDecisionStage?: boolean;
+      retryDisabled?: boolean;
+      execSemantic?: 'deferred' | 'self-healing' | null;
+    }
   | { type: 'stageOutputUpdate'; stageId: string; outputKey: string; content: unknown }
   | { type: 'stageQuestionsBefore'; stageId: string; questions: Question[] }
   | { type: 'stageQuestions'; stageId: string; questions: Question[] }
@@ -314,12 +399,45 @@ export type BackendMessage =
       stageId: string;
       error: string;
       errorType: ErrorType;
+      traceId?: string;
       rawOutput?: string;
       stdout?: string;
       stderr?: string;
+      userTitle?: string;
+      userBody?: string;
+      userCategory?: 'environment' | 'code' | 'generic';
+      exitCode?: number;
+      weakenRetry?: boolean;
+      playbookSteps?: string[];
+      diagnosticRoute?: import('./workflow-types/MessageTypes').DiagnosticRoute;
     }
-  | { type: 'workflowCompleted' }
-  | { type: 'workflowFailed'; reason: string; errorType: ErrorType; stageId?: string }
+  | {
+      type: 'workflowEscalation';
+      stageId: string;
+      issues: string[];
+      choices?: Array<'confirm' | 'reopen_decision' | 'abort'>;
+      reopenDecisionStageId?: string;
+    }
+  | {
+      type: 'dagWaveUpdate';
+      waveIndex: number;
+      activeStageIds: string[];
+      phase: 'start' | 'complete';
+    }
+  | {
+      type: 'workflowCompleted';
+      warnings?: string[];
+      qualityReport?: QualityReportPayload;
+      traceId?: string;
+    }
+  | {
+      type: 'engineActivity';
+      kind: EngineActivityKind;
+      text: string;
+      stageId?: string;
+      timestamp?: string;
+    }
+  | { type: 'workflowFailed'; reason: string; errorType: ErrorType; stageId?: string; traceId?: string }
   | {
       type: 'downstreamReset';
       decisionStageId: string;
@@ -337,6 +455,14 @@ export type BackendMessage =
       reasons: string[];
     }
   | { type: 'streamChunk'; stageId: string; chunk: string }
+  | { type: 'actionHint'; message: string; stageId?: string }
+  | {
+      type: 'upstreamFixStarted';
+      failedStageId: string;
+      targetImplStageId: string;
+      resetStageIds: string[];
+      resetStageTitles: string[];
+    }
   | { type: 'loadTaskList'; instances: WorkflowInstance[] }
   | {
       type: 'clarifyQuestions';
@@ -344,19 +470,29 @@ export type BackendMessage =
     }
   | { type: 'taskWorkspacePathPicked'; path: string }
   | { type: 'polishSessionHint'; message: string }
-  | { type: 'userTaskPolished'; text: string; polishedAt: string; fromCache?: boolean; instanceKey?: string }
+  | {
+      type: 'userTaskPolished';
+      text: string;
+      polishedAt: string;
+      fromCache?: boolean;
+      instanceKey?: string;
+      polishTierUsed?: 'light' | 'standard' | 'auto';
+    }
   | {
       type: 'generationProgress';
-      operation: 'workflow' | 'polish' | 'clarify';
-      phase: 'preparing' | 'llm' | 'parsing' | 'validating';
+      operation: 'workflow' | 'polish' | 'clarify' | 'dag';
+      phase: 'preparing' | 'llm' | 'parsing' | 'validating' | 'start' | 'complete';
       message: string;
       detail?: string;
     }
+  | { type: 'generationCancelled'; reason?: string }
   | {
       type: 'instanceResumed';
+      resync?: boolean;
       instanceKey: string;
       workflow: WorkflowDefinition;
       instanceStatus: WorkflowStatus;
+      stageStatuses?: Record<string, StageStatus>;
       failedStageId?: string;
       failedSummary?: { error: string; errorType: ErrorType };
     }
@@ -365,7 +501,17 @@ export type BackendMessage =
       reason: string;
       targetInstanceKey: string;
       activeInstanceKey?: string;
-    };
+    }
+  | { type: 'sessionSynced'; sessionId: string; instanceKey: string }
+  | { type: 'instanceKeySynced'; instanceKey: string; sessionId?: string };
+
+/** 出站序号 / 实例指针（Messaging 层注入）。 */
+export type BackendMessage = BackendMessageInner & {
+  seq?: number;
+  uiEpoch?: number;
+  sessionId?: string;
+  instanceKey?: string;
+};
 
 // ─── 消息协议（前端 → 后端） ────────────────────────────────────
 export type FrontendMessage =

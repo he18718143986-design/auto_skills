@@ -3,6 +3,7 @@ import { WEBVIEW_PROFILE_GATE_DIFF_PREVIEW_MAX } from '../../../UiListLimits';
 import { wMsg } from '../../l10n/wMsg';
 import { confirmStore } from '../stores';
 import { escapeHtml } from '../shell';
+import { syncDecisionStartGate } from './DecisionBoardRenderer';
 
 type WorkflowGeneratedMsg = Extract<BackendMessage, { type: 'workflowGenerated' }>;
 
@@ -10,7 +11,8 @@ export function renderConfirmBlock(msg: WorkflowGeneratedMsg): boolean {
   const blockEl = document.getElementById('confirm-block')!;
   const reasons = Array.isArray(msg.blockReasons) ? msg.blockReasons : [];
   const blocked = !!msg.blocked && reasons.length > 0;
-  document.getElementById('btn-start')!.disabled = blocked;
+  confirmStore.planBlocked = blocked;
+  syncDecisionStartGate();
   const hint = document.getElementById('confirm-dock-hint');
   if (hint) {
     const profileLine = confirmStore.settingsProfile ? 'Profile：' + confirmStore.settingsProfile : '';

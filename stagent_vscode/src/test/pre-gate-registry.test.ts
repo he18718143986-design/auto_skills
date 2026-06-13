@@ -109,12 +109,16 @@ test('runPreGateRegistry blocks on synthetic pre-stage gate', async () => {
     runCodeRunner: async () => ({ exitCode: 1, stdout: '', stderr: '' }),
     runWorkspaceContractLint: async () => [],
     runSdkPathContractHardGate: async () => null,
+    runPythonExportContractHardGate: async () => null,
+    runPythonPypiSymbolHardGate: async () => null,
     runPostImplStaticAnalysis: async () => [],
     readRedGreenGateMode: () => 'off',
     readDebugFeedbackLoopRuntimeHard: () => false,
     readTestRunPreflightEnabled: () => false,
     readTestRunAutoNpmInstallEnabled: () => false,
     readSdkPathContractLintMode: () => 'off',
+    readPythonExportContractLintMode: () => 'off',
+    readPythonPypiSymbolLintMode: () => 'off',
     readStaticAnalysisEnabled: () => false,
   };
   const params = minimalParams(instance, { qualityGateExecutionHost: host });
@@ -133,12 +137,16 @@ test('runPreGateRegistry emits red-green warn streamChunk before impl', async ()
     runCodeRunner: async () => ({ exitCode: 0, stdout: '', stderr: '' }),
     runWorkspaceContractLint: async () => [],
     runSdkPathContractHardGate: async () => null,
+    runPythonExportContractHardGate: async () => null,
+    runPythonPypiSymbolHardGate: async () => null,
     runPostImplStaticAnalysis: async () => [],
     readRedGreenGateMode: () => 'warn',
     readDebugFeedbackLoopRuntimeHard: () => false,
     readTestRunPreflightEnabled: () => false,
     readTestRunAutoNpmInstallEnabled: () => false,
     readSdkPathContractLintMode: () => 'off',
+    readPythonExportContractLintMode: () => 'off',
+    readPythonPypiSymbolLintMode: () => 'off',
     readStaticAnalysisEnabled: () => false,
   };
   const params = minimalParams(instance, { qualityGateExecutionHost: host });

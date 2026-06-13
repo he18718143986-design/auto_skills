@@ -1,5 +1,6 @@
 import type * as vscode from 'vscode';
 import type { WorkflowDefinition } from '../WorkflowDefinition';
+import type { FrontloadDecisionResolution } from '../decision-frontload/DecisionFrontloadTypes';
 import type { WorkflowEngineExecutionFacade } from '../WorkflowEngineFacades';
 import type { WorkflowEngineHostRegistry } from '../WorkflowEngineHostRegistry';
 import type { WorkflowEngineInternals } from '../WorkflowEngineInternals';
@@ -22,8 +23,15 @@ export class WorkflowExecutionFacadeImpl implements WorkflowEngineExecutionFacad
     panel: vscode.WebviewPanel,
     workflowOverride?: WorkflowDefinition,
     instanceKey?: string,
+    frontloadResolutions?: FrontloadDecisionResolution[],
   ): Promise<void> {
-    return startWorkflowExecution(this.deps.hostRegistry.startExecutionHost(), panel, workflowOverride, instanceKey);
+    return startWorkflowExecution(
+      this.deps.hostRegistry.startExecutionHost(),
+      panel,
+      workflowOverride,
+      instanceKey,
+      frontloadResolutions,
+    );
   }
 
   executeNextStage(panel?: vscode.WebviewPanel): Promise<void> {

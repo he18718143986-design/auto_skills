@@ -92,6 +92,7 @@ function makeHost(instance?: WorkflowInstance, maxRetries = 3): { host: HitlCoor
     ensureInstanceBound: () => true,
     rejectApproveDecision: () => {},
     isDecisionContentLintVscodeDefault: () => true,
+    isContractCommitmentsEnabled: () => false,
     getMaxManualStageRetries: () => maxRetries,
     getWorkspaceRootAbsolute: () => undefined,
     debugLog: () => {},

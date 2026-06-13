@@ -69,6 +69,10 @@ export async function executeNextStageLoopLinear(params: ExecuteNextStageLoopPar
     if (outcome === 'halt') {
       return;
     }
+    if (outcome === 'replan') {
+      scheduleSave();
+      continue;
+    }
 
     instance.currentStageIndex++;
     scheduleSave();

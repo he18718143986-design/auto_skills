@@ -48,6 +48,22 @@
       "protected": false
     },
     {
+      "export": "TDD_DEEP_ENGINEERING_TEXT",
+      "file": "tdd-deep-engineering.md"
+    },
+    {
+      "export": "ADR_CONTEXT_FIDELITY_TEXT",
+      "file": "adr-context-fidelity.md"
+    },
+    {
+      "export": "DELIVERY_WRAPUP_TEXT",
+      "file": "delivery-wrapup.md"
+    },
+    {
+      "export": "SERVE_SMOKE_CONSTRAINT_TEXT",
+      "file": "serve-smoke-constraint.md"
+    },
+    {
       "export": "SPEC_78_MULTI_MODULE_TEXT",
       "file": "spec-78-multi-module.md"
     },

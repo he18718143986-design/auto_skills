@@ -133,7 +133,8 @@ function rollbackArtifactOnDisk(artifact: Artifact): { ok: boolean; error?: stri
   }
 }
 
-export async function rollbackArtifacts(artifacts: Artifact[]): Promise<RollbackResult> {
+/** 同步回滚（磁盘操作本就是同步的）。 */
+export function rollbackArtifactsSync(artifacts: Artifact[]): RollbackResult {
   const rolledBack: string[] = [];
   const failed: Array<{ filePath: string; error: string }> = [];
   for (const art of artifacts) {
@@ -145,6 +146,19 @@ export async function rollbackArtifacts(artifacts: Artifact[]): Promise<Rollback
     }
   }
   return { ok: failed.length === 0, rolledBack, failed };
+}
+
+export async function rollbackArtifacts(artifacts: Artifact[]): Promise<RollbackResult> {
+  return rollbackArtifactsSync(artifacts);
+}
+
+/** 同步回滚指定阶段的落盘产物（失败中止路径用，best-effort）。 */
+export function rollbackArtifactsForStageSync(registry: Artifact[], stageId: string): RollbackResult {
+  const artifacts = selectArtifactsForStageIds(registry, [stageId]);
+  if (artifacts.length === 0) {
+    return { ok: true, rolledBack: [], failed: [] };
+  }
+  return rollbackArtifactsSync(artifacts);
 }
 
 /**
@@ -180,6 +194,19 @@ export class ArtifactLifecycleManager {
     return selectArtifactsForStageIds(this.registry, resetStageIds);
   }
 
+  /** 回滚单个阶段的落盘产物（非决策 retry / onError=fail 用）。 */
+  async rollbackArtifactsForStage(stageId: string): Promise<RollbackResult> {
+    const artifacts = selectArtifactsForStageIds(this.registry, [stageId]);
+    if (artifacts.length === 0) {
+      return { ok: true, rolledBack: [], failed: [] };
+    }
+    return rollbackArtifacts(artifacts);
+  }
+
+  getArtifactsForStageIds(stageIds: readonly string[]): Artifact[] {
+    return selectArtifactsForStageIds(this.registry, [...stageIds]);
+  }
+
   async rollbackArtifacts(artifacts: Artifact[]): Promise<RollbackResult> {
     return rollbackArtifacts(artifacts);
   }
@@ -203,6 +230,12 @@ export function markArtifactsApprovedForStage(registry: Artifact[], stageId: str
       mgr.transition(stageId, art.outputKey, 'approved', 'human-approve');
     }
   }
+}
+
+export async function readPriorFileContentAsync(
+  filePath: string,
+): Promise<{ existedBefore: boolean; priorContent?: string }> {
+  return readPriorFileContent(filePath);
 }
 
 export function readPriorFileContent(filePath: string): { existedBefore: boolean; priorContent?: string } {

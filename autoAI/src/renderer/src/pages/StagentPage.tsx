@@ -9,6 +9,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import type { Question, StageStatus } from '@stagent/core'
 import { useStagentEngine, type StagentLlmConfig } from '../stagent/useStagentEngine'
+import { QualityReportPanel } from '../stagent/QualityReportPanel'
 import { groupModels } from '../stagent/model-grouping'
 import TaskTree from './TaskTree'
 import SidebarShell from './SidebarShell'
@@ -90,6 +91,27 @@ function ClarifyForm({
   )
 }
 
+function provenanceLabel(provenance: string): string {
+  const labels: Record<string, string> = {
+    charter_direct: '主旨直接命中',
+    charter_inferred: '主旨推导',
+    escalated: '须人工确认',
+    human: '人工',
+  }
+  return labels[provenance] ?? provenance
+}
+
+function seedAnswersFromQuestions(questions: Question[]): Record<string, string> {
+  const out: Record<string, string> = {}
+  for (const q of questions) {
+    const suggested = q.suggestedAnswer?.trim()
+    if (suggested) {
+      out[q.id] = suggested
+    }
+  }
+  return out
+}
+
 // ─── 阶段问答表单（questionBefore / questionAfter） ──────────────────────
 function QuestionForm({
   title,
@@ -100,17 +122,32 @@ function QuestionForm({
   questions: Question[]
   onSubmit: (answers: Record<string, string>) => void
 }): React.JSX.Element {
-  const [answers, setAnswers] = useState<Record<string, string>>({})
+  const [answers, setAnswers] = useState<Record<string, string>>(() => seedAnswersFromQuestions(questions))
   const missingRequired = questions.some((q) => q.required !== false && !(answers[q.id] ?? '').trim())
   return (
     <div className="space-y-2 border border-amber-200 bg-amber-50 rounded-lg p-3 mt-2">
       <div className="text-sm font-medium text-amber-800">{title}</div>
       {questions.map((q) => (
-        <div key={q.id} className="space-y-1">
+        <div
+          key={q.id}
+          className={`space-y-1 rounded px-2 py-1 ${
+            q.provenance === 'charter_inferred'
+              ? 'border-l-4 border-amber-400 bg-amber-50/80'
+              : q.provenance === 'charter_direct'
+                ? 'border-l-4 border-green-300 bg-green-50/40'
+                : ''
+          }`}
+        >
           <label className="text-sm text-gray-700">
             {q.text}
             {q.required !== false && <span className="text-red-500"> *</span>}
           </label>
+          {q.provenance && (
+            <span className="inline-block text-[11px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-600">
+              {provenanceLabel(q.provenance)}
+              {q.ruleRefs && q.ruleRefs.length > 0 ? ` · R#${q.ruleRefs.join(',R#')}` : ''}
+            </span>
+          )}
           {q.hint && <div className="text-xs text-gray-400">{q.hint}</div>}
           <textarea
             className="w-full text-sm border border-gray-300 rounded px-2 py-1 resize-y min-h-[2rem]"
@@ -739,8 +776,44 @@ export default function StagentPage(): React.JSX.Element {
                 </button>
               </div>
               <div className="text-xs text-gray-400">
-                类型：{state.workflow.meta.taskType} · 共 {stages.length} 阶段
+                类型：{state.workflow.meta.taskType}
+                {state.workflow.meta.workflowTemplate
+                  ? ` · 路径：${state.taskTypeClassification?.workflowTemplatePlain ?? state.workflow.meta.workflowTemplate}`
+                  : ''}
+                {state.workflow.meta.isGreenfield === true
+                  ? ' · 绿场'
+                  : state.workflow.meta.isGreenfield === false
+                    ? ' · 棕场'
+                    : ''}
+                {' · 共 '}
+                {stages.length} 阶段
               </div>
+
+              {state.taskTypeClassification && state.taskTypeClassification.rationaleLines.length > 0 && (
+                <div className="border border-blue-100 bg-blue-50 rounded-lg p-3 space-y-1">
+                  <div className="text-sm font-medium text-blue-800">路径判别依据</div>
+                  {state.taskTypeClassification.rationaleLines.map((line, i) => (
+                    <div key={i} className="text-sm text-blue-700">
+                      • {line}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {state.decisionBoard && state.decisionBoard.summary.total > 0 && (
+                <div className="border border-purple-100 bg-purple-50 rounded-lg p-3 space-y-2">
+                  <div className="text-sm font-medium text-purple-800">
+                    决策板 · 自动 {state.decisionBoard.summary.auto} / 待审{' '}
+                    {state.decisionBoard.summary.needsReview}
+                  </div>
+                  {state.decisionBoard.items.slice(0, 6).map((item, i) => (
+                    <div key={i} className="text-xs text-purple-700">
+                      • {(item.stageTitle as string) ?? (item.stageId as string)}
+                      {item.requiresUser ? '（需确认）' : ''}
+                    </div>
+                  ))}
+                </div>
+              )}
 
               {state.blocked && state.blockReasons.length > 0 && (
                 <div className="border border-red-200 bg-red-50 rounded-lg p-3 space-y-1">
@@ -813,9 +886,48 @@ export default function StagentPage(): React.JSX.Element {
                 </div>
               </div>
 
+              {state.engineActivityFeed.length > 0 && (
+                <div className="border border-gray-200 rounded-lg p-3 text-xs space-y-1 max-h-32 overflow-y-auto">
+                  <div className="font-medium text-gray-600">引擎活动</div>
+                  {state.engineActivityFeed.length === 0 ? (
+                    <div className="text-gray-400">暂无引擎活动</div>
+                  ) : (
+                    state.engineActivityFeed.slice(-8).map((e, i) => (
+                      <div key={i} className="text-gray-600 flex gap-2 items-start">
+                        <span
+                          className={`shrink-0 px-1 rounded text-[10px] uppercase ${
+                            e.kind === 'replan'
+                              ? 'bg-purple-100 text-purple-700'
+                              : e.kind === 'gate'
+                                ? 'bg-amber-100 text-amber-800'
+                                : 'bg-gray-100 text-gray-600'
+                          }`}
+                        >
+                          {e.kind}
+                        </span>
+                        <span>
+                          {e.text}
+                          {e.stageId ? ` · ${e.stageId}` : ''}
+                          {e.timestamp ? (
+                            <span className="text-gray-400 ml-1">
+                              {new Date(e.timestamp).toLocaleTimeString()}
+                            </span>
+                          ) : null}
+                        </span>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
+
               {state.completed && (
-                <div className="border border-green-200 bg-green-50 rounded-lg p-3 text-sm text-green-700">
-                  ✓ 工作流已完成
+                <div className="border border-green-200 bg-green-50 rounded-lg p-3 text-sm text-green-700 space-y-2">
+                  <div>✓ 工作流已完成</div>
+                  {state.qualityReport && (
+                    <div className="border-t border-green-200 pt-2">
+                      <QualityReportPanel report={state.qualityReport} />
+                    </div>
+                  )}
                 </div>
               )}
               {state.failed && (
@@ -853,8 +965,20 @@ export default function StagentPage(): React.JSX.Element {
                   const arts = state.artifacts[s.id]
                   const isDecision = state.decisionStageId === s.id
                   const isPaused = state.pausedStageId === s.id
+                  const isFocused = state.focusFailedStageId === s.id
+                  const isReplan = s.id.includes('stage_runtime_replan_')
                   return (
-                    <div key={s.id} className="border border-gray-200 rounded-lg p-3">
+                    <div
+                      key={s.id}
+                      id={isFocused ? 'stagent-focus-stage' : undefined}
+                      className={`border rounded-lg p-3 ${
+                        isFocused
+                          ? 'border-orange-400 ring-2 ring-orange-200'
+                          : isReplan
+                            ? 'border-purple-300 bg-purple-50/40'
+                            : 'border-gray-200'
+                      }`}
+                    >
                       <div className="flex items-center gap-2">
                         <span className="text-xs text-gray-400">{i + 1}</span>
                         <span className="text-sm font-medium text-gray-800">{s.title}</span>
@@ -910,7 +1034,11 @@ export default function StagentPage(): React.JSX.Element {
 
                       {qb && qb.length > 0 && (
                         <QuestionForm
-                          title="执行前需要你回答："
+                          title={
+                            qb.some((q) => q.suggestedAnswer?.trim())
+                              ? '以下为主旨推荐答案，请确认或修改后提交：'
+                              : '执行前需要你回答：'
+                          }
                           questions={qb}
                           onSubmit={(answers) =>
                             void send({ type: 'answerQuestionsBefore', stageId: s.id, answers })
@@ -949,10 +1077,21 @@ export default function StagentPage(): React.JSX.Element {
 
                       {(err || status === 'error') && (
                         <div className="mt-2 border border-red-200 bg-red-50 rounded p-2">
+                          {err?.userTitle && (
+                            <div className="text-sm font-medium text-red-800">{err.userTitle}</div>
+                          )}
                           <div className="text-sm text-red-700">
-                            出错{err ? `（${err.errorType}）` : ''}：{err?.error ?? '阶段执行失败，可填写重试说明后再次执行。'}
+                            出错{err ? `（${err.errorType}）` : ''}：
+                            {err?.userBody ?? err?.error ?? '阶段执行失败，可填写重试说明后再次执行。'}
                           </div>
-                          {(err.stdout || err.stderr) && (
+                          {err?.playbookSteps && err.playbookSteps.length > 0 && (
+                            <ul className="text-xs text-red-600 mt-1 list-disc list-inside">
+                              {err.playbookSteps.map((step, si) => (
+                                <li key={si}>{step}</li>
+                              ))}
+                            </ul>
+                          )}
+                          {(err?.stdout || err?.stderr) && (
                             <pre className="text-[11px] text-red-600 mt-1 whitespace-pre-wrap max-h-32 overflow-y-auto">
                               {err.stdout}
                               {err.stderr}

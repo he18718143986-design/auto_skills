@@ -1,4 +1,5 @@
 import { wMsg } from '../l10n/wMsg';
+import { cockpitRoleFromStage } from '../shared/stageCockpitRole';
 import { confirmStore, execStore } from './stores';
 
 const maps = execStore.stageMaps;
@@ -75,6 +76,8 @@ export function renderExecTimeline() {
       status: maps.stageStatus[st.id] ?? 'pending',
       isDecisionStage: st.isDecisionStage,
       selected: st.id === viewId,
+      role: cockpitRoleFromStage(st.id, st.isDecisionStage),
+      execSemantic: execStore.stageExecSemantic[st.id],
     }),
   );
   mountStageTimeline(ul, {

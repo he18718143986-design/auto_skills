@@ -20,6 +20,7 @@ export const DEBUG_EVENT_INSTANCE_SWITCH_BLOCKED = 'instance_switch_blocked';
 export const DEBUG_EVENT_PARSE_FAILED_RETRY = 'parse_failed_retry';
 export const DEBUG_EVENT_GENERATION_SUPERSEDED = 'generation_superseded';
 export const DEBUG_EVENT_TASK_TYPE_RESOLVED = 'task_type_resolved';
+export const DEBUG_EVENT_PATH_ROUTER_RESOLVED = 'path_router_resolved';
 export const DEBUG_EVENT_CLARIFY_REUSE_STRATEGY = 'clarify_reuse_strategy';
 
 export const DEBUG_EVENT_CODEBASE_SNAPSHOT = 'codebase_snapshot';
@@ -54,6 +55,8 @@ export const DEBUG_EVENT_DEGRADED = 'degraded';
 export const DEBUG_EVENT_INPUT_SUMMARY_SKIPPED = 'input_summary_skipped';
 export const DEBUG_EVENT_INPUT_SUMMARY_FALLBACK = 'input_summary_fallback';
 export const DEBUG_EVENT_GLOBAL_DECISION_CONTEXT_INJECT = 'global_decision_context_inject';
+export const DEBUG_EVENT_CHARTER_CONSTRAINTS_INJECT = 'charter_constraints_inject';
+export const DEBUG_EVENT_CHARTER_GRILL_AUTO_ANSWER = 'charter_grill_auto_answer';
 
 export const DEBUG_EVENT_HITL_EVALUATED = 'hitl_evaluated';
 export const DEBUG_EVENT_RETRY_TRIGGER = 'retry_trigger';
